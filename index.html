@@ -96,7 +96,7 @@
     backdrop-filter: blur(14px) saturate(1.2);
     -webkit-backdrop-filter: blur(14px) saturate(1.2);
     box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
-    max-width: 66vw;
+    max-width: 54vw;
   }
 
   .time-icon {
@@ -130,7 +130,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 46vw;
+    max-width: 36vw;
   }
 
   .chip {
@@ -149,7 +149,13 @@
   }
   .chip.on { opacity: 1; transform: scale(1); }
 
-  .top-actions { display: flex; gap: 8px; pointer-events: auto; }
+  .top-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 42px);
+    gap: 8px;
+    pointer-events: auto;
+    justify-content: end;
+  }
 
   .icon-btn {
     width: 42px;
@@ -185,6 +191,79 @@
     box-shadow: 0 0 0 2px rgba(8, 13, 23, 0.8);
   }
   .icon-btn { position: relative; }
+
+  /* ── 코인 · 체력 HUD ───────────────────────── */
+  .hud-left { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .stats-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+    padding: 7px 12px 7px 10px;
+    border-radius: 14px;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+    max-width: 56vw;
+  }
+  .coin-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffe6b6;
+    font-variant-numeric: tabular-nums;
+  }
+  .coin-pill .coin-ico { font-size: 13px; }
+  .coin-pill.pulse { animation: coinPop 0.5s ease; }
+  @keyframes coinPop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+  .hp-wrap { display: flex; align-items: center; gap: 6px; }
+  .hp-track {
+    width: 96px;
+    height: 9px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.10);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  }
+  .hp-fill {
+    height: 100%;
+    width: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #7fd0a6, #a8e6a0);
+    transition: width 0.35s ease, background 0.35s ease;
+  }
+  .hp-wrap.low .hp-fill { background: linear-gradient(90deg, #ffcf6e, #ffb054); }
+  .hp-wrap.tired .hp-fill { background: #e05a4e; animation: hpFlash 1s ease-in-out infinite; }
+  @keyframes hpFlash { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .hp-text {
+    font-size: 11px;
+    font-weight: 800;
+    color: #dbe6f6;
+    font-variant-numeric: tabular-nums;
+    min-width: 22px;
+  }
+  .hp-wrap.tired .hp-text { color: #ff9d94; }
+
+  .buff-row { display: flex; flex-wrap: wrap; gap: 4px; max-width: 62vw; }
+  .buff-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(143, 224, 182, 0.16);
+    color: #bdf0d4;
+    border: 1px solid rgba(143, 224, 182, 0.35);
+    white-space: nowrap;
+  }
+  .buff-chip b { font-variant-numeric: tabular-nums; }
+  .buff-chip.tired { background: rgba(224, 90, 78, 0.16); color: #ffb0a8; border-color: rgba(224, 90, 78, 0.4); }
 
   /* ── 입질 표시 ─────────────────────────────── */
   #biteBanner {
@@ -298,6 +377,16 @@
     background: var(--accent-soft);
     color: var(--accent);
     border: 1px solid rgba(255, 208, 122, 0.35);
+    white-space: nowrap;
+  }
+  #toast .toast-coin {
+    font-size: 12px;
+    font-weight: 900;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(255, 208, 122, 0.92);
+    color: #241703;
+    box-shadow: 0 2px 10px rgba(255, 190, 80, 0.35);
     white-space: nowrap;
   }
 
@@ -458,8 +547,8 @@
     50% { transform: scale(1.035); }
   }
 
-  /* ── 도감 모달 ─────────────────────────────── */
-  #dexModal {
+  /* ── 하단 시트 모달 (도감 · 상점 · 자판기) ───── */
+  #dexModal, #shopModal, #drinkModal {
     position: absolute;
     inset: 0;
     z-index: 20;
@@ -470,7 +559,7 @@
     pointer-events: none;
     transition: opacity 0.25s ease;
   }
-  #dexModal.open { opacity: 1; pointer-events: auto; }
+  #dexModal.open, #shopModal.open, #drinkModal.open { opacity: 1; pointer-events: auto; }
   #dexModal .backdrop {
     position: absolute;
     inset: 0;
@@ -494,7 +583,7 @@
     transition: transform 0.32s cubic-bezier(0.2, 1, 0.35, 1);
     padding-bottom: calc(var(--safe-bottom) + 10px);
   }
-  #dexModal.open .dex-sheet { transform: translateY(0); }
+  #dexModal.open .dex-sheet, #shopModal.open .dex-sheet, #drinkModal.open .dex-sheet { transform: translateY(0); }
 
   .dex-head {
     padding: 16px 18px 12px;
@@ -756,6 +845,92 @@
     color: #ffb4b4;
   }
 
+  /* ── 상점 · 자판기 모달 내용 ───────────────── */
+  .shop-section {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8d9bb0;
+    padding: 14px 2px 8px;
+  }
+  .shop-row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 11px 12px;
+    margin-bottom: 8px;
+  }
+  .shop-row.equipped { border-color: rgba(255, 208, 122, 0.45); background: rgba(255, 208, 122, 0.08); }
+  .rod-dot {
+    width: 14px;
+    height: 30px;
+    border-radius: 7px;
+    flex: 0 0 auto;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  }
+  .shop-info { flex: 1 1 auto; min-width: 0; }
+  .shop-name {
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .shop-name small { font-size: 10.5px; font-weight: 700; color: var(--muted); }
+  .shop-desc { font-size: 11px; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+  .btn-col { display: flex; flex-direction: column; gap: 5px; align-items: stretch; flex: 0 0 auto; }
+  .buy-btn {
+    appearance: none;
+    font-family: inherit;
+    border: 0;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 8px 13px;
+    border-radius: 11px;
+    background: linear-gradient(180deg, #ffe6ae, #ffc45c);
+    color: #221604;
+    box-shadow: 0 6px 14px rgba(255, 180, 70, 0.25);
+    white-space: nowrap;
+  }
+  .buy-btn:active { transform: scale(0.96); }
+  .buy-btn.equip {
+    background: rgba(255, 255, 255, 0.10);
+    color: #ffe6b6;
+    box-shadow: inset 0 0 0 1px rgba(255, 208, 122, 0.4);
+  }
+  .buy-btn.owned { background: rgba(255, 255, 255, 0.07); color: #8d9bb0; box-shadow: none; cursor: default; }
+  .buy-btn.poor { filter: grayscale(0.7); opacity: 0.55; }
+  .buy-btn.small { font-size: 11px; padding: 6px 10px; }
+  .shop-hint { font-size: 11px; color: var(--muted); line-height: 1.5; padding: 10px 2px 4px; }
+  .shop-hint b { color: #ffe6b6; }
+
+  .drink-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding-top: 6px;
+  }
+  .drink-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 14px 10px 12px;
+  }
+  .drink-emoji { font-size: 30px; line-height: 1.1; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4)); }
+  .drink-name { font-size: 13px; font-weight: 800; letter-spacing: -0.01em; }
+  .drink-eff { font-size: 10.8px; color: var(--muted); line-height: 1.45; min-height: 30px; }
+
   /* ── 인트로 ───────────────────────────────── */
   #intro {
     position: absolute;
@@ -895,22 +1070,34 @@
   <div id="vignette"></div>
 
   <header class="hud-top">
-    <div class="time-card">
-      <div class="time-icon" id="timeIcon">🌄</div>
-      <div class="time-text">
-        <div class="time-title">
-          <span id="bandName">새벽</span>
-          <span id="clockText">06:24</span>
-          <span class="chip" id="previewChip">미리보기</span>
+    <div class="hud-left">
+      <div class="time-card">
+        <div class="time-icon" id="timeIcon">🌄</div>
+        <div class="time-text">
+          <div class="time-title">
+            <span id="bandName">새벽</span>
+            <span id="clockText">06:24</span>
+            <span class="chip" id="previewChip">미리보기</span>
+          </div>
+          <div class="time-mood" id="moodLine">물안개가 강 위를 천천히 떠다녀요</div>
         </div>
-        <div class="time-mood" id="moodLine">물안개가 강 위를 천천히 떠다녀요</div>
       </div>
+      <div class="stats-card">
+        <div class="coin-pill" id="coinPill"><span class="coin-ico">🪙</span><span id="coinText">0</span></div>
+        <div class="hp-wrap" id="hpWrap">
+          <div class="hp-track"><div class="hp-fill" id="hpFill"></div></div>
+          <span class="hp-text" id="hpText">100</span>
+        </div>
+      </div>
+      <div class="buff-row" id="buffRow"></div>
     </div>
     <div class="top-actions">
       <button class="icon-btn" id="btnSound" aria-label="소리 켜기/끄기" title="소리">🔊</button>
       <button class="icon-btn" id="btnDexTop" aria-label="도감 열기" title="도감">
         📖<span class="badge" id="dexBadge">0</span>
       </button>
+      <button class="icon-btn" id="btnShop" aria-label="낚시 상점 열기" title="상점">🏪</button>
+      <button class="icon-btn" id="btnVending" aria-label="자판기 열기" title="자판기">🥤</button>
     </div>
   </header>
 
@@ -974,6 +1161,32 @@
     </div>
   </div>
 
+  <div id="shopModal" role="dialog" aria-modal="true" aria-label="낚시 상점">
+    <div class="backdrop" id="shopBackdrop"></div>
+    <div class="dex-sheet">
+      <div class="dex-head">
+        <div class="dex-head-row">
+          <div class="dex-title">낚시 상점<small id="shopCoins">0 🪙</small></div>
+          <button class="close-btn" id="shopClose" aria-label="닫기">✕</button>
+        </div>
+      </div>
+      <div class="dex-scroll"><div id="shopBody"></div></div>
+    </div>
+  </div>
+
+  <div id="drinkModal" role="dialog" aria-modal="true" aria-label="강가 자판기">
+    <div class="backdrop" id="drinkBackdrop"></div>
+    <div class="dex-sheet">
+      <div class="dex-head">
+        <div class="dex-head-row">
+          <div class="dex-title">🥤 강가 자판기<small id="drinkCoins">0 🪙</small></div>
+          <button class="close-btn" id="drinkClose" aria-label="닫기">✕</button>
+        </div>
+      </div>
+      <div class="dex-scroll"><div id="drinkBody"></div></div>
+    </div>
+  </div>
+
   <div id="intro">
     <div class="intro-inner">
       <div class="intro-kicker">Low-poly River</div>
@@ -983,6 +1196,7 @@
         <li><span class="ico">👆</span><span><b>찌가 흔들리면 탭</b> — 화면을 탭하면 조금 더 큰 개체가 걸려요</span></li>
         <li><span class="ico">🕒</span><span><b>실시간 · 4가지 시간대</b> — 아래 버튼으로 새벽·낮·노을·밤을 바로 볼 수 있어요</span></li>
         <li><span class="ico">🐟</span><span><b>물속 생물 56종 도감</b> — 물고기부터 조개·게·문어까지</span></li>
+        <li><span class="ico">🪙</span><span><b>코인 · 상점 · 자판기</b> — 낚을 때마다 코인이 쌓이고, 낚싯대·미끼를 바꾸고 음료로 체력을 회복해요</span></li>
       </ul>
       <button id="introStart">강가로 나가기</button>
       <div class="intro-note">소리는 이 버튼을 누를 때 켜져요 · 도감은 이 브라우저에 저장됩니다</div>
@@ -1270,14 +1484,22 @@
     return out;
   }
 
-  function rollFish(band) {
+  function rollFish(band, rareMul) {
     var table = SPAWN[band] || SPAWN.day;
+    rareMul = rareMul || 1;
     var total = 0;
-    table.forEach(function (e) { total += e[1]; });
-    var pick = Math.random() * total;
+    var weights = [];
     for (var i = 0; i < table.length; i++) {
-      pick -= table[i][1];
-      if (pick <= 0) return FISH_BY_ID[table[i][0]];
+      var f = FISH_BY_ID[table[i][0]];
+      var w = table[i][1];
+      if (f && (f.rarity === "rare" || f.rarity === "legendary")) w *= rareMul;
+      weights.push(w);
+      total += w;
+    }
+    var pick = Math.random() * total;
+    for (var j = 0; j < table.length; j++) {
+      pick -= weights[j];
+      if (pick <= 0) return FISH_BY_ID[table[j][0]];
     }
     return FISH_BY_ID[table[table.length - 1][0]];
   }
@@ -1342,6 +1564,115 @@
 
   function saveSettings() {
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (err) { /* 무시 */ }
+  }
+
+  /* =====================================================================
+     2-1. 경제 · 장비 (코인 · 낚싯대 · 미끼 · 체력 · 버프)
+     ===================================================================== */
+  var ECONOMY_KEY = "riverFishingWeb.economy.v1";
+
+  var RODS = [
+    { id: "bamboo",   name: "대나무 낚싯대",   price: 0,    waitMul: 1.0, rareMul: 1.0,  bigBonus: 1.0,  color: 0x77683f, swatch: "#77683f", desc: "기본 낚싯대. 강가에서 주운 만큼의 성능" },
+    { id: "glass",    name: "글라스 낚싯대",   price: 300,  waitMul: 0.9, rareMul: 1.25, bigBonus: 1.06, color: 0x5f8f7a, swatch: "#5f8f7a", desc: "입질 대기 -10% · 희귀 확률 +25% · 크기 +6%" },
+    { id: "carbon",   name: "카본 낚싯대",     price: 900,  waitMul: 0.8, rareMul: 1.55, bigBonus: 1.12, color: 0x272b31, swatch: "#3a4049", desc: "입질 대기 -20% · 희귀 확률 +55% · 크기 +12%" },
+    { id: "titanium", name: "티타늄 낚싯대",   price: 2200, waitMul: 0.7, rareMul: 1.9,  bigBonus: 1.2,  color: 0xb9c4cd, swatch: "#b9c4cd", desc: "입질 대기 -30% · 희귀 확률 +90% · 크기 +20%" },
+    { id: "gold",     name: "황금 낚싯대",     price: 5000, waitMul: 0.6, rareMul: 2.6,  bigBonus: 1.32, color: 0xf2c14e, swatch: "#f2c14e", desc: "입질 대기 -40% · 희귀 확률 +160% · 크기 +32% · 빛난다" }
+  ];
+
+  var BAITS = [
+    { id: "worm",     name: "일반 떡밥",       price: 0,   pack: 0,  waitMul: 1.0,  sizeBonus: 1.0,    rareMul: 1.0, coinMul: 1.0,  swatch: "#8a6a43", desc: "기본 미끼. 무제한으로 쓸 수 있어요" },
+    { id: "corn",     name: "향긋한 옥수수",   price: 60,  pack: 10, waitMul: 0.85, sizeBonus: 1.15,   rareMul: 1.1, coinMul: 1.0,  swatch: "#f0c94e", desc: "10개 · 입질이 빨라지고 15% 더 큰 개체가 올라와요" },
+    { id: "lure",     name: "반짝이 루어",     price: 150, pack: 10, waitMul: 1.0,  sizeBonus: 1.0,    rareMul: 1.7, coinMul: 1.1,  swatch: "#7fd0e8", desc: "10개 · 희귀·전설 어종 확률이 눈에 띄게 올라가요" },
+    { id: "goldbait", name: "심해 황금 미끼", price: 400, pack: 5,  waitMul: 1.0,  sizeBonus: 1.35,   rareMul: 1.8, coinMul: 1.3,  swatch: "#ffd07a", desc: "5개 · 큰 개체 + 희귀 확률 + 코인 30% 보너스" }
+  ];
+
+  var DRINKS = [
+    { id: "water",  emoji: "💧", name: "생수",              price: 15,  hp: 30,  buff: null,      buffMs: 0,      desc: "체력 +30 · 버프는 없어요" },
+    { id: "coffee", emoji: "☕", name: "캔커피",            price: 40,  hp: 20,  buff: "biteFast", buffMs: 120000, desc: "체력 +20 · 2분간 입질이 빨라져요" },
+    { id: "ion",    emoji: "🏃", name: "이온음료",          price: 70,  hp: 40,  buff: "lucky",   buffMs: 120000, desc: "체력 +40 · 2분간 희귀 어종 확률 업" },
+    { id: "energy", emoji: "⚡", name: "특제 에너지드링크", price: 130, hp: 100, buff: "big",     buffMs: 90000,  desc: "체력 완전 회복 · 90초간 대어 + 코인 보너스" }
+  ];
+
+  var COIN_BASE = { common: 6, uncommon: 18, rare: 50, legendary: 150 };
+
+  var RODS_BY_ID = {};
+  RODS.forEach(function (r) { RODS_BY_ID[r.id] = r; });
+  var BAITS_BY_ID = {};
+  BAITS.forEach(function (b) { BAITS_BY_ID[b.id] = b; });
+  var DRINKS_BY_ID = {};
+  DRINKS.forEach(function (d) { DRINKS_BY_ID[d.id] = d; });
+
+  function defaultEconomy() {
+    return {
+      coins: 0,
+      totalEarned: 0,
+      hp: 100,
+      rod: "bamboo",
+      rods: { bamboo: true },
+      bait: "worm",
+      baits: { worm: -1 },
+      buffs: {}
+    };
+  }
+
+  var economy = defaultEconomy();
+
+  function loadEconomy() {
+    try {
+      var raw = localStorage.getItem(ECONOMY_KEY);
+      if (!raw) return;
+      var p = JSON.parse(raw);
+      if (!p || typeof p !== "object") return;
+      economy.coins = Math.max(0, Math.floor(Number(p.coins) || 0));
+      economy.totalEarned = Math.max(0, Math.floor(Number(p.totalEarned) || 0));
+      economy.hp = clamp(typeof p.hp === "number" ? p.hp : 100, 0, 100);
+      economy.rods = { bamboo: true };
+      if (p.rods && typeof p.rods === "object") {
+        Object.keys(p.rods).forEach(function (id) {
+          if (RODS_BY_ID[id]) economy.rods[id] = true;
+        });
+      }
+      economy.baits = { worm: -1 };
+      if (p.baits && typeof p.baits === "object") {
+        Object.keys(p.baits).forEach(function (id) {
+          if (!BAITS_BY_ID[id] || id === "worm") return;
+          var n = Math.floor(Number(p.baits[id]) || 0);
+          if (n > 0) economy.baits[id] = n;
+        });
+      }
+      if (BAITS_BY_ID[p.bait] && (p.bait === "worm" || (economy.baits[p.bait] || 0) > 0)) economy.bait = p.bait;
+      if (RODS_BY_ID[p.rod] && economy.rods[p.rod]) economy.rod = p.rod;
+      economy.buffs = {};
+      if (p.buffs && typeof p.buffs === "object") {
+        Object.keys(p.buffs).forEach(function (id) {
+          var exp = Number(p.buffs[id]) || 0;
+          if ((id === "biteFast" || id === "lucky" || id === "big") && exp > Date.now()) economy.buffs[id] = exp;
+        });
+      }
+    } catch (err) { /* 무시 */ }
+  }
+
+  function saveEconomy() {
+    try { localStorage.setItem(ECONOMY_KEY, JSON.stringify(economy)); } catch (err) { /* 저장 불가 환경 무시 */ }
+  }
+
+  function activeBuff(id) {
+    return !!(economy.buffs[id] && economy.buffs[id] > Date.now());
+  }
+
+  function isTired() { return economy.hp <= 0; }
+
+  function waitMultiplier() {
+    var rod = RODS_BY_ID[economy.rod] || RODS[0];
+    var bait = BAITS_BY_ID[economy.bait] || BAITS[0];
+    var m = rod.waitMul * (bait.waitMul || 1);
+    if (activeBuff("biteFast")) m *= 0.62;
+    if (isTired()) m *= 1.6;
+    return m;
+  }
+
+  function spendHP(n) {
+    economy.hp = clamp(economy.hp - n, 0, 100);
   }
 
   function caughtCount() { return Object.keys(book.records).length; }
@@ -1522,6 +1853,28 @@
       if (!this.enabled || !this.ctx) return;
       var t = this.ctx.currentTime + 0.01;
       this.noiseBurst(t, 0.3, 2400, 0.07);
+    },
+
+    coin: function () {
+      if (!this.enabled || !this.ctx) return;
+      var t = this.ctx.currentTime + 0.01;
+      this.tone(t, 920, 0.09, 0.12, "triangle");
+      this.tone(t + 0.08, 1380, 0.14, 0.12, "triangle");
+    },
+
+    canDrop: function () {
+      if (!this.enabled || !this.ctx) return;
+      var t = this.ctx.currentTime + 0.01;
+      this.tone(t, 340, 0.09, 0.16, "square", 130);
+      this.noiseBurst(t, 0.12, 900, 0.14);
+      this.tone(t + 0.16, 260, 0.07, 0.08, "square", 120);
+    },
+
+    sip: function () {
+      if (!this.enabled || !this.ctx) return;
+      var t = this.ctx.currentTime + 0.01;
+      this.tone(t, 300, 0.14, 0.1, "sine", 180);
+      this.tone(t + 0.2, 260, 0.16, 0.1, "sine", 150);
     }
   };
 
@@ -1641,7 +1994,7 @@
   var waterUniforms, waterMesh;
   var sunSprite, moonSprite, starField, cloudGroup, mistGroup, fireflies;
   var flameOuter, flameInner, fireGlow, lanternBulb, lanternGlow;
-  var rodTip, rodGroup, angler, bobber, lineMesh, lineMat, lineSegments = 22;
+  var rodTip, rodGroup, rodBodyMat, rodMesh, angler, bobber, lineMesh, lineMat, lineSegments = 22;
   var lineDummy = null, lineDir = null, lineUp = null;
   var ripplePool = [];
   var jumpers = [];
@@ -1884,6 +2237,7 @@
     buildNearBank();
     buildFarBank();
     buildProps();
+    buildVendingMachine();
     buildAngler();
     buildBobber();
     buildRipples();
@@ -2369,6 +2723,107 @@
     scene.add(crate);
   }
 
+  /* ---------- 강가 3D 음료 자판기 ---------- */
+  var vendingGroup = null, vendingScreenMat = null, vendingGlow = null, vendingLight = null;
+  var vendingBtnMats = [];
+
+  function buildVendingMachine() {
+    vendingGroup = new THREE.Group();
+    var vx = 2.65;
+    var vz = 3.05;
+    vendingGroup.position.set(vx, groundHeight(vx, vz), vz);
+    vendingGroup.rotation.y = -0.52;   // 낚시꾼 · 카메라 쪽으로 돌린다
+
+    var bodyMat = new THREE.MeshStandardMaterial({ color: 0xb6462f, roughness: 0.68, metalness: 0.12, flatShading: true });
+    var body = new THREE.Mesh(new THREE.BoxGeometry(1.04, 1.9, 0.72), bodyMat);
+    body.position.y = 0.95;
+    vendingGroup.add(body);
+
+    var sideMat = new THREE.MeshStandardMaterial({ color: 0x8c3320, roughness: 0.8, flatShading: true });
+    var sideL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.84, 0.66), sideMat);
+    sideL.position.set(-0.5, 0.95, 0);
+    vendingGroup.add(sideL);
+    var sideR = sideL.clone();
+    sideR.position.x = 0.5;
+    vendingGroup.add(sideR);
+
+    // 유리창 안쪽: 어두운 뒤판 + 선반 + 캔들
+    var innerMat = new THREE.MeshStandardMaterial({ color: 0x22262e, roughness: 0.9, flatShading: true });
+    var inner = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.0, 0.03), innerMat);
+    inner.position.set(-0.12, 1.18, 0.3);
+    vendingGroup.add(inner);
+
+    var shelfMat = new THREE.MeshStandardMaterial({ color: 0x3c4148, roughness: 0.85, flatShading: true });
+    var canColors = [0xe05a4e, 0x3f7fbf, 0x57c26b, 0xf0b93a, 0x9d6fb5, 0x4fb8a8];
+    var canMat = new THREE.MeshStandardMaterial({ color: 0xdfe4ea, roughness: 0.42, metalness: 0.55, flatShading: true });
+    [0.82, 1.28].forEach(function (sy) {
+      var shelf = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.03, 0.14), shelfMat);
+      shelf.position.set(-0.12, sy, 0.33);
+      vendingGroup.add(shelf);
+      for (var c = 0; c < 3; c++) {
+        var can = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.16, 8), canMat);
+        can.position.set(-0.35 + c * 0.23, sy + 0.1, 0.33);
+        vendingGroup.add(can);
+        var band = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.054, 0.054, 0.07, 8),
+          new THREE.MeshStandardMaterial({ color: canColors[(sy > 1 ? 3 : 0) + c], roughness: 0.5, metalness: 0.2, flatShading: true })
+        );
+        band.position.copy(can.position);
+        vendingGroup.add(band);
+      }
+    });
+
+    var glassMat = new THREE.MeshStandardMaterial({
+      color: 0x9fc4de, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.3, depthWrite: false
+    });
+    var glass = new THREE.Mesh(new THREE.BoxGeometry(0.72, 1.02, 0.03), glassMat);
+    glass.position.set(-0.12, 1.18, 0.375);
+    vendingGroup.add(glass);
+
+    // 버튼 패널 + 음료 4색 버튼 (밤에 은은하게 발광)
+    var panel = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.0, 0.05), innerMat);
+    panel.position.set(0.32, 1.18, 0.36);
+    vendingGroup.add(panel);
+    vendingBtnMats = [];
+    var btnColors = [0xe05a4e, 0x3f7fbf, 0x57c26b, 0xf0b93a];
+    for (var b = 0; b < 4; b++) {
+      var bm = new THREE.MeshStandardMaterial({
+        color: btnColors[b], emissive: btnColors[b], emissiveIntensity: 0.06, roughness: 0.5, flatShading: true
+      });
+      vendingBtnMats.push(bm);
+      var btn = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.075, 0.05), bm);
+      btn.position.set(0.32, 1.44 - b * 0.22, 0.4);
+      vendingGroup.add(btn);
+    }
+
+    // 디스플레이 (밤에 발광)
+    vendingScreenMat = new THREE.MeshBasicMaterial({ color: 0x4a6a86 });
+    var screen = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.17, 0.05), vendingScreenMat);
+    screen.position.set(-0.12, 1.76, 0.36);
+    vendingGroup.add(screen);
+
+    // 캔 배출구
+    var slot = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.18, 0.06), new THREE.MeshStandardMaterial({ color: 0x191c22, roughness: 0.95 }));
+    slot.position.set(0, 0.34, 0.38);
+    vendingGroup.add(slot);
+
+    var vGlowTex = makeGlowTexture("rgba(210,235,255,0.95)", "rgba(150,200,255,0.28)");
+    vendingGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: vGlowTex, color: 0x9fc8ff, transparent: true, opacity: 0, depthWrite: false,
+      blending: THREE.AdditiveBlending, fog: false
+    }));
+    vendingGlow.scale.set(2.2, 2.2, 1);
+    vendingGlow.position.set(-0.12, 1.76, 0.5);
+    vendingGroup.add(vendingGlow);
+
+    vendingLight = new THREE.PointLight(0x9fc8ff, 0, 7, 2);
+    vendingLight.position.set(-0.12, 1.6, 1.1);
+    vendingGroup.add(vendingLight);
+
+    scene.add(vendingGroup);
+    addContactShadow(vx, vz, 1.9, 0.35);
+  }
+
   /* ---------- 낚시꾼 ---------- */
   function buildAngler() {
     angler = new THREE.Group();
@@ -2483,6 +2938,8 @@
     rodGeo.translate(0, 1.175, 0);
     var rod = new THREE.Mesh(rodGeo, rodMat);
     rodGroup.add(rod);
+    rodBodyMat = rodMat;
+    rodMesh = rod;
 
     // 낚싯대 손잡이
     var grip = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.28, 6),
@@ -2678,6 +3135,18 @@
       clamp(0.28 + m.lantern / 950 * 0.22, 0, 1)
     );
 
+    // 자판기: 밤에 디스플레이·버튼이 은은하게 빛난다
+    if (vendingScreenMat) {
+      var vendN = clamp(m.lantern / 950, 0, 1);
+      var vb = 0.3 + 0.7 * vendN;
+      vendingScreenMat.color.setRGB(0.55 * vb, 0.82 * vb, 1.0 * vb);
+      vendingLight.intensity = 2.6 * vendN;
+      vendingGlow.material.opacity = 0.8 * vendN;
+      vendingBtnMats.forEach(function (bm) {
+        bm.emissiveIntensity = 0.06 + 0.9 * vendN;
+      });
+    }
+
     // 낚싯줄 색은 하늘 밝기에 맞춰 (낮에는 어둡게, 밤에는 밝게)
     if (lineMat) {
       var nightness = clamp(m.starOpacity, 0, 1);
@@ -2803,7 +3272,7 @@
         dragging = false;
         var dt = performance.now() - downTime;
         if (!moved && dt < 420) {
-          handleTap();
+          handleTap(e.clientX, e.clientY);
         }
       }
     }
@@ -2824,7 +3293,11 @@
         e.preventDefault();
         handleTap();
       }
-      if (e.key === "Escape") closeDex();
+      if (e.key === "Escape") {
+        closeDex();
+        closeShop();
+        closeDrink();
+      }
     });
   }
 
@@ -2894,9 +3367,32 @@
     return state.mode === "live" ? bandForHour(hour) : state.mode;
   }
 
-  function handleTap() {
+  var raycaster = null, tapNDC = null;
+
+  function tryTapVending(clientX, clientY) {
+    if (!vendingGroup || !THREE || !camera) return false;
+    if (!raycaster) {
+      raycaster = new THREE.Raycaster();
+      tapNDC = new THREE.Vector2();
+    }
+    tapNDC.x = (clientX / window.innerWidth) * 2 - 1;
+    tapNDC.y = -(clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(tapNDC, camera);
+    var hits = raycaster.intersectObject(vendingGroup, true);
+    if (hits && hits.length) {
+      openDrink();
+      return true;
+    }
+    return false;
+  }
+
+  function handleTap(clientX, clientY) {
     if (!state.started) return;
     if (el.dexModal.classList.contains("open")) return;
+    if (el.shopModal.classList.contains("open")) return;
+    if (el.drinkModal.classList.contains("open")) return;
+    // 자판기를 직접 탭하면 자판기를 연다 (입질 중엔 낚아채기가 우선)
+    if (state.phase !== "biting" && clientX !== undefined && tryTapVending(clientX, clientY)) return;
     if (state.phase === "biting") {
       state.pendingStrike = true;
       return;
@@ -2914,9 +3410,22 @@
     }
   }
 
+  var hpRegenT = 0;
+
   function updateGame(dt) {
     if (!state.started) return;
     state.phaseTime += dt;
+
+    // 체력은 조금씩 자연 회복 (지쳐도 낚시는 계속된다)
+    hpRegenT += dt;
+    if (hpRegenT >= 18) {
+      hpRegenT = 0;
+      if (economy.hp < 100) {
+        economy.hp = Math.min(100, economy.hp + 1);
+        saveEconomy();
+        updateHUD();
+      }
+    }
 
     if (state.phase === "idle") {
       if (state.phaseTime > 1.4) startFishing();
@@ -2926,7 +3435,7 @@
     if (state.phase === "casting") {
       if (state.phaseTime > 1.35) {
         setPhase("waiting");
-        state.waitDuration = rand(4.5, 11);
+        state.waitDuration = rand(4.5, 11) * waitMultiplier();
         spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 1.6, 1.5, 0.55);
       }
       return;
@@ -2967,6 +3476,9 @@
         el.biteBanner.classList.remove("on");
         flashNotice("놓쳤어요… 찌가 다시 잠잠해집니다");
         Sound.miss();
+        spendHP(1);
+        saveEconomy();
+        updateHUD();
         return;
       }
       return;
@@ -2983,8 +3495,16 @@
   }
 
   function landFish(manual) {
-    var fish = rollFish(currentBand());
-    var bonus = manual ? 1.12 : 1.0;
+    var rod = RODS_BY_ID[economy.rod] || RODS[0];
+    var bait = BAITS_BY_ID[economy.bait] || BAITS[0];
+    var bigBuff = activeBuff("big");
+    var bigBonus = rod.bigBonus * bait.sizeBonus * (bigBuff ? 1.3 : 1);
+    var rareMul = rod.rareMul * bait.rareMul *
+      (activeBuff("lucky") ? 2.2 : 1) *
+      (isTired() ? 0.45 : 1);
+
+    var fish = rollFish(currentBand(), rareMul);
+    var bonus = (manual ? 1.12 : 1.0) * bigBonus;
     var len = Math.min(fish.max, Math.round(rollLength(fish) * bonus * 10) / 10);
 
     var rec = book.records[fish.id];
@@ -3004,8 +3524,30 @@
     saveBook();
     updateDexBadge();
 
+    // 코인 획득 (등급 × 크기 비례)
+    var sizeK = clamp((len - fish.min) / Math.max(1, fish.max - fish.min), 0, 1);
+    var earned = Math.max(1, Math.round(
+      COIN_BASE[fish.rarity] * (0.7 + 1.1 * sizeK) * bait.coinMul * (bigBuff ? 1.25 : 1)
+    ));
+    economy.coins += earned;
+    economy.totalEarned += earned;
+
+    // 장착 미끼 소모 (다 쓰면 일반 떡밥으로)
+    if (economy.baits[economy.bait] > 0) {
+      economy.baits[economy.bait] -= 1;
+      if (economy.baits[economy.bait] <= 0) {
+        economy.baits[economy.bait] = 0;
+        economy.bait = "worm";
+        flashNotice("장착한 미끼를 다 썼어요 · 일반 떡밥으로 돌아가요");
+      }
+    }
+
+    // 체력 소모 (0이 되어도 낚시는 절대 멈추지 않는다)
+    spendHP(manual ? 4 : 2);
+    saveEconomy();
+
     state.session += 1;
-    state.lastCatch = { fish: fish, len: len, isNew: isNew, isBest: isBest, manual: manual };
+    state.lastCatch = { fish: fish, len: len, isNew: isNew, isBest: isBest, manual: manual, coins: earned };
 
     setPhase("caught");
     el.biteBanner.classList.remove("on");
@@ -3013,7 +3555,7 @@
     spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 1.8, 1.9, 0.5);
     spawnFishJump(fish);
     showToast(state.lastCatch);
-    Sound.catchFish(fish.rarity);
+    Sound.coin();
     cam.shake = 0.05;
 
     if (manual) flashNotice("완벽한 타이밍! 조금 더 큰 개체가 올라왔어요");
@@ -3034,9 +3576,15 @@
         '<div class="toast-name">' + f.name + ' <span style="color:' + rar.color + ';font-weight:800">' + result.len.toFixed(1) + 'cm</span></div>' +
         '<div class="toast-meta">' + '★'.repeat(rar.stars) + ' ' + rar.label + ' · ' + BANDS[currentBand()].name + '</div>' +
       '</div>' +
-      '<div class="toast-badge">' + badge + '</div>';
+      '<div class="toast-badge">' + badge + '</div>' +
+      '<div class="toast-coin">+' + result.coins + ' 🪙</div>';
 
     el.toast.classList.add("show");
+    if (el.coinPill) {
+      el.coinPill.classList.remove("pulse");
+      void el.coinPill.offsetWidth;
+      el.coinPill.classList.add("pulse");
+    }
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(function () {
       el.toast.classList.remove("show");
@@ -3237,6 +3785,174 @@
     el.dexReset.classList.remove("confirm");
     el.dexReset.textContent = "도감 초기화";
     if (dexResetTimer) { clearTimeout(dexResetTimer); dexResetTimer = null; }
+  }
+
+  /* =====================================================================
+     11-1. 코인 · 체력 HUD · 상점 · 자판기
+     ===================================================================== */
+  function updateHUD() {
+    if (el.coinText) el.coinText.textContent = economy.coins.toLocaleString();
+    if (el.hpFill) {
+      el.hpFill.style.width = clamp(economy.hp, 0, 100) + "%";
+      el.hpText.textContent = String(Math.round(economy.hp));
+      el.hpWrap.classList.toggle("tired", economy.hp <= 0);
+      el.hpWrap.classList.toggle("low", economy.hp > 0 && economy.hp <= 30);
+    }
+    if (el.buffRow) {
+      var html = "";
+      var defs = { biteFast: ["⚡", "입질 업"], lucky: ["🍀", "희귀 업"], big: ["🐟", "대어 업"] };
+      Object.keys(defs).forEach(function (id) {
+        var left = Math.round((economy.buffs[id] - Date.now()) / 1000);
+        if (left > 0) {
+          var label = left >= 60 ? Math.floor(left / 60) + ":" + pad2(left % 60) : left + "s";
+          html += '<span class="buff-chip">' + defs[id][0] + ' ' + defs[id][1] + ' <b>' + label + '</b></span>';
+        }
+      });
+      if (isTired()) html += '<span class="buff-chip tired">😮‍💨 지침 · 입질이 느려짐</span>';
+      el.buffRow.innerHTML = html;
+    }
+  }
+
+  function applyRodAppearance() {
+    if (!rodBodyMat || !rodMesh) return;
+    var rod = RODS_BY_ID[economy.rod] || RODS[0];
+    var tier = RODS.indexOf(rod);
+    rodBodyMat.color.setHex(rod.color);
+    rodBodyMat.metalness = tier >= 2 ? 0.35 + tier * 0.15 : 0.05;
+    rodBodyMat.roughness = tier >= 2 ? 0.4 - tier * 0.05 : 0.8;
+    rodBodyMat.emissive.setHex(rod.id === "gold" ? 0x4a3208 : 0x000000);
+    rodBodyMat.emissiveIntensity = rod.id === "gold" ? 0.35 : 1;
+    var thick = 1 + tier * 0.07;
+    rodMesh.scale.set(thick, 1, thick);
+  }
+
+  function renderShop() {
+    if (el.shopCoins) el.shopCoins.textContent = economy.coins.toLocaleString() + " 🪙";
+
+    var rodRows = RODS.map(function (r) {
+      var owned = !!economy.rods[r.id];
+      var equipped = economy.rod === r.id;
+      var btn;
+      if (equipped) btn = '<button class="buy-btn owned" disabled>장착 중</button>';
+      else if (owned) btn = '<button class="buy-btn equip" data-act="equipRod" data-id="' + r.id + '">장착</button>';
+      else btn = '<button class="buy-btn' + (economy.coins < r.price ? " poor" : "") + '" data-act="buyRod" data-id="' + r.id + '">' + r.price.toLocaleString() + ' 🪙</button>';
+      return '<div class="shop-row' + (equipped ? " equipped" : "") + '">' +
+        '<span class="rod-dot" style="background:' + r.swatch + '"></span>' +
+        '<div class="shop-info"><div class="shop-name">' + r.name + (equipped ? '<small>장착됨</small>' : '') + '</div>' +
+        '<div class="shop-desc">' + r.desc + '</div></div>' + btn + '</div>';
+    }).join("");
+
+    var baitRows = BAITS.map(function (b) {
+      var have = economy.baits[b.id] === -1 ? "∞" : String(economy.baits[b.id] || 0);
+      var equipped = economy.bait === b.id;
+      var btns = "";
+      if (b.id !== "worm") {
+        btns += '<button class="buy-btn small' + (economy.coins < b.price ? " poor" : "") + '" data-act="buyBait" data-id="' + b.id + '">+' + b.pack + '개 ' + b.price + ' 🪙</button>';
+      }
+      if (equipped) btns += '<button class="buy-btn owned small" disabled>장착 중</button>';
+      else btns += '<button class="buy-btn equip small" data-act="equipBait" data-id="' + b.id + '">장착</button>';
+      return '<div class="shop-row' + (equipped ? " equipped" : "") + '">' +
+        '<span class="rod-dot" style="background:' + b.swatch + '"></span>' +
+        '<div class="shop-info"><div class="shop-name">' + b.name + '<small>보유 ' + have + '</small></div>' +
+        '<div class="shop-desc">' + b.desc + '</div></div>' +
+        '<div class="btn-col">' + btns + '</div></div>';
+    }).join("");
+
+    el.shopBody.innerHTML =
+      '<div class="shop-section">낚싯대</div>' + rodRows +
+      '<div class="shop-section">미끼 · 소품</div>' + baitRows +
+      '<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 낚싯대를 바꾸면 강가 3D 장면의 낚싯대도 바로 바뀌어요</div>';
+  }
+
+  function renderDrinks() {
+    if (el.drinkCoins) el.drinkCoins.textContent = economy.coins.toLocaleString() + " 🪙";
+    var cards = DRINKS.map(function (d) {
+      return '<div class="drink-card">' +
+        '<div class="drink-emoji">' + d.emoji + '</div>' +
+        '<div class="drink-name">' + d.name + '</div>' +
+        '<div class="drink-eff">' + d.desc + '</div>' +
+        '<button class="buy-btn' + (economy.coins < d.price ? " poor" : "") + '" data-act="buyDrink" data-id="' + d.id + '">' + d.price + ' 🪙</button>' +
+        '</div>';
+    }).join("");
+    el.drinkBody.innerHTML = '<div class="drink-grid">' + cards + '</div>' +
+      '<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 체력이 0이 되어도 낚시는 계속돼요. 대신 지쳐서 입질이 늦어지고 희귀 어종이 잘 안 걸려요</div>';
+  }
+
+  function openShop() {
+    renderShop();
+    el.shopModal.classList.add("open");
+  }
+
+  function closeShop() { el.shopModal.classList.remove("open"); }
+
+  function openDrink() {
+    renderDrinks();
+    el.drinkModal.classList.add("open");
+  }
+
+  function closeDrink() { el.drinkModal.classList.remove("open"); }
+
+  function buyRod(id) {
+    var r = RODS_BY_ID[id];
+    if (!r || economy.rods[id]) return;
+    if (economy.coins < r.price) { flashNotice("코인이 부족해요 · 낚아서 모아 보세요"); Sound.miss(); return; }
+    economy.coins -= r.price;
+    economy.rods[id] = true;
+    economy.rod = id;
+    applyRodAppearance();
+    saveEconomy();
+    updateHUD();
+    renderShop();
+    Sound.coin();
+    flashNotice(r.name + " 구매! 바로 장착했어요");
+  }
+
+  function equipRod(id) {
+    var r = RODS_BY_ID[id];
+    if (!r || !economy.rods[id]) return;
+    economy.rod = id;
+    applyRodAppearance();
+    saveEconomy();
+    renderShop();
+    flashNotice(r.name + "을(를) 장착했어요");
+  }
+
+  function buyBait(id) {
+    var b = BAITS_BY_ID[id];
+    if (!id || id === "worm" || !b) return;
+    if (economy.coins < b.price) { flashNotice("코인이 부족해요 · 낚아서 모아 보세요"); Sound.miss(); return; }
+    economy.coins -= b.price;
+    economy.baits[id] = (economy.baits[id] > 0 ? economy.baits[id] : 0) + b.pack;
+    economy.bait = id;
+    saveEconomy();
+    updateHUD();
+    renderShop();
+    Sound.coin();
+    flashNotice(b.name + " " + b.pack + "개 구매! 바로 장착했어요");
+  }
+
+  function equipBait(id) {
+    var b = BAITS_BY_ID[id];
+    if (!b || (id !== "worm" && (economy.baits[id] || 0) <= 0)) return;
+    economy.bait = id;
+    saveEconomy();
+    renderShop();
+    flashNotice(b.name + "을(를) 장착했어요");
+  }
+
+  function buyDrink(id) {
+    var d = DRINKS_BY_ID[id];
+    if (!d) return;
+    if (economy.coins < d.price) { flashNotice("코인이 부족해요 · 낚아서 모아 보세요"); Sound.miss(); return; }
+    economy.coins -= d.price;
+    economy.hp = Math.min(100, economy.hp + d.hp);
+    if (d.buff) economy.buffs[d.buff] = Date.now() + d.buffMs;
+    saveEconomy();
+    updateHUD();
+    renderDrinks();
+    Sound.canDrop();
+    setTimeout(function () { Sound.sip(); }, 850);
+    flashNotice(d.name + " 구매! " + (economy.hp >= 100 ? "체력이 가득 찼어요" : "체력이 회복됐어요"));
   }
 
   /* =====================================================================
@@ -3712,6 +4428,18 @@
     el.dexBadge = $("#dexBadge");
     el.dexSpecies = $("#dexSpecies");
     el.dexFilters = $("#dexFilters");
+    el.shopModal = $("#shopModal");
+    el.shopBody = $("#shopBody");
+    el.shopCoins = $("#shopCoins");
+    el.drinkModal = $("#drinkModal");
+    el.drinkBody = $("#drinkBody");
+    el.drinkCoins = $("#drinkCoins");
+    el.coinText = $("#coinText");
+    el.coinPill = $("#coinPill");
+    el.hpFill = $("#hpFill");
+    el.hpText = $("#hpText");
+    el.hpWrap = $("#hpWrap");
+    el.buffRow = $("#buffRow");
 
     el.btnStrike.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -3728,6 +4456,30 @@
     });
     $("#dexClose").addEventListener("click", closeDex);
     $("#dexBackdrop").addEventListener("click", closeDex);
+
+    // 상점 · 자판기
+    $("#btnShop").addEventListener("click", function (e) { e.stopPropagation(); openShop(); });
+    $("#btnVending").addEventListener("click", function (e) { e.stopPropagation(); openDrink(); });
+    $("#shopClose").addEventListener("click", closeShop);
+    $("#shopBackdrop").addEventListener("click", closeShop);
+    $("#drinkClose").addEventListener("click", closeDrink);
+    $("#drinkBackdrop").addEventListener("click", closeDrink);
+
+    el.shopBody.addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest("[data-act]") : null;
+      if (!btn || btn.disabled) return;
+      var act = btn.getAttribute("data-act");
+      var id = btn.getAttribute("data-id");
+      if (act === "buyRod") buyRod(id);
+      else if (act === "equipRod") equipRod(id);
+      else if (act === "buyBait") buyBait(id);
+      else if (act === "equipBait") equipBait(id);
+    });
+    el.drinkBody.addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest("[data-act]") : null;
+      if (!btn || btn.disabled) return;
+      if (btn.getAttribute("data-act") === "buyDrink") buyDrink(btn.getAttribute("data-id"));
+    });
 
     if (el.dexFilters) {
       Array.prototype.forEach.call(el.dexFilters.querySelectorAll(".filter-chip"), function (chip) {
@@ -3873,6 +4625,8 @@
     if (hudTick < 0.25) return;
     hudTick = 0;
 
+    updateHUD();   // 버프 타이머 · 체력 · 코인 표시 갱신
+
     var band = currentBand();
     $("#bandName").textContent = BANDS[band].name;
     $("#timeIcon").textContent = BANDS[band].icon;
@@ -3952,11 +4706,13 @@
   function boot() {
     book = loadBook();
     loadSettings();
+    loadEconomy();
     Sound.enabled = settings.sound;
     state.started = false;
 
     bindUI();
     updateDexBadge();
+    updateHUD();
 
     if (settings.auto) {
       var btnAuto = $("#btnAuto");
@@ -3977,6 +4733,7 @@
       // 시간대 세팅 전 임시 분위기
       try {
         initThree();
+        applyRodAppearance();
         $("#bootError").classList.remove("show");
         lastFrameTime = performance.now();
         requestAnimationFrame(loop);
@@ -4000,6 +4757,15 @@
   } else {
     boot();
   }
+
+  /* 자동화 검증용 최소 훅 (게임 로직을 읽고 체력/낚시를 강제하는 것 외 기능 없음) */
+  window.__rf = {
+    economy: function () { return JSON.parse(JSON.stringify(economy)); },
+    setHP: function (v) { economy.hp = clamp(Number(v) || 0, 0, 100); saveEconomy(); updateHUD(); },
+    addCoins: function (n) { var k = Math.floor(Number(n) || 0); economy.coins = Math.max(0, economy.coins + k); if (k > 0) economy.totalEarned += k; saveEconomy(); updateHUD(); },
+    forceCatch: function (manual) { landFish(!!manual); },
+    state: function () { return { phase: state.phase, session: state.session, started: state.started, band: currentBand() }; }
+  };
 })();
 </script>
 </body>
