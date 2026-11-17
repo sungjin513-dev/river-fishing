@@ -2381,7 +2381,9 @@
     pendingStrike: false,
     manual: false,
     session: 0,
-    lastCatch: null
+    lastCatch: null,
+    biteFish: null,        // 입질 순간 미리 뽑아 둔 어종 (무거운 입질 연출용)
+    biteHeavy: false       // 이번 입질이 무거운 물고기인지
   };
 
   var hour = 0;           // 현재 목표 시각 (0~24)
@@ -3304,56 +3306,130 @@
     addContactShadow(vx, vz, 1.9, 0.35);
   }
 
-  /* ---------- 낚시꾼 ---------- */
+  /* ---------- 낚시꾼 (강가 캠핑 의자에 앉은 자세) ---------- */
+  var ANGLER_HIP_Y = 0.475;
+  var ANGLER_HIP_Z = 0.03;
+  var anglerGearT = 0;          // 우비 · 파라솔 등장 정도 0~1
+
+  function tubeBetween(parent, a, b, r, mat, radial) {
+    var dx = b[0] - a[0], dy = b[1] - a[1], dz = b[2] - a[2];
+    var len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 0.0001;
+    var mesh = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, radial || 5), mat);
+    mesh.position.set((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2);
+    mesh.quaternion.setFromUnitVectors(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(dx / len, dy / len, dz / len)
+    );
+    parent.add(mesh);
+    return mesh;
+  }
+
   function buildAngler() {
     angler = new THREE.Group();
     var baseX = -1.0;
     var baseZ = 2.35;
-    var baseY = groundHeight(baseX, baseZ);
+    var baseY = groundHeight(baseX, baseZ) - 0.02;
     angler.position.set(baseX, baseY, baseZ);
-    angler.rotation.y = 0.10;
-    addContactShadow(baseX, baseZ, 1.5, 0.5);
+    angler.rotation.y = 0.22;
+    addContactShadow(baseX, baseZ, 1.7, 0.46);
 
     var skinMat = new THREE.MeshStandardMaterial({ color: 0xe0b091, roughness: 0.82, flatShading: true });
     var jacketMat = new THREE.MeshStandardMaterial({ color: 0x3f6f83, roughness: 0.92, flatShading: true });
     var pantsMat = new THREE.MeshStandardMaterial({ color: 0x2c3b52, roughness: 0.95, flatShading: true });
     var hatMat = new THREE.MeshStandardMaterial({ color: 0xd8b271, roughness: 0.88, flatShading: true });
     var bootMat = new THREE.MeshStandardMaterial({ color: 0x30402f, roughness: 1, flatShading: true });
+    var chairMat = new THREE.MeshStandardMaterial({ color: 0x3e6b57, roughness: 0.96, flatShading: true });
+    var frameMat = new THREE.MeshStandardMaterial({ color: 0x555f68, roughness: 0.5, metalness: 0.28, flatShading: true });
+    var rainMat = new THREE.MeshStandardMaterial({ color: 0xe9c93c, roughness: 0.62, flatShading: true });
 
-    // 다리
-    var legGeo = new THREE.CylinderGeometry(0.1, 0.085, 0.78, 6);
-    var legL = new THREE.Mesh(legGeo, pantsMat);
-    legL.position.set(-0.13, 0.39, 0);
-    angler.add(legL);
-    var legR = new THREE.Mesh(legGeo, pantsMat);
-    legR.position.set(0.13, 0.39, 0);
-    angler.add(legR);
+    angler.userData.jacketMat = jacketMat;
+    angler.userData.jacketClear = new THREE.Color(0x3f6f83);
+    angler.userData.jacketRain = new THREE.Color(0xd9b73a);
+    angler.userData.seated = true;
 
-    var bootGeo = new THREE.BoxGeometry(0.19, 0.12, 0.3);
-    var bootL = new THREE.Mesh(bootGeo, bootMat);
-    bootL.position.set(-0.13, 0.06, 0.04);
-    angler.add(bootL);
-    var bootR = new THREE.Mesh(bootGeo, bootMat);
-    bootR.position.set(0.13, 0.06, 0.04);
-    angler.add(bootR);
+    /* --- 접이식 캠핑 의자 --- */
+    var chair = new THREE.Group();
+    angler.add(chair);
+    angler.userData.chair = chair;
 
-    // 몸통
-    var torso = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.29, 0.68, 7), jacketMat);
-    torso.position.y = 1.12;
-    angler.add(torso);
+    var seatY = 0.44;
+    var seat = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.06, 0.50), chairMat);
+    seat.position.set(0, seatY, 0.03);
+    chair.add(seat);
+
+    var backMat = new THREE.MeshStandardMaterial({ color: 0x3e6b57, roughness: 0.96, flatShading: true });
+    var back = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.42, 0.06), backMat);
+    back.position.set(0, seatY + 0.255, 0.29);
+    back.rotation.x = 0.13;
+    chair.add(back);
+
+    // 등받이 상단 프레임
+    var backTopZ = 0.29 + Math.sin(0.13) * 0.21;
+    var backTopY = seatY + 0.255 + Math.cos(0.13) * 0.21;
+    tubeBetween(chair, [-0.29, backTopY, backTopZ], [0.29, backTopY, backTopZ], 0.022, frameMat, 6);
+    // 등받이 기둥
+    [-1, 1].forEach(function (s) {
+      tubeBetween(chair, [0.285 * s, seatY + 0.02, 0.24], [0.285 * s, backTopY, backTopZ], 0.022, frameMat, 6);
+    });
+    // 다리 (앞 · 뒤)
+    [-1, 1].forEach(function (s) {
+      tubeBetween(chair, [0.28 * s, seatY - 0.01, -0.21], [0.33 * s, -0.04, -0.34], 0.022, frameMat, 6);
+      tubeBetween(chair, [0.28 * s, seatY - 0.01, 0.26], [0.34 * s, -0.04, 0.38], 0.022, frameMat, 6);
+      // 팔걸이
+      tubeBetween(chair, [0.315 * s, seatY + 0.21, -0.22], [0.315 * s, seatY + 0.245, 0.18], 0.020, frameMat, 6);
+      tubeBetween(chair, [0.315 * s, seatY + 0.21, -0.20], [0.30 * s, seatY + 0.02, -0.21], 0.018, frameMat, 6);
+    });
+    // 가로 보강
+    tubeBetween(chair, [-0.27, 0.20, 0.02], [0.27, 0.20, 0.02], 0.018, frameMat, 6);
+
+    /* --- 앉은 몸 --- */
+    var torsoPivot = new THREE.Group();
+    torsoPivot.position.set(0, ANGLER_HIP_Y, ANGLER_HIP_Z);
+    angler.add(torsoPivot);
+    angler.userData.torsoPivot = torsoPivot;
+
+    // 골반과 다리는 상체가 젖혀져도 의자·땅에 붙어 있도록 별도 축에 둔다
+    var legPivot = new THREE.Group();
+    legPivot.position.set(0, ANGLER_HIP_Y, ANGLER_HIP_Z);
+    angler.add(legPivot);
+    angler.userData.legPivot = legPivot;
+
+    var pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.19, 0.30), pantsMat);
+    pelvis.position.set(0, 0.04, -0.03);
+    legPivot.add(pelvis);
+
+    // 허벅지 · 정강이 · 발
+    [-1, 1].forEach(function (s) {
+      var hipX = 0.135 * s;
+      var knee = [hipX, -0.045, -0.35];
+      tubeBetween(legPivot, [hipX, 0.05, -0.04], knee, 0.098, pantsMat, 6);
+      tubeBetween(legPivot, knee, [hipX * 1.03, -ANGLER_HIP_Y + 0.12, -0.405], 0.086, pantsMat, 6);
+      var boot = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, 0.25), bootMat);
+      boot.position.set(hipX * 1.03, -ANGLER_HIP_Y + 0.05, -0.425);
+      legPivot.add(boot);
+    });
+
+    var torso = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.285, 0.60, 7), jacketMat);
+    torso.position.y = 0.35;
+    torsoPivot.add(torso);
     angler.userData.torso = torso;
 
-    // 목
-    var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.1, 6), skinMat);
-    neck.position.y = 1.5;
-    angler.add(neck);
+    // 어깨
+    [-1, 1].forEach(function (s) {
+      var sh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.105, 0), jacketMat);
+      sh.position.set(0.255 * s, 0.575, 0.0);
+      torsoPivot.add(sh);
+    });
+
+    var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.085, 0.12, 6), skinMat);
+    neck.position.y = 0.685;
+    torsoPivot.add(neck);
 
     // 머리
     var head = new THREE.Group();
-    head.position.y = 1.66;
+    head.position.y = 0.83;
     var skull = new THREE.Mesh(new THREE.IcosahedronGeometry(0.19, 1), skinMat);
     head.add(skull);
-    // 눈
     var eyeMat = new THREE.MeshBasicMaterial({ color: 0x1b2430 });
     var eyeGeo = new THREE.SphereGeometry(0.022, 6, 6);
     var eyeL = new THREE.Mesh(eyeGeo, eyeMat);
@@ -3362,64 +3438,99 @@
     var eyeR = new THREE.Mesh(eyeGeo, eyeMat);
     eyeR.position.set(0.068, 0.03, -0.172);
     head.add(eyeR);
+    angler.userData.eyes = [eyeL, eyeR];
 
-    // 모자 (챙 + crown)
+    // 모자 (챙 + crown) — 비가 오면 우비 후드로 바뀐다
+    var hatGroup = new THREE.Group();
     var brim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.025, 12), hatMat);
     brim.position.y = 0.13;
-    head.add(brim);
+    hatGroup.add(brim);
     var crown = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.19, 0.18, 10), hatMat);
     crown.position.y = 0.22;
-    head.add(crown);
-    // 낚싯바늘 장식
+    hatGroup.add(crown);
     var hookDeco = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.008, 4, 8), new THREE.MeshStandardMaterial({ color: 0xc9a24a, roughness: 0.6 }));
     hookDeco.position.set(0.17, 0.19, 0);
     hookDeco.rotation.y = Math.PI / 2;
-    head.add(hookDeco);
+    hatGroup.add(hookDeco);
+    head.add(hatGroup);
+    angler.userData.hat = hatGroup;
 
-    angler.add(head);
+    // 노란 우비 후드 (비 올 때만)
+    var hood = new THREE.Group();
+    var hoodShell = new THREE.Mesh(new THREE.SphereGeometry(0.247, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.78), rainMat);
+    hoodShell.position.y = 0.012;
+    hood.add(hoodShell);
+    // 얼굴을 가리는 방수 챙 (앞으로 살짝 숙인 짧은 바이저)
+    var hoodBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.30, 0.028, 12, 1, false, -1.05, 2.1), rainMat);
+    hoodBrim.position.set(0, 0.055, -0.03);
+    hoodBrim.rotation.x = -0.10;
+    hood.add(hoodBrim);
+    hood.visible = false;
+    head.add(hood);
+    angler.userData.hood = hood;
+
+    // 우비 어깨 (목둘레)
+    var hoodCollar = new THREE.Mesh(new THREE.CylinderGeometry(0.155, 0.35, 0.20, 10, 1, true), rainMat);
+    hoodCollar.position.y = 0.60;
+    hoodCollar.visible = false;
+    torsoPivot.add(hoodCollar);
+    angler.userData.hoodCollar = hoodCollar;
+
+    torsoPivot.add(head);
     angler.userData.head = head;
 
-    // 왼팔 (몸 옆으로)
-    var armGeo = new THREE.CylinderGeometry(0.065, 0.055, 0.52, 6);
-    var leftShoulder = new THREE.Mesh(new THREE.IcosahedronGeometry(0.095, 0), jacketMat);
-    leftShoulder.position.set(-0.235, 1.34, 0.02);
-    angler.add(leftShoulder);
-    var leftArm = new THREE.Mesh(armGeo, jacketMat);
-    leftArm.position.set(-0.30, 1.16, 0.02);
-    leftArm.rotation.z = 0.14;
-    leftArm.rotation.x = -0.06;
-    angler.add(leftArm);
+    // 왼팔 — 허벅지에 얹은 자세
+    var leftShoulderPivot = new THREE.Group();
+    leftShoulderPivot.position.set(-0.265, 0.565, 0.0);
+    torsoPivot.add(leftShoulderPivot);
+    var leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.058, 0.46, 6), jacketMat);
+    leftArm.position.set(-0.01, -0.19, -0.15);
+    leftArm.rotation.x = 0.52;
+    leftArm.rotation.z = 0.16;
+    leftShoulderPivot.add(leftArm);
+    var leftHand = new THREE.Mesh(new THREE.IcosahedronGeometry(0.062, 0), skinMat);
+    leftHand.position.set(0.01, -0.36, -0.30);
+    leftShoulderPivot.add(leftHand);
     angler.userData.leftArm = leftArm;
-
-    var leftHand = new THREE.Mesh(new THREE.IcosahedronGeometry(0.06, 0), skinMat);
-    leftHand.position.set(-0.37, 0.89, 0.02);
-    angler.add(leftHand);
 
     // 오른팔 (낚싯대를 잡은 팔) — 어깨 피벗
     var armPivot = new THREE.Group();
-    armPivot.position.set(0.27, 1.34, 0.02);
-    var rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.058, 0.5, 6), jacketMat);
-    rightArm.position.set(-0.02, -0.24, -0.16);
-    rightArm.rotation.x = 0.62;
+    armPivot.position.set(0.275, 0.565, 0.0);
+    torsoPivot.add(armPivot);
+    var rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.058, 0.48, 6), jacketMat);
+    rightArm.position.set(0.0, -0.19, -0.15);
+    rightArm.rotation.x = 0.60;
     armPivot.add(rightArm);
     var rightHand = new THREE.Mesh(new THREE.IcosahedronGeometry(0.065, 0), skinMat);
-    rightHand.position.set(-0.03, -0.42, -0.34);
+    rightHand.position.set(-0.01, -0.36, -0.31);
     armPivot.add(rightHand);
-    angler.add(armPivot);
     angler.userData.armPivot = armPivot;
 
-    // 낚싯대
+    // 낚싯대 (3마디 — 무거운 물고기를 당길 때 휜다)
     rodGroup = new THREE.Group();
-    rodGroup.position.set(-0.02, -0.44, -0.36);
+    rodGroup.position.set(-0.01, -0.38, -0.33);
     armPivot.add(rodGroup);
 
     var rodMat = new THREE.MeshStandardMaterial({ color: 0x2f2a24, roughness: 0.7, flatShading: true });
-    var rodGeo = new THREE.CylinderGeometry(0.009, 0.028, 2.35, 5);
-    rodGeo.translate(0, 1.175, 0);
-    var rod = new THREE.Mesh(rodGeo, rodMat);
-    rodGroup.add(rod);
     rodBodyMat = rodMat;
-    rodMesh = rod;
+
+    function rodPiece(parent, y0, len, rBottom, rTop) {
+      var g = new THREE.Group();
+      g.position.y = y0;
+      var geo = new THREE.CylinderGeometry(rTop, rBottom, len, 5);
+      geo.translate(0, len / 2, 0);
+      var m = new THREE.Mesh(geo, rodMat);
+      g.add(m);
+      parent.add(g);
+      return g;
+    }
+
+    var seg1 = rodPiece(rodGroup, 0, 0.85, 0.031, 0.023);
+    var seg2 = rodPiece(seg1, 0.85, 0.80, 0.023, 0.014);
+    var seg3 = rodPiece(seg2, 0.80, 0.70, 0.014, 0.008);
+    angler.userData.rodSeg2 = seg2;
+    angler.userData.rodSeg3 = seg3;
+    rodMesh = seg1.children[0];
 
     // 낚싯대 손잡이
     var grip = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.28, 6),
@@ -3428,11 +3539,40 @@
     rodGroup.add(grip);
 
     rodTip = new THREE.Object3D();
-    rodTip.position.set(0, 2.35, 0);
-    rodGroup.add(rodTip);
+    rodTip.position.set(0, 0.70, 0);
+    seg3.add(rodTip);
 
-    rodGroup.rotation.x = -1.26;
+    rodGroup.rotation.x = -0.95;
     rodGroup.rotation.z = -0.14;
+    angler.userData.rodRestX = -0.95;
+
+    // 낚시 파라솔 (비 올 때만 의자 왼쪽에 펼쳐진다)
+    var parasol = new THREE.Group();
+    parasol.position.set(-0.72, 0, -0.26);
+    var poleMat2 = new THREE.MeshStandardMaterial({ color: 0x6b6f76, roughness: 0.5, metalness: 0.3, flatShading: true });
+    var parasolPole = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.030, 1.86, 6), poleMat2);
+    parasolPole.position.y = 0.93;
+    parasol.add(parasolPole);
+    // 꼭대기에서 머리 쪽으로 꺾이는 팔
+    tubeBetween(parasol, [0, 1.84, 0], [0.57, 1.94, -0.10], 0.022, poleMat2, 5);
+    var canopyMat = new THREE.MeshStandardMaterial({ color: 0xf0c34a, roughness: 0.7, flatShading: true, side: THREE.DoubleSide });
+    var canopy = new THREE.Mesh(new THREE.ConeGeometry(0.78, 0.40, 8, 1, true), canopyMat);
+    canopy.position.set(0.57, 1.92, -0.10);
+    parasol.add(canopy);
+    var canopyRim = new THREE.Mesh(new THREE.CylinderGeometry(0.775, 0.775, 0.03, 8, 1, true), canopyMat);
+    canopyRim.position.set(0.57, 1.745, -0.10);
+    parasol.add(canopyRim);
+    var finial = new THREE.Mesh(new THREE.IcosahedronGeometry(0.045, 0), poleMat2);
+    finial.position.set(0.57, 2.14, -0.10);
+    parasol.add(finial);
+    // 받침 (모래주머니)
+    var sandBag = new THREE.Mesh(new THREE.IcosahedronGeometry(0.16, 0), new THREE.MeshStandardMaterial({ color: 0x7d7f74, roughness: 1, flatShading: true }));
+    sandBag.position.set(0, 0.05, 0);
+    sandBag.scale.set(1, 0.55, 1);
+    parasol.add(sandBag);
+    parasol.visible = false;
+    angler.add(parasol);
+    angler.userData.parasol = parasol;
 
     // 낚싯줄 (얇은 원통 조각들을 이어 만든다 — 1px Line보다 잘 보인다)
     var segments = 22;
@@ -3447,6 +3587,136 @@
     lineSegments = segments;
 
     scene.add(angler);
+  }
+
+  /* ---------- 낚시꾼 모션: 앉기 · 우비/파라솔 · 입질 · 졸음 ---------- */
+  function heavyFish(fish) {
+    if (!fish) return false;
+    return fish.rarity === "rare" || fish.rarity === "legendary" ||
+      fish.rarity === "hidden" || fish.max >= 80;
+  }
+
+  function updateAngler(dt) {
+    if (!angler) return;
+    var u = angler.userData;
+    var t = sceneTime;
+    var sleepy = isTired();
+    var rainy = isRaining();
+
+    // 1) 비 올 때만 노란 우비 후드 · 낚시 파라솔 (그치면 스르륵 사라진다)
+    anglerGearT += ((rainy ? 1 : 0) - anglerGearT) * Math.min(1, dt * 7);
+    var g = clamp(anglerGearT, 0, 1);
+    var gs = easeOut(g);
+    u.hood.visible = g > 0.02;
+    u.hood.scale.setScalar(0.55 + 0.45 * gs);
+    u.hoodCollar.visible = g > 0.02;
+    u.hoodCollar.scale.setScalar(0.5 + 0.5 * gs);
+    u.parasol.visible = g > 0.02;
+    u.parasol.scale.set(0.6 + 0.4 * gs, 0.2 + 0.8 * gs, 0.6 + 0.4 * gs);
+    u.hat.visible = g < 0.55;
+    u.hat.scale.setScalar(clamp(1 - gs * 1.8, 0.001, 1));
+    u.jacketMat.color.copy(u.jacketClear).lerp(u.jacketRain, gs * 0.95);
+
+    // 2) 기본 자세 — 의자에 편안히 앉아 숨 쉬듯 살짝 흔들린다
+    var lean = 0.05 + Math.sin(t * 0.55) * 0.018;
+    var headX = Math.sin(t * 0.5) * 0.03;
+    var headY = Math.sin(t * 0.37) * 0.07 - 0.04;
+    var armPull = 0;
+    var rodX = u.rodRestX + Math.sin(t * 0.7) * 0.014;
+    var rodZ = -0.14 + Math.sin(t * 0.7) * 0.01;
+    var bend2 = 0, bend3 = 0;
+    var bendSide2 = 0, bendSide3 = 0;
+    var seatLift = 0;
+    var eyeOpen = 1 - g * 0.22;
+
+    if (state.phase === "casting") {
+      var cp = clamp(state.phaseTime / 1.35, 0, 1);
+      if (cp < 0.3) rodX += -0.42 * easeOut(cp / 0.3);
+      else if (cp < 0.62) rodX += lerp(-0.42, 0.34, easeOut((cp - 0.3) / 0.32));
+      else rodX += lerp(0.34, 0, easeOut((cp - 0.62) / 0.38));
+      lean += cp < 0.35 ? -0.06 * easeOut(cp / 0.35) : 0.07 * Math.sin((cp - 0.35) / 0.65 * Math.PI);
+      headY += -0.05 + 0.1 * cp;
+    } else if (state.phase === "waiting") {
+      rodX += Math.sin(t * 0.9) * 0.014;
+    } else if (state.phase === "biting") {
+      if (state.biteHeavy) {
+        // 무거운 물고기 — 상체를 뒤로 젖히고 낚싯대를 팽팽하게 당겨 버틴다
+        lean = 0.46 + Math.sin(t * 8.5) * 0.06;
+        armPull = -0.20 + Math.sin(t * 8.5) * 0.035;
+        rodX = u.rodRestX + 0.30 + Math.sin(t * 15) * 0.05;
+        rodZ = -0.02 + Math.sin(t * 11) * 0.05;
+        bend2 = -0.42 + Math.sin(t * 17) * 0.06;
+        bend3 = -0.58 + Math.sin(t * 21) * 0.09;
+        bendSide2 = 0.12 + Math.sin(t * 13) * 0.04;
+        bendSide3 = 0.20 + Math.sin(t * 19) * 0.06;
+        cam.shake = Math.max(cam.shake, 0.035);
+        headX = -0.10 + Math.sin(t * 8.5) * 0.03;
+        headY = -0.02;
+        eyeOpen = 1.2;
+      } else {
+        // 일반 입질 — 가볍게 상체를 세우고 팔을 당겨 챔질
+        lean = -0.13;
+        armPull = 0.17 + Math.sin(t * 24) * 0.02;
+        rodX = u.rodRestX - 0.10 + Math.sin(t * 26) * 0.016;
+        bend2 = -0.06;
+        bend3 = -0.08;
+        seatLift = 0.028;
+        headX = -0.05;
+        headY = -0.02;
+      }
+    } else if (state.phase === "caught") {
+      var ck = clamp(state.phaseTime / 2.6, 0, 1);
+      if (state.biteHeavy) {
+        // 무거운 물고기를 릴링 — 젖힌 상체와 휘어진 낚싯대가 천천히 풀린다
+        lean = 0.32 * (1 - ck) + Math.sin(t * 10) * 0.04;
+        armPull = -0.14 * (1 - ck);
+        rodX = u.rodRestX + 0.22 * (1 - ck) + Math.sin(t * 12) * 0.055;
+        bend2 = -0.40 * (1 - ck) + Math.sin(t * 18) * 0.05;
+        bend3 = -0.55 * (1 - ck) + Math.sin(t * 22) * 0.07;
+        bendSide2 = 0.12 * (1 - ck);
+        bendSide3 = 0.20 * (1 - ck);
+      } else {
+        rodX += -0.17 * Math.sin(clamp(state.phaseTime / 0.8, 0, 1) * Math.PI);
+        lean = 0.03 + 0.05 * Math.sin(ck * Math.PI);
+      }
+      headY = -0.03;
+    }
+
+    // 3) 체력 0('지침') — 의자에 앉은 채 고개를 꾸벅꾸벅 조는 루프
+    if (sleepy && state.phase !== "biting" && state.phase !== "caught" && state.phase !== "casting") {
+      var cyc = 4.8;
+      var p = (t % cyc) / cyc;
+      var nod;
+      if (p < 0.46) nod = easeInOut(p / 0.46);
+      else if (p < 0.58) nod = 1 + Math.sin((p - 0.46) / 0.12 * Math.PI) * 0.04;
+      else if (p < 0.67) nod = 1 - easeOut((p - 0.58) / 0.09);
+      else nod = 0;
+      var twitch = (p >= 0.58 && p < 0.67) ? Math.sin((p - 0.58) / 0.09 * Math.PI) * 0.18 : 0;
+      headX = -0.78 * nod + twitch * 0.7 + Math.sin(t * 0.8) * 0.02;
+      lean = 0.03 - 0.13 * nod;
+      headY = Math.sin(t * 0.21) * 0.06;
+      rodX += 0.11 * nod;                    // 낚싯대도 살짝 처진다
+      armPull += 0.06 * nod;
+      eyeOpen = 0.06 + (p >= 0.58 ? 0.45 : 0);
+    }
+
+    // 4) 반영
+    u.torsoPivot.rotation.x = lean;
+    u.torsoPivot.rotation.z = Math.sin(t * 0.8) * 0.012;
+    u.torsoPivot.position.y = ANGLER_HIP_Y + Math.sin(t * 1.1) * 0.006 + seatLift;
+    u.head.rotation.x = headX;
+    u.head.rotation.y = headY;
+    u.armPivot.rotation.x = armPull;
+    u.leftArm.rotation.z = -0.16 + Math.sin(t * 0.6) * 0.02;
+    u.rodSeg2.rotation.x = bend2;
+    u.rodSeg3.rotation.x = bend3;
+    u.rodSeg2.rotation.z = bendSide2;
+    u.rodSeg3.rotation.z = bendSide3;
+    rodGroup.rotation.x = rodX;
+    rodGroup.rotation.z = rodZ;
+    var open = clamp(eyeOpen, 0.05, 1.2);
+    u.eyes[0].scale.y = open;
+    u.eyes[1].scale.y = open;
   }
 
   /* ---------- 찌 ---------- */
@@ -3967,6 +4237,11 @@
   function setPhase(phase) {
     state.phase = phase;
     state.phaseTime = 0;
+    // 입질용으로 미리 뽑아 둔 어종은 한 번만 쓰고 버린다
+    if (phase === "idle" || phase === "casting" || phase === "missed") {
+      state.biteFish = null;
+      state.biteHeavy = false;
+    }
 
     var pill = el.statusPill;
     pill.classList.toggle("biting", phase === "biting");
@@ -4081,6 +4356,8 @@
 
     if (state.phase === "waiting") {
       if (state.phaseTime >= state.waitDuration) {
+        state.biteFish = rollFish(currentBand(), currentRareMul());
+        state.biteHeavy = heavyFish(state.biteFish);
         setPhase("biting");
         state.biteElapsed = 0;
         state.pendingStrike = false;
@@ -4132,16 +4409,24 @@
     }
   }
 
+  function currentRareMul() {
+    var rod = RODS_BY_ID[economy.rod] || RODS[0];
+    var bait = BAITS_BY_ID[economy.bait] || BAITS[0];
+    return rod.rareMul * bait.rareMul *
+      (activeBuff("lucky") ? 2.2 : 1) *
+      (isTired() ? 0.45 : 1);
+  }
+
   function landFish(manual) {
     var rod = RODS_BY_ID[economy.rod] || RODS[0];
     var bait = BAITS_BY_ID[economy.bait] || BAITS[0];
     var bigBuff = activeBuff("big");
     var bigBonus = rod.bigBonus * bait.sizeBonus * (bigBuff ? 1.3 : 1);
-    var rareMul = rod.rareMul * bait.rareMul *
-      (activeBuff("lucky") ? 2.2 : 1) *
-      (isTired() ? 0.45 : 1);
 
-    var fish = rollFish(currentBand(), rareMul);
+    // 입질 때 미리 뽑아 둔 어종이 있으면 그것을 올린다 (없으면 지금 뽑는다)
+    var fish = state.biteFish || rollFish(currentBand(), currentRareMul());
+    state.biteFish = null;
+    state.biteHeavy = heavyFish(fish);
     var bonus = (manual ? 1.12 : 1.0) * bigBonus;
     var len = Math.min(fish.max, Math.round(rollLength(fish) * bonus * 10) / 10);
 
@@ -4882,31 +5167,8 @@
     // 낚싯줄
     updateLine();
 
-    // 낚시꾼 미세 동작
-    if (angler) {
-      var t = sceneTime;
-      angler.userData.torso.rotation.z = Math.sin(t * 0.8) * 0.012;
-      angler.userData.torso.position.y = 1.12 + Math.sin(t * 1.1) * 0.008;
-      angler.userData.head.rotation.y = Math.sin(t * 0.37) * 0.06 - 0.05;
-      angler.userData.head.rotation.x = Math.sin(t * 0.5) * 0.03;
-      angler.userData.leftArm.rotation.z = 0.22 + Math.sin(t * 0.6) * 0.02;
-
-      var swing = 0;
-      if (state.phase === "casting") {
-        var cp = clamp(state.phaseTime / 1.35, 0, 1);
-        if (cp < 0.3) swing = -0.42 * easeOut(cp / 0.3);
-        else if (cp < 0.62) swing = lerp(-0.42, 0.34, easeOut((cp - 0.3) / 0.32));
-        else swing = lerp(0.34, 0, easeOut((cp - 0.62) / 0.38));
-      } else if (state.phase === "biting") {
-        swing = -0.05 + Math.sin(t * 26) * 0.012;
-      } else if (state.phase === "waiting") {
-        swing = Math.sin(t * 0.9) * 0.012;
-      } else if (state.phase === "caught") {
-        swing = -0.16 * Math.sin(clamp(state.phaseTime / 0.8, 0, 1) * Math.PI);
-      }
-      rodGroup.rotation.x = -1.26 + swing;
-      rodGroup.rotation.z = -0.14 + Math.sin(t * 0.7) * 0.01;
-    }
+    // 낚시꾼 모션 (앉은 자세 · 우비/파라솔 · 입질 · 졸음)
+    updateAngler(dt);
 
     // 불꽃 흔들림 (기준 밝기에 매 프레임 깜빡임을 곱해 누적되지 않게)
     var flick = 0.78 + Math.sin(sceneTime * 9.3) * 0.12 + Math.sin(sceneTime * 17.7) * 0.08;
@@ -5703,6 +5965,58 @@
     addCoins: function (n) { var k = Math.floor(Number(n) || 0); economy.coins = Math.max(0, economy.coins + k); if (k > 0) economy.totalEarned += k; saveEconomy(); updateHUD(); },
     forceCatch: function (manual) { landFish(!!manual); },
     state: function () { return { phase: state.phase, session: state.session, started: state.started, band: currentBand() }; },
+    character: function () {
+      if (!angler) return null;
+      var u = angler.userData;
+      function r(v) { return Math.round(v * 1000) / 1000; }
+      var pose = "seated-idle";
+      if (state.phase === "biting") pose = state.biteHeavy ? "heavy-pull" : "light-strike";
+      else if (state.phase === "caught") pose = state.biteHeavy ? "heavy-reel" : "lift";
+      else if (state.phase === "casting") pose = "cast";
+      else if (isTired()) pose = "dozing";
+      return {
+        seated: !!u.seated,
+        pose: pose,
+        gear: r(anglerGearT),
+        hood: !!(u.hood && u.hood.visible),
+        parasol: !!(u.parasol && u.parasol.visible),
+        hat: !!(u.hat && u.hat.visible),
+        heavyBite: !!(state.phase === "biting" && state.biteHeavy),
+        biteFish: state.biteFish ? state.biteFish.id : null,
+        sleepy: isTired(),
+        lean: r(u.torsoPivot.rotation.x),
+        headNod: r(u.head.rotation.x),
+        rodBend: r(u.rodSeg3.rotation.x),
+        rodBendSide: r(u.rodSeg3.rotation.z),
+        jacket: "#" + u.jacketMat.color.getHexString()
+      };
+    },
+    heavyOf: function (id) { return heavyFish(FISH_BY_ID[id]); },
+    forceBite: function (heavy) {
+      var want = heavy !== false;      // 기본값은 무거운 입질
+      var fish = null;
+      for (var i = 0; i < 800 && !fish; i++) {
+        var f = rollFish(currentBand(), 1);
+        if (heavyFish(f) === want) fish = f;
+      }
+      if (!fish) fish = FISH.filter(function (f) { return heavyFish(f) === want; })[0] || FISH[0];
+      settings.auto = false;           // 검증 중 자동 낚아채기를 멈춘다 (저장하지 않음)
+      state.biteFish = fish;
+      state.biteHeavy = heavyFish(fish);
+      state.biteWindow = 9999;
+      state.biteElapsed = 0;
+      state.pendingStrike = false;
+      setPhase("biting");
+      return window.__rf.character();
+    },
+    endBite: function () {
+      state.biteFish = null;
+      state.biteHeavy = false;
+      state.biteWindow = 1.8;
+      setPhase("idle");
+      return window.__rf.character();
+    },
+    setAuto: function (on) { settings.auto = !!on; return settings.auto; },
     weather: function () {
       return {
         mode: weather.mode, current: weather.current,
