@@ -37,7 +37,7 @@ river-fishing-ios/
 ├─ Models/
 │  └─ Fish.swift                TimeBand(시간대) · Rarity(희귀도) · Fish · FishCatchRecord · FishBook · CatchResult
 ├─ Data/
-│  └─ FishCatalog.swift         어종 10종 정의 + 시간대별 확률표 + 가중치 뽑기 + 길이 분포
+│  └─ FishCatalog.swift         어종 56종(물고기·조개·갑각류·연체동물) 정의 + 시간대별 확률표 + 가중치 뽑기 + 길이 분포
 ├─ Services/
 │  ├─ TimeOfDayService.swift    현재 시각 → RiverMood(하늘/조명/안개/물/랜턴 파라미터) + 시간대 미리보기
 │  └─ FishingEngine.swift       낚시 상태 머신, 탭 챔질, 도감 저장(FishBookStore)

@@ -555,11 +555,74 @@
   }
   .dex-stats b { color: #e9f1ff; font-weight: 700; }
 
+  /* 도감 필터 칩 */
+  .dex-filters {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -18px;
+    padding: 2px 18px 0;
+  }
+  .dex-filters::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    appearance: none;
+    flex: 0 0 auto;
+    font-family: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #b9c8db;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    padding: 6px 11px;
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+  }
+  .filter-chip.active {
+    background: rgba(255, 208, 122, 0.18);
+    border-color: rgba(255, 208, 122, 0.55);
+    color: #ffe6b6;
+  }
+  .filter-chip .n { opacity: 0.62; font-weight: 600; margin-left: 3px; }
+
   .dex-scroll {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 14px 14px 6px;
+    padding: 10px 14px 6px;
     overscroll-behavior: contain;
+  }
+
+  /* 등급 구분 머리글 */
+  .dex-section {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 2px 2px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: #8d9bb0;
+    text-transform: uppercase;
+  }
+  .dex-section:first-child { padding-top: 0; }
+  .dex-section .sec-name { display: flex; align-items: center; gap: 6px; color: var(--sec, #8d9bb0); }
+  .dex-section .sec-name i {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--sec, #8d9bb0);
+    box-shadow: 0 0 8px var(--sec, #8d9bb0); font-style: normal;
+  }
+  .dex-section .sec-count { font-size: 10px; letter-spacing: 0.04em; color: #6f7d91; text-transform: none; }
+  .dex-empty {
+    grid-column: 1 / -1;
+    padding: 28px 8px 34px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
   }
 
   .dex-grid {
@@ -641,19 +704,29 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
     padding-top: 2px;
   }
-  .dex-rarity { font-size: 10.5px; font-weight: 700; color: var(--rar); }
-  .dex-bands { display: flex; gap: 3px; }
+  .dex-rarity {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--rar);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .dex-bands { display: flex; gap: 3px; flex: 0 0 auto; }
   .dex-bands span {
     font-size: 9.5px;
     font-weight: 700;
-    padding: 2px 5px;
+    width: 15px;
+    text-align: center;
+    padding: 2px 0;
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.08);
     color: #b9c8db;
   }
+  .dex-card.locked .dex-bands span { background: rgba(255, 255, 255, 0.05); color: #7d8da3; }
 
   .dex-actions {
     display: flex;
@@ -867,12 +940,12 @@
     </div>
   </footer>
 
-  <div id="dexModal" role="dialog" aria-modal="true" aria-label="물고기 도감">
+  <div id="dexModal" role="dialog" aria-modal="true" aria-label="강가 도감">
     <div class="backdrop" id="dexBackdrop"></div>
     <div class="dex-sheet">
       <div class="dex-head">
         <div class="dex-head-row">
-          <div class="dex-title">물고기 도감<small>10종</small></div>
+          <div class="dex-title">강가 도감<small id="dexSpecies">56종</small></div>
           <button class="close-btn" id="dexClose" aria-label="닫기">✕</button>
         </div>
         <div class="progress-wrap">
@@ -883,6 +956,14 @@
           <span>총 <b id="dexTotal">0</b>마리</span>
           <span>최대 <b id="dexBest">0cm</b></span>
           <span>이번 세션 <b id="dexSession">0</b>마리</span>
+        </div>
+        <div class="dex-filters" id="dexFilters" role="group" aria-label="도감 필터">
+          <button class="filter-chip active" data-filter="all">전체</button>
+          <button class="filter-chip" data-filter="dawn">🌄 새벽</button>
+          <button class="filter-chip" data-filter="day">☀️ 낮</button>
+          <button class="filter-chip" data-filter="sunset">🌇 노을</button>
+          <button class="filter-chip" data-filter="night">🌙 밤</button>
+          <button class="filter-chip" data-filter="missing">미수집</button>
         </div>
       </div>
       <div class="dex-scroll"><div class="dex-grid" id="dexGrid"></div></div>
@@ -901,7 +982,7 @@
       <ul class="intro-list">
         <li><span class="ico">👆</span><span><b>찌가 흔들리면 탭</b> — 화면을 탭하면 조금 더 큰 개체가 걸려요</span></li>
         <li><span class="ico">🕒</span><span><b>실시간 · 4가지 시간대</b> — 아래 버튼으로 새벽·낮·노을·밤을 바로 볼 수 있어요</span></li>
-        <li><span class="ico">🐟</span><span><b>물고기 10종 도감</b> — 시간대마다 다른 확률로 나타나요</span></li>
+        <li><span class="ico">🐟</span><span><b>물속 생물 56종 도감</b> — 물고기부터 조개·게·문어까지</span></li>
       </ul>
       <button id="introStart">강가로 나가기</button>
       <div class="intro-note">소리는 이 버튼을 누를 때 켜져요 · 도감은 이 브라우저에 저장됩니다</div>
@@ -950,56 +1031,220 @@
   };
 
   var FISH = [
-    { id: "pale-chub", name: "피라미", en: "Pale Chub", rarity: "common", min: 7, max: 15,
-      color: "#aac6d8", body: 1.0,
+    { id: "pale-chub", name: "피라미", en: "Pale Chub", rarity: "common", kind: "fish", min: 7, max: 15,
+      color: "#aac6d8", body: 1.00,
       summary: "수면 가까이에서 빠르게 움직이는 작은 물고기. 낮에는 물빛에 몸이 반짝인다." },
-    { id: "crucian-carp", name: "붕어", en: "Crucian Carp", rarity: "common", min: 12, max: 32,
+    { id: "crucian-carp", name: "붕어", en: "Crucian Carp", rarity: "common", kind: "fish", min: 12, max: 32,
       color: "#c39a63", body: 1.05,
       summary: "어느 시간대에나 만날 수 있는 강의 오랜 친구. 느긋하게 찌를 흔든다." },
-    { id: "common-carp", name: "잉어", en: "Common Carp", rarity: "uncommon", min: 35, max: 85,
+    { id: "gudgeon", name: "갈겨니", en: "Dark Chub", rarity: "common", kind: "fish", min: 8, max: 20,
+      color: "#8d9a6e", body: 1.00,
+      summary: "몸에 또렷한 세로줄이 있는 잔챙이. 여울에서 물이 부서지는 소리를 좋아한다." },
+    { id: "dark-chub", name: "버들치", en: "Chinese Minnow", rarity: "common", kind: "fish", min: 6, max: 14,
+      color: "#9fae7c", body: 0.98,
+      summary: "버들잎처럼 납작한 몸으로 차가운 물속을 잘도 빠져나간다." },
+    { id: "korean-ayu", name: "은어", en: "Sweetfish", rarity: "common", kind: "fish", min: 12, max: 26,
+      color: "#cde1ea", body: 1.02,
+      summary: "수박 향이 난다고 해서 붙은 이름. 여름 강에서 은빛으로 떼를 짓는다." },
+    { id: "smelt", name: "빙어", en: "Smelt", rarity: "common", kind: "fish", min: 6, max: 13,
+      color: "#ddedf2", body: 0.96,
+      summary: "겨울 강의 작은 손님. 얼음 아래에서도 물빛처럼 비치는 몸이다." },
+    { id: "sand-gudgeon", name: "모래무지", en: "Sand Gudgeon", rarity: "common", kind: "fish", min: 7, max: 16,
+      color: "#b9a887", body: 1.00,
+      summary: "모래바닥에 몸을 붙이고 지내는 수줍은 물고기. 밤에 더 자주 움직인다." },
+    { id: "oily-bitterling", name: "납자루", en: "Oily Bitterling", rarity: "common", kind: "fish", min: 5, max: 9,
+      color: "#c7b2b2", body: 0.94,
+      summary: "몸집이 작지만 무리 지어 헤엄치는 솜씨는 일품이다." },
+    { id: "striped-bitterling", name: "줄납자루", en: "Striped Bitterling", rarity: "common", kind: "fish", min: 5, max: 10,
+      color: "#b9a68f", body: 0.94,
+      summary: "등 쪽에 줄이 하나 그어진 조그만 물고기. 수초 사이를 좋아한다." },
+    { id: "korean-shiner", name: "참마자", en: "Korean Shiner", rarity: "common", kind: "fish", min: 12, max: 28,
+      color: "#a99c80", body: 1.06,
+      summary: "길쭉한 주둥이로 돌 밑을 조심조심 뒤진다. 강가에서 흔히 만나는 얼굴." },
+    { id: "hwang-eo", name: "황어", en: "Chub", rarity: "common", kind: "fish", min: 15, max: 30,
+      color: "#c8c98d", body: 1.04,
+      summary: "노을 무렵 누렇게 물든 몸으로 얕은 물가를 배회한다." },
+    { id: "tteokbungeo", name: "떡붕어", en: "Tteok Carp", rarity: "common", kind: "fish", min: 18, max: 40,
+      color: "#c8a97b", body: 1.10,
+      summary: "붕어보다 둥글고 두툼한 몸. 노을 강에서 유독 잘 걸린다." },
+    { id: "rosy-bitterling", name: "각시붕어", en: "Rosy Bitterling", rarity: "common", kind: "fish", min: 4, max: 7,
+      color: "#cf9aa6", body: 0.92,
+      summary: "작고 화려한 혼인색을 가진 물고기. 노을빛 아래서 유독 곱다." },
+    { id: "daseulgi", name: "다슬기", en: "River Snail", rarity: "common", kind: "snail", min: 3, max: 8,
+      color: "#5c5a44", body: 0.90,
+      summary: "돌에 붙어 느릿느릿 기어 다니는 나사 조개. 새벽 강바닥에서 흔히 만난다." },
+    { id: "nonurongi", name: "논우렁이", en: "Pond Snail", rarity: "common", kind: "snail", min: 2, max: 5,
+      color: "#7d7350", body: 0.85,
+      summary: "물풀 사이를 굴러다니는 동그란 우렁. 낮에는 물 위로 올라와 숨을 쉰다." },
+    { id: "jaecheop", name: "재첩", en: "Corbicula", rarity: "common", kind: "clam", min: 3, max: 6,
+      color: "#8d7a52", body: 0.85,
+      summary: "모래를 걸러 먹고 사는 작은 조개. 해 질 무렵 바닥에 흔적을 남긴다." },
+    { id: "minmul-saeu", name: "민물새우", en: "River Shrimp", rarity: "common", kind: "shrimp", min: 3, max: 7,
+      color: "#b6a98d", body: 0.80,
+      summary: "돌 틈에서 더듬이만 내밀고 기다리는 청소부. 밤이 되면 활발해진다." },
+    { id: "common-carp", name: "잉어", en: "Common Carp", rarity: "uncommon", kind: "fish", min: 35, max: 85,
       color: "#d2913f", body: 1.12,
       summary: "등지느러미를 수면 위로 내밀며 유유히 헤엄친다. 한 번 걸리면 팔이 아프다." },
-    { id: "catfish", name: "메기", en: "Catfish", rarity: "uncommon", min: 28, max: 65,
+    { id: "catfish", name: "메기", en: "Catfish", rarity: "uncommon", kind: "fish", min: 28, max: 65,
       color: "#6a7280", body: 1.15,
       summary: "긴 수염으로 어둠 속을 더듬는다. 해가 진 뒤에만 입질이 온다." },
-    { id: "mandarin-fish", name: "쏘가리", en: "Mandarin Fish", rarity: "rare", min: 18, max: 38,
-      color: "#dfa63f", body: 1.02,
-      summary: "새벽과 노을의 경계에서만 모습을 드러내는 강의 사냥꾼." },
-    { id: "night-eel", name: "밤장어", en: "Night Eel", rarity: "rare", min: 45, max: 95,
-      color: "#54617a", body: 1.28, eel: true,
-      summary: "밤물 속을 미끄러지는 긴 그림자. 잡고 나면 손이 한참 미끌미끌하다." },
-    { id: "silver-ayu", name: "은빛은어", en: "Silver Sweetfish", rarity: "uncommon", min: 12, max: 26,
+    { id: "korean-perch", name: "꺽지", en: "Korean Perch", rarity: "uncommon", kind: "fish", min: 10, max: 22,
+      color: "#79865e", body: 1.02,
+      summary: "돌 틈에 숨어 있다가 눈앞에서 사라진다. 얼룩무늬가 사냥감을 속인다." },
+    { id: "dotted-gudgeon", name: "동자개", en: "Dotted Gudgeon", rarity: "uncommon", kind: "fish", min: 15, max: 30,
+      color: "#6b6152", body: 1.08,
+      summary: "밤이 되면 수염을 세우고 바닥을 기어 다닌다." },
+    { id: "snakehead", name: "가물치", en: "Snakehead", rarity: "uncommon", kind: "fish", min: 30, max: 70,
+      color: "#55603f", body: 1.20,
+      summary: "물속의 제왕. 조용하지만 한 번 물면 쉽게 놓지 않는다." },
+    { id: "eel", name: "뱀장어", en: "Eel", rarity: "uncommon", kind: "eel", min: 40, max: 100,
+      color: "#5b6450", body: 1.28,
+      summary: "밤 강의 미끈한 손님. 잡고 나면 손에서 계속 빠져나간다." },
+    { id: "silver-ayu", name: "은빛은어", en: "Silver Sweetfish", rarity: "uncommon", kind: "fish", min: 12, max: 26,
       color: "#d6e8f0", body: 1.06,
       summary: "새벽 햇살을 등에 받으면 은가루를 뿌린 것처럼 반짝인다." },
-    { id: "sunset-perch", name: "노을농어", en: "Sunset Perch", rarity: "rare", min: 30, max: 52,
+    { id: "nuchi", name: "누치", en: "Nuchi", rarity: "uncommon", kind: "fish", min: 20, max: 45,
+      color: "#9a8f74", body: 1.10,
+      summary: "길고 뾰족한 주둥이로 바닥을 훑는다. 낮에는 좀처럼 모습을 보이지 않는다." },
+    { id: "gang-junchi", name: "강준치", en: "Gang Junchi", rarity: "uncommon", kind: "fish", min: 25, max: 60,
+      color: "#b9c2c9", body: 1.12,
+      summary: "은빛 몸을 번뜩이며 물 위를 가른다. 힘이 세고 잽싸다." },
+    { id: "kkeuri", name: "끄리", en: "Kkeuri", rarity: "uncommon", kind: "fish", min: 30, max: 70,
+      color: "#93a0a6", body: 1.14,
+      summary: "수면 가까이를 조용히 순찰하는 은빛 사냥꾼." },
+    { id: "brocade-carp", name: "비단잉어", en: "Brocade Carp", rarity: "uncommon", kind: "fish", min: 30, max: 70,
+      color: "#e0994c", body: 1.12,
+      summary: "비단처럼 번지는 무늬. 오래 걸어 두고 싶은 강의 귀빈이다." },
+    { id: "miro", name: "밀어", en: "Miro", rarity: "uncommon", kind: "fish", min: 6, max: 12,
+      color: "#8a8878", body: 0.94,
+      summary: "작은 빨판으로 돌에 붙어 사는 물고기. 여울의 틈새가 집이다." },
+    { id: "maljogae", name: "말조개", en: "Swan Mussel", rarity: "uncommon", kind: "clam", min: 12, max: 25,
+      color: "#6f6450", body: 1.00,
+      summary: "손바닥만 한 민물 조개. 물속에서 입을 살짝 벌리고 물을 거른다." },
+    { id: "chamge", name: "참게", en: "Mitten Crab", rarity: "uncommon", kind: "crab", min: 6, max: 12,
+      color: "#a1643c", body: 1.05,
+      summary: "집게발에 털이 수북한 강의 미식가. 밤이면 옆으로 빠르게 달아난다." },
+    { id: "gajae", name: "가재", en: "Crayfish", rarity: "uncommon", kind: "crab", min: 8, max: 15,
+      color: "#8a5636", body: 1.05,
+      summary: "돌 밑에 숨어 살다가 밤에 나와 바닥을 기어 다닌다. 집게발이 단단하다." },
+    { id: "softshell", name: "자라", en: "Softshell Turtle", rarity: "uncommon", kind: "turtle", min: 20, max: 40,
+      color: "#6e7a5f", body: 1.16,
+      summary: "물속을 유유히 떠다니는 늙은 등껍질. 바늘을 물고도 미동이 없다." },
+    { id: "mandarin-fish", name: "쏘가리", en: "Mandarin Fish", rarity: "rare", kind: "fish", min: 18, max: 38,
+      color: "#dfa63f", body: 1.02,
+      summary: "새벽과 노을의 경계에서만 모습을 드러내는 강의 사냥꾼." },
+    { id: "night-eel", name: "밤장어", en: "Night Eel", rarity: "rare", kind: "eel", min: 45, max: 95,
+      color: "#54617a", body: 1.28,
+      summary: "밤물 속을 미끄러지는 긴 그림자. 잡고 나면 손이 한참 미끌미끌하다." },
+    { id: "sunset-perch", name: "노을농어", en: "Sunset Perch", rarity: "rare", kind: "fish", min: 30, max: 52,
       color: "#ec8050", body: 1.04,
       summary: "해가 지는 쪽으로 몸을 돌리는 습성이 있다. 지느러미 끝이 붉다." },
-    { id: "starlight-trout", name: "별빛송어", en: "Starlight Trout", rarity: "legendary", min: 32, max: 58,
+    { id: "swiri", name: "쉬리", en: "Swiri", rarity: "rare", kind: "fish", min: 10, max: 20,
+      color: "#d1838f", body: 1.00,
+      summary: "몸 한가운데 붉은 줄이 지나간다. 맑고 찬 물에서만 산다." },
+    { id: "eorunchi", name: "어름치", en: "Eorunchi", rarity: "rare", kind: "fish", min: 20, max: 40,
+      color: "#7c7a66", body: 1.08,
+      summary: "천연기념물로 불리는 물고기. 지느러미 끝에 붉은 기운이 어린다." },
+    { id: "lenok", name: "열목어", en: "Lenok", rarity: "rare", kind: "fish", min: 30, max: 60,
+      color: "#8a7480", body: 1.06,
+      summary: "눈이 붉어 열목이라 불린다. 아주 찬 상류에서만 산다." },
+    { id: "masu-salmon", name: "산천어", en: "Masu Salmon", rarity: "rare", kind: "fish", min: 20, max: 45,
+      color: "#c47b6a", body: 1.06,
+      summary: "산과 시내를 오가는 물고기. 새벽 물빛 속에서 등이 붉다." },
+    { id: "cham-jonggae", name: "참종개", en: "Cham Jonggae", rarity: "rare", kind: "fish", min: 8, max: 14,
+      color: "#8a7a63", body: 0.94,
+      summary: "돌 밑에서 지내는 작은 수염 물고기. 밤에 더 자주 다닌다." },
+    { id: "kkuguri", name: "꾸구리", en: "Kkuguri", rarity: "rare", kind: "fish", min: 8, max: 15,
+      color: "#a08f72", body: 0.96,
+      summary: "모래바닥에 딱 붙어 숨는 물고기. 한낮에도 밤에도 조심스럽다." },
+    { id: "dongsa-ri", name: "동사리", en: "Dongsa-ri", rarity: "rare", kind: "fish", min: 10, max: 18,
+      color: "#6f7358", body: 1.02,
+      summary: "바닥에 앉아 낙엽처럼 굴러다닌다. 노을 무렵 작은 입질을 보낸다." },
+    { id: "kumgang-loach", name: "금강모치", en: "Kumgang Loach", rarity: "rare", kind: "fish", min: 8, max: 15,
+      color: "#b8a06a", body: 0.96,
+      summary: "새벽 물안개 속에서 반짝이는 물고기. 이름은 금강에서 왔다." },
+    { id: "susumikkuri", name: "수수미꾸리", en: "Susu Mikkuri", rarity: "rare", kind: "eel", min: 6, max: 11,
+      color: "#7d6b57", body: 0.92,
+      summary: "밤에만 나타나는 가느다란 미꾸리. 촉수를 조심스럽게 뻗는다." },
+    { id: "dol-sangeo", name: "돌상어", en: "Dol Sangeo", rarity: "rare", kind: "fish", min: 10, max: 18,
+      color: "#6b6656", body: 1.00,
+      summary: "돌 아래에 엎드리는 것이 유일한 재주. 밤에만 움직인다." },
+    { id: "jinju-jogae", name: "진주조개", en: "Pearl Mussel", rarity: "rare", kind: "clam", min: 10, max: 20,
+      color: "#c3ccd2", body: 1.00,
+      summary: "속을 열면 작은 진주가 반짝인다는 조개. 새벽과 밤의 물빛을 닮았다." },
+    { id: "agi-muneo", name: "아기문어", en: "Baby Octopus", rarity: "rare", kind: "octopus", min: 8, max: 15,
+      color: "#c78a86", body: 1.00,
+      summary: "돌 틈에서 여덟 팔을 말고 있던 깜짝 손님. 만지면 물을 뿜고 도망간다." },
+    { id: "starlight-trout", name: "별빛송어", en: "Starlight Trout", rarity: "legendary", kind: "fish", min: 32, max: 58,
       color: "#93a9ff", body: 1.08,
       summary: "별이 물에 비치는 밤에만 오른다. 비늘에 별자리가 새겨져 있다고 전해진다." },
-    { id: "golden-carp", name: "황금잉어", en: "Golden Carp", rarity: "legendary", min: 55, max: 105,
+    { id: "golden-carp", name: "황금잉어", en: "Golden Carp", rarity: "legendary", kind: "fish", min: 55, max: 105,
       color: "#f5c85a", body: 1.14,
-      summary: "노을이 강을 금빛으로 물들이는 몇 분 동안에만 낚이는 전설의 잉어." }
+      summary: "노을이 강을 금빛으로 물들이는 몇 분 동안에만 낚이는 전설의 잉어." },
+    { id: "dawn-sweetfish", name: "여명의은어", en: "Dawn Sweetfish", rarity: "legendary", kind: "fish", min: 30, max: 52,
+      color: "#ffd9a0", body: 1.06,
+      summary: "해가 뜨기 직전 물안개가 걷힐 때, 은어 떼에서 가장 은빛인 한 마리." },
+    { id: "rainbow-chub", name: "무지개버들치", en: "Rainbow Chub", rarity: "legendary", kind: "fish", min: 25, max: 45,
+      color: "#a6e0d8", body: 1.04,
+      summary: "한낮의 물보라에 몸을 드러내면 등에 일곱 빛이 걸린다." },
+    { id: "abyss-catfish", name: "심연의메기", en: "Abyss Catfish", rarity: "legendary", kind: "fish", min: 70, max: 140,
+      color: "#6f7bb5", body: 1.24,
+      summary: "강이 깊어지는 밤, 소용돌이 아래에서 서로에게만 들리는 수염 소리." },
+    { id: "galaxy-eel", name: "은하수뱀장어", en: "Galaxy Eel", rarity: "legendary", kind: "eel", min: 80, max: 160,
+      color: "#9d8cff", body: 1.30,
+      summary: "별이 물에 지는 밤, 강을 가로질러 은하가 흐른다는 목격담." },
+    { id: "gang-muneo", name: "강문어", en: "River Octopus", rarity: "legendary", kind: "octopus", min: 40, max: 90,
+      color: "#8f6f9e", body: 1.10,
+      summary: "깊은 물 아래에서 여덟 팔로 수면을 두드린다는 전설의 문어. 소문만 무성하다." },
+    { id: "byeolbit-jjukkumi", name: "별빛쭈꾸미", en: "Starlight Bobtail", rarity: "legendary", kind: "squid", min: 25, max: 45,
+      color: "#8fc7e6", body: 1.05,
+      summary: "노을이 지고 별이 뜨는 사이에만 물 위로 떠오르는 쭈꾸미. 몸에 별가루가 붙어 있다." }
   ];
-
-  var FISH_BY_ID = {};
-  FISH.forEach(function (f) { FISH_BY_ID[f.id] = f; });
 
   // 시간대별 출현 가중치 (합 100)
   var SPAWN = {
     dawn: [
-      ["pale-chub", 30], ["silver-ayu", 26], ["crucian-carp", 20], ["mandarin-fish", 12], ["common-carp", 12]
+      ["pale-chub", 13], ["gudgeon", 9], ["dark-chub", 10],
+      ["korean-ayu", 7], ["smelt", 6], ["daseulgi", 8],
+      ["korean-perch", 3], ["silver-ayu", 11], ["miro", 6],
+      ["mandarin-fish", 5], ["swiri", 5], ["lenok", 4],
+      ["kumgang-loach", 3], ["jinju-jogae", 3], ["starlight-trout", 1],
+      ["dawn-sweetfish", 4], ["abyss-catfish", 2]
     ],
     day: [
-      ["pale-chub", 32], ["crucian-carp", 28], ["common-carp", 18], ["silver-ayu", 14], ["mandarin-fish", 6], ["starlight-trout", 2]
+      ["pale-chub", 8], ["gudgeon", 7], ["dark-chub", 7],
+      ["sand-gudgeon", 8], ["oily-bitterling", 4], ["striped-bitterling", 2],
+      ["korean-shiner", 7], ["daseulgi", 5], ["nonurongi", 4],
+      ["common-carp", 7], ["silver-ayu", 4], ["nuchi", 3],
+      ["gang-junchi", 5], ["kkeuri", 3], ["miro", 2],
+      ["maljogae", 3], ["eorunchi", 4], ["masu-salmon", 3],
+      ["cham-jonggae", 2], ["kumgang-loach", 2], ["starlight-trout", 3],
+      ["golden-carp", 1], ["dawn-sweetfish", 2], ["rainbow-chub", 4]
     ],
     sunset: [
-      ["crucian-carp", 22], ["sunset-perch", 22], ["common-carp", 20], ["mandarin-fish", 16], ["pale-chub", 12], ["golden-carp", 8]
+      ["pale-chub", 8], ["crucian-carp", 11], ["striped-bitterling", 2],
+      ["korean-shiner", 5], ["hwang-eo", 5], ["tteokbungeo", 8],
+      ["rosy-bitterling", 4], ["nonurongi", 2], ["jaecheop", 4],
+      ["common-carp", 9], ["nuchi", 3], ["brocade-carp", 6],
+      ["chamge", 3], ["softshell", 4], ["mandarin-fish", 6],
+      ["sunset-perch", 9], ["cham-jonggae", 2], ["dongsa-ri", 3],
+      ["golden-carp", 4], ["galaxy-eel", 1], ["byeolbit-jjukkumi", 1]
     ],
     night: [
-      ["catfish", 30], ["night-eel", 24], ["crucian-carp", 18], ["starlight-trout", 12], ["common-carp", 10], ["pale-chub", 6]
+      ["pale-chub", 4], ["crucian-carp", 8], ["gudgeon", 2],
+      ["sand-gudgeon", 7], ["jaecheop", 1], ["minmul-saeu", 6],
+      ["catfish", 12], ["dotted-gudgeon", 4], ["snakehead", 5],
+      ["eel", 8], ["chamge", 3], ["gajae", 4],
+      ["night-eel", 5], ["cham-jonggae", 4], ["kkuguri", 3],
+      ["dongsa-ri", 2], ["susumikkuri", 4], ["dol-sangeo", 2],
+      ["jinju-jogae", 2], ["agi-muneo", 4], ["starlight-trout", 2],
+      ["abyss-catfish", 2], ["galaxy-eel", 2], ["gang-muneo", 2],
+      ["byeolbit-jjukkumi", 2]
     ]
   };
+
+  var FISH_BY_ID = {};
+  FISH.forEach(function (f) { FISH_BY_ID[f.id] = f; });
 
   var BANDS = {
     dawn:   { name: "새벽", hours: "05 – 08", preview: 6.4,  icon: "🌄", mood: "물안개가 강 위를 천천히 떠다녀요" },
@@ -1643,6 +1888,7 @@
     buildBobber();
     buildRipples();
     buildFireflies();
+    buildSwimmingFish();
 
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", function () {
@@ -2442,6 +2688,22 @@
       );
     }
 
+    // 헤엄치는 물고기: 시간대 밝기에 맞춰 색과 투명도를 조정 (수면 아래 비치는 느낌)
+    if (fishSchool) {
+      var dayF = clamp(m.sunIntensity / 1100, 0, 1);
+      var nightF = clamp(m.starOpacity, 0, 1);
+      var moonF = clamp(m.moonOpacity, 0, 1);
+      var lit = 0.46 + 0.52 * dayF * (1 - nightF) + 0.16 * moonF;
+      fishSchool.mat.color.setRGB(lit, lit * 1.01, lit * 1.03);
+      fishSchool.mat.emissive.setRGB(
+        clamp(m.water[0] * 0.55 + 0.04, 0, 1) * (0.12 + nightF * 0.5),
+        clamp(m.water[1] * 0.55 + 0.05, 0, 1) * (0.12 + nightF * 0.5),
+        clamp(m.water[2] * 0.55 + 0.06, 0, 1) * (0.12 + nightF * 0.5)
+      );
+      fishSchool.mat.opacity = 0.62 + 0.26 * (1 - nightF);
+      fishSchool.shadowMat.opacity = 0.10 + 0.16 * (1 - nightF);
+    }
+
     // 반딧불이 / 구름 / 안개
     fireflies.material.opacity = clamp((m.starOpacity - 0.32) / 0.6, 0, 1) * 0.95;
     cloudGroup.children.forEach(function (c) {
@@ -2791,16 +3053,73 @@
     }, 2800);
   }
 
-  /* ---------- 물고기 SVG ---------- */
+  /* ---------- 생물 실루엣 SVG (종류별) ---------- */
+  var FISH_SHAPES = {
+    fish: function () {
+      return '<path d="M6 18 C6 18 14 5.6 30 5.6 C45 5.6 53 12 55 18 C53 24 45 30.4 30 30.4 C14 30.4 6 18 6 18 Z" fill="currentColor"/>' +
+        '<path d="M54 18 L70 7.5 L66 18 L70 28.5 Z" fill="currentColor" opacity="0.78"/>' +
+        '<path d="M31 6.2 C36 11 36 25 31 29.8" stroke="rgba(0,0,0,0.16)" stroke-width="2.2" fill="none"/>' +
+        '<path d="M22 26 L28 33 L34 27" fill="currentColor" opacity="0.65"/>' +
+        '<circle cx="17.5" cy="14.6" r="2.5" fill="rgba(8,14,22,0.85)"/>' +
+        '<circle cx="16.9" cy="13.9" r="0.9" fill="rgba(255,255,255,0.75)"/>';
+    },
+    eel: function () {
+      return '<path d="M4 23 C12 10 22 29 32 21 C40 15 47 25 56 18" stroke="currentColor" stroke-width="7" stroke-linecap="round" fill="none"/>' +
+        '<path d="M55 18 L70 10 L66 18 L70 26 Z" fill="currentColor" opacity="0.8"/>' +
+        '<circle cx="9" cy="20" r="1.8" fill="rgba(8,14,22,0.9)"/>' +
+        '<path d="M8 26 C14 24 20 27 26 24" stroke="rgba(0,0,0,0.18)" stroke-width="1.6" fill="none"/>';
+    },
+    snail: function () {
+      return '<path d="M30 30 L64 31 L58 23 L34 22 Z" fill="currentColor" opacity="0.72"/>' +
+        '<circle cx="28" cy="17" r="13.5" fill="currentColor"/>' +
+        '<path d="M28 17 a4.2 4.2 0 1 1 4.2 4.2 M28 17 a8.4 8.4 0 1 0 8.4 8.4" stroke="rgba(0,0,0,0.3)" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+        '<path d="M38 8 L46 3 M38 10 L48 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>';
+    },
+    clam: function () {
+      return '<path d="M8 25 C10 12 22 4 36 4 C50 4 62 12 64 25 C50 30 22 30 8 25 Z" fill="currentColor"/>' +
+        '<path d="M36 5 L36 28 M23 8 L27 27 M49 8 L45 27" stroke="rgba(0,0,0,0.22)" stroke-width="2" fill="none"/>' +
+        '<path d="M9 25 C22 31 50 31 63 25" stroke="rgba(255,255,255,0.28)" stroke-width="1.6" fill="none"/>' +
+        '<ellipse cx="36" cy="6.4" rx="5" ry="2.2" fill="rgba(255,255,255,0.22)"/>';
+    },
+    crab: function () {
+      return '<path d="M23 16 L13 9 M49 16 L59 9" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" fill="none"/>' +
+        '<circle cx="10" cy="8" r="4.6" fill="currentColor"/><circle cx="62" cy="8" r="4.6" fill="currentColor"/>' +
+        '<path d="M9 6 L6 3 M63 6 L66 3" stroke="rgba(0,0,0,0.3)" stroke-width="1.6" stroke-linecap="round"/>' +
+        '<ellipse cx="36" cy="20" rx="15" ry="9.5" fill="currentColor"/>' +
+        '<path d="M23 25 L11 31 M30 27 L23 33 M49 25 L61 31 M42 27 L49 33" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>' +
+        '<circle cx="30.5" cy="16.5" r="2" fill="rgba(8,14,22,0.85)"/><circle cx="41.5" cy="16.5" r="2" fill="rgba(8,14,22,0.85)"/>';
+    },
+    shrimp: function () {
+      return '<path d="M17 25 C19 13 37 6 49 11 C57 14 59 20 54 24 C43 31 25 31 17 25 Z" fill="currentColor"/>' +
+        '<path d="M18 25 L6 31 L10 23 Z" fill="currentColor" opacity="0.8"/>' +
+        '<path d="M51 11 C59 6 65 2 70 4 M51 8 C57 2 63 0 67 1" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/>' +
+        '<path d="M28 28 L26 33 M37 29 L36 34 M45 28 L45 33" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>' +
+        '<circle cx="49.5" cy="12.5" r="1.9" fill="rgba(8,14,22,0.85)"/>' +
+        '<path d="M31 10 C33 16 33 22 31 26" stroke="rgba(0,0,0,0.16)" stroke-width="1.8" fill="none"/>';
+    },
+    octopus: function () {
+      return '<ellipse cx="38" cy="13" rx="15" ry="10.5" fill="currentColor"/>' +
+        '<path d="M27 22 C23 30 17 32 13 29 M33 24 C31 32 27 35 23 34 M41 24 C41 32 37 35 33 34 M49 23 C51 31 49 34 45 34 M55 20 C60 27 63 29 67 28" stroke="currentColor" stroke-width="3.1" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="31.5" cy="12" r="2.1" fill="rgba(8,14,22,0.85)"/><circle cx="44.5" cy="12" r="2.1" fill="rgba(8,14,22,0.85)"/>';
+    },
+    squid: function () {
+      return '<path d="M50 17 C50 10 44 5 36 5 C28 5 22 10 22 17 C22 24 28 28 36 28 C44 28 50 24 50 17 Z" fill="currentColor"/>' +
+        '<path d="M20 12 L8 6 L14 15 Z M20 22 L8 28 L14 19 Z" fill="currentColor" opacity="0.78"/>' +
+        '<path d="M50 15 C57 14 63 17 64 22 M50 19 C56 20 60 24 60 29 M50 22 C54 26 54 31 50 33" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="44" cy="15" r="2" fill="rgba(8,14,22,0.85)"/>';
+    },
+    turtle: function () {
+      return '<ellipse cx="33" cy="18" rx="19" ry="11" fill="currentColor"/>' +
+        '<path d="M52 14 C58 11 65 13 68 16 C65 20 58 22 52 21 Z" fill="currentColor"/>' +
+        '<path d="M18 26 L14 32 M27 27 L25 33 M43 27 L45 33 M51 26 L55 32" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/>' +
+        '<path d="M22 12 C26 8 32 6 38 8" stroke="rgba(255,255,255,0.25)" stroke-width="2" fill="none"/>' +
+        '<circle cx="63" cy="15.5" r="1.4" fill="rgba(8,14,22,0.85)"/>';
+    }
+  };
+
   function fishSVG(f) {
-    return '<svg viewBox="0 0 72 36" aria-hidden="true" focusable="false">' +
-      '<path d="M6 18 C6 18 14 5.6 30 5.6 C45 5.6 53 12 55 18 C53 24 45 30.4 30 30.4 C14 30.4 6 18 6 18 Z" fill="currentColor"/>' +
-      '<path d="M54 18 L70 7.5 L66 18 L70 28.5 Z" fill="currentColor" opacity="0.78"/>' +
-      '<path d="M31 6.2 C36 11 36 25 31 29.8" stroke="rgba(0,0,0,0.16)" stroke-width="2.2" fill="none"/>' +
-      '<path d="M22 26 L28 33 L34 27" fill="currentColor" opacity="0.65"/>' +
-      '<circle cx="17.5" cy="14.6" r="2.5" fill="rgba(8,14,22,0.85)"/>' +
-      '<circle cx="16.9" cy="13.9" r="0.9" fill="rgba(255,255,255,0.75)"/>' +
-      '</svg>';
+    var shape = FISH_SHAPES[f.kind] || FISH_SHAPES.fish;
+    return '<svg viewBox="0 0 72 36" aria-hidden="true" focusable="false">' + shape() + '</svg>';
   }
 
   /* ---------- 도감 ---------- */
@@ -2808,6 +3127,36 @@
     var n = caughtCount();
     el.dexBadge.textContent = n;
     el.dexBadge.style.display = n > 0 ? "grid" : "none";
+  }
+
+  var dexFilter = "all";
+
+  function fishMatchesFilter(f, filter) {
+    if (filter === "all") return true;
+    if (filter === "missing") return !book.records[f.id];
+    return bandsOf(f.id).indexOf(filter) !== -1;
+  }
+
+  function dexCardHTML(f) {
+    var rec = book.records[f.id];
+    var got = !!rec;
+    var rar = RARITY[f.rarity];
+    var bands = bandsOf(f.id).map(function (b) { return "<span>" + BANDS[b].name.charAt(0) + "</span>"; }).join("");
+
+    return '<div class="dex-card ' + (got ? "got" : "locked") + ' dex-' + (f.kind || "fish") + '" ' +
+      'style="--fish:' + (got ? f.color : "#223044") + ';--rar:' + rar.color + '">' +
+        '<div class="dex-fish">' + fishSVG(f) + '</div>' +
+        '<div class="dex-name"><span class="rarity-dot"></span>' + (got ? f.name : "???") + '</div>' +
+        '<div class="dex-meta">' +
+          (got
+            ? ('<b class="best">' + rec.longest.toFixed(1) + 'cm</b> · ' + rec.count + '마리')
+            : '아직 만나지 못했어요') +
+        '</div>' +
+        '<div class="dex-foot">' +
+          '<span class="dex-rarity" title="' + rar.label + '">' + '★'.repeat(rar.stars) + '☆'.repeat(4 - rar.stars) + '</span>' +
+          '<span class="dex-bands">' + bands + '</span>' +
+        '</div>' +
+      '</div>';
   }
 
   function renderDex() {
@@ -2818,30 +3167,57 @@
     el.dexTotal.textContent = String(totalCatches());
     el.dexBest.textContent = bestLength() > 0 ? bestLength().toFixed(1) + "cm" : "0cm";
     el.dexSession.textContent = String(state.session);
+    if (el.dexSpecies) el.dexSpecies.textContent = FISH.length + "종";
 
-    var html = FISH.map(function (f) {
-      var rec = book.records[f.id];
-      var got = !!rec;
-      var rar = RARITY[f.rarity];
-      var bands = bandsOf(f.id).map(function (b) { return "<span>" + BANDS[b].name + "</span>"; }).join("");
+    // 필터 칩 숫자 갱신
+    var chipCounts = { all: FISH.length, dawn: 0, day: 0, sunset: 0, night: 0, missing: 0 };
+    FISH.forEach(function (f) {
+      if (!book.records[f.id]) chipCounts.missing += 1;
+      bandsOf(f.id).forEach(function (b) { chipCounts[b] += 1; });
+    });
+    if (el.dexFilters) {
+      Array.prototype.forEach.call(el.dexFilters.querySelectorAll(".filter-chip"), function (chip) {
+        var n = chip.querySelector(".n");
+        if (!n) {
+          n = document.createElement("span");
+          n.className = "n";
+          chip.appendChild(n);
+        }
+        n.textContent = String(chipCounts[chip.getAttribute("data-filter")] || 0);
+        chip.classList.toggle("active", chip.getAttribute("data-filter") === dexFilter);
+      });
+    }
 
-      return '<div class="dex-card ' + (got ? "got" : "locked") + (f.eel ? " eel" : "") + '" ' +
-        'style="--fish:' + (got ? f.color : "#223044") + ';--rar:' + rar.color + '">' +
-          '<div class="dex-fish">' + fishSVG(f) + '</div>' +
-          '<div class="dex-name"><span class="rarity-dot"></span>' + (got ? f.name : "???") + '</div>' +
-          '<div class="dex-meta">' +
-            (got
-              ? ('<b class="best">' + rec.longest.toFixed(1) + 'cm</b> · ' + rec.count + '마리')
-              : '아직 만나지 못했어요') +
-          '</div>' +
-          '<div class="dex-foot">' +
-            '<span class="dex-rarity">' + '★'.repeat(rar.stars) + '☆'.repeat(4 - rar.stars) + ' ' + rar.label + '</span>' +
-            '<span class="dex-bands">' + (got ? bands : "") + '</span>' +
-          '</div>' +
-        '</div>';
-    }).join("");
+    var list = FISH.filter(function (f) { return fishMatchesFilter(f, dexFilter); });
+    var parts = [];
+    var lastRarity = null;
 
-    el.dexGrid.innerHTML = html;
+    list.forEach(function (f) {
+      if (f.rarity !== lastRarity) {
+        lastRarity = f.rarity;
+        var rar = RARITY[f.rarity];
+        var total = 0;
+        var gotN = 0;
+        FISH.forEach(function (x) {
+          if (x.rarity !== f.rarity) return;
+          total += 1;
+          if (book.records[x.id]) gotN += 1;
+        });
+        parts.push(
+          '<div class="dex-section" style="--sec:' + rar.color + '">' +
+            '<span class="sec-name"><i></i>' + rar.label + '</span>' +
+            '<span class="sec-count">' + gotN + ' / ' + total + '종</span>' +
+          '</div>'
+        );
+      }
+      parts.push(dexCardHTML(f));
+    });
+
+    if (!parts.length) {
+      parts.push('<div class="dex-empty">이 조건에 맞는 물고기가 없어요.<br>다른 시간대를 골라 보세요.</div>');
+    }
+
+    el.dexGrid.innerHTML = parts.join("");
   }
 
   function openDex() {
@@ -2911,6 +3287,9 @@
       rp.mesh.position.y = waveHeight(rp.x, rp.z, sceneTime) + 0.05;
       rp.mesh.material.opacity = (1 - k) * (rp.scale > 2 ? 0.34 : 0.28) * (1 - k * 0.35);
     }
+
+    // 물속을 헤엄치는 물고기 떼
+    updateSwimmingFish(dt);
 
     // 찌 위치
     updateBobber(dt);
@@ -3091,6 +3470,226 @@
   }
 
   /* =====================================================================
+     11-2. 물속을 헤엄치는 물고기 떼 (InstancedMesh · 드로우콜 3)
+     ===================================================================== */
+  var fishSchool = null;
+  var schoolDummy = null;
+  var fishRippleTimer = 0;
+
+  // len(길이) h(높이) w(폭) · 중심(cx,cz)과 궤도 반경(rx,rz) · 속도(sp) · 위상(ph)
+  var SCHOOL_SPECS = [
+    { len: 0.30, h: 0.17, w: 0.10, color: 0xbfd2d6, cx: -2.6, cz: -9.2,  rx: 1.9, rz: 1.3, sp: 0.66, ph: 0.3 },
+    { len: 0.27, h: 0.15, w: 0.09, color: 0xb9c3a4, cx: -3.5, cz: -8.4,  rx: 1.5, rz: 1.1, sp: 0.74, ph: 2.1 },
+    { len: 0.29, h: 0.16, w: 0.09, color: 0xd6c5aa, cx: -1.9, cz: -8.2,  rx: 1.6, rz: 1.0, sp: 0.60, ph: 4.0 },
+    { len: 0.44, h: 0.23, w: 0.14, color: 0xafc8d4, cx:  2.7, cz: -11.2, rx: 2.6, rz: 1.8, sp: 0.42, ph: 0.9 },
+    { len: 0.48, h: 0.25, w: 0.15, color: 0xb2bf90, cx:  3.5, cz: -10.2, rx: 2.1, rz: 1.4, sp: 0.50, ph: 3.2 },
+    { len: 0.70, h: 0.33, w: 0.20, color: 0xcbb083, cx: -5.6, cz: -12.4, rx: 3.2, rz: 2.2, sp: 0.32, ph: 4.6 },
+    { len: 0.80, h: 0.36, w: 0.22, color: 0x9aa98a, cx:  0.9, cz: -15.4, rx: 3.6, rz: 2.4, sp: 0.27, ph: 1.2 },
+    { len: 0.72, h: 0.34, w: 0.21, color: 0xd2a06a, cx: -1.9, cz: -17.2, rx: 3.0, rz: 2.0, sp: 0.25, ph: 5.4 },
+    { len: 1.20, h: 0.50, w: 0.32, color: 0xa8895f, cx:  6.4, cz: -17.6, rx: 3.4, rz: 2.4, sp: 0.19, ph: 2.4 },
+    { len: 1.45, h: 0.15, w: 0.11, color: 0x7d8a72, cx: -7.2, cz: -7.6,  rx: 3.8, rz: 1.4, sp: 0.33, ph: 3.9 },
+    { len: 0.95, h: 0.42, w: 0.28, color: 0xc9b683, cx:  4.6, cz: -13.6, rx: 2.4, rz: 1.6, sp: 0.23, ph: 0.5 }
+  ];
+
+  // 물고기 몸통: 앞뒤가 뾰족한 저폴리 방추형 + 등지느러미 (한 지오메트리)
+  function makeFishBodyGeometry() {
+    var rings = [
+      { x: -0.50, y: 0.045, z: 0.018 },   // 꼬리 자루
+      { x: -0.34, y: 0.150, z: 0.055 },
+      { x: -0.10, y: 0.245, z: 0.095 },
+      { x:  0.16, y: 0.230, z: 0.090 },
+      { x:  0.34, y: 0.135, z: 0.055 },
+      { x:  0.50, y: 0.020, z: 0.010 }    // 입
+    ];
+    var seg = 6;
+    var pos = [];
+    var idx = [];
+    for (var r = 0; r < rings.length; r++) {
+      var ring = rings[r];
+      for (var s = 0; s < seg; s++) {
+        var a = (s / seg) * Math.PI * 2;
+        pos.push(ring.x, Math.cos(a) * ring.y, Math.sin(a) * ring.z);
+      }
+    }
+    for (var i = 0; i < rings.length - 1; i++) {
+      for (var k = 0; k < seg; k++) {
+        var a0 = i * seg + k;
+        var a1 = i * seg + ((k + 1) % seg);
+        var b0 = (i + 1) * seg + k;
+        var b1 = (i + 1) * seg + ((k + 1) % seg);
+        idx.push(a0, b0, a1, a1, b0, b1);
+      }
+    }
+    // 등지느러미 (위로 솟은 얇은 판)
+    var base = pos.length / 3;
+    pos.push(-0.18, 0.22, 0,  0.16, 0.18, 0,  0.04, 0.34, 0,  -0.22, 0.30, 0);
+    idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  function buildSwimmingFish() {
+    var count = SCHOOL_SPECS.length;
+    if (!count) return;
+
+    var bodyGeo = makeFishBodyGeometry();
+
+    // 꼬리지느러미: 가운데가 파인 갈래꼬리
+    var tailGeo = new THREE.BufferGeometry();
+    tailGeo.setAttribute("position", new THREE.Float32BufferAttribute([
+      0, 0.01, 0,   -0.36, 0.40, 0,   -0.22, 0.01, 0,
+      0, -0.01, 0,  -0.22, -0.01, 0,  -0.36, -0.40, 0
+    ], 3));
+    tailGeo.computeVertexNormals();
+
+    var mat = new THREE.MeshStandardMaterial({
+      color: 0xffffff, roughness: 0.30, metalness: 0.30,
+      flatShading: true, transparent: true, opacity: 0.78,
+      depthWrite: false, depthTest: true, side: THREE.DoubleSide
+    });
+
+    var bodies = new THREE.InstancedMesh(bodyGeo, mat, count);
+    var tails = new THREE.InstancedMesh(tailGeo, mat, count);
+    [bodies, tails].forEach(function (mesh) {
+      mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      mesh.frustumCulled = false;   // 인스턴스가 계속 움직이므로 컬링 계산을 생략
+      mesh.renderOrder = 6;
+      scene.add(mesh);
+    });
+
+    // 수면에 옅게 비치는 그림자
+    var shadowMat = new THREE.MeshBasicMaterial({
+      map: makeShadowTexture(), transparent: true, opacity: 0.18,
+      depthWrite: false, depthTest: true, color: 0xffffff
+    });
+    var shadows = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), shadowMat, count);
+    shadows.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    shadows.frustumCulled = false;
+    shadows.renderOrder = 5;
+    scene.add(shadows);
+
+    var items = [];
+    var col = new THREE.Color();
+    for (var i = 0; i < count; i++) {
+      var sp = SCHOOL_SPECS[i];
+      col.setHex(sp.color);
+      bodies.setColorAt(i, col);
+      tails.setColorAt(i, col);
+      items.push({
+        len: sp.len * 1.25, h: sp.h * 1.35, w: sp.w * 1.25,
+        cx: sp.cx, cz: sp.cz, rx: sp.rx, rz: sp.rz,
+        sp: sp.sp, ph: sp.ph, seed: sp.ph * 1.7,
+        x: sp.cx, z: sp.cz, px: sp.cx, pz: sp.cz,
+        yaw: 0, attract: 0
+      });
+    }
+    if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
+    if (tails.instanceColor) tails.instanceColor.needsUpdate = true;
+
+    fishSchool = { bodies: bodies, tails: tails, shadows: shadows, mat: mat, shadowMat: shadowMat, items: items };
+    schoolDummy = new THREE.Object3D();
+    schoolDummy.rotation.order = "YXZ";
+  }
+
+  function updateSwimmingFish(dt) {
+    if (!fishSchool) return;
+    var t = sceneTime;
+    var d = schoolDummy;
+    var items = fishSchool.items;
+
+    // 입질 중이면 찌에 가장 가까운 한 마리가 찌 쪽으로 다가온다
+    var near = -1;
+    if (state.phase === "biting" || state.phase === "caught") {
+      var best = Infinity;
+      for (var i = 0; i < items.length; i++) {
+        var bx = items[i].x - BOBBER_TARGET.x;
+        var bz = items[i].z - BOBBER_TARGET.z;
+        var dist = bx * bx + bz * bz;
+        if (dist < best) { best = dist; near = i; }
+      }
+    }
+
+    for (var k = 0; k < items.length; k++) {
+      var f = items[k];
+      var a = t * f.sp + f.ph;
+      var px = f.cx + Math.sin(a) * f.rx + Math.sin(a * 0.57 + f.seed) * f.rx * 0.26;
+      var pz = f.cz + Math.cos(a * 0.81 + f.seed * 1.3) * f.rz + Math.cos(a * 0.43 + f.ph) * f.rz * 0.20;
+
+      var want = (k === near) ? 1 : 0;
+      f.attract += (want - f.attract) * (1 - Math.exp(-dt * 2.4));
+      var x = px;
+      var z = pz;
+      if (f.attract > 0.002) {
+        var na = t * 1.5 + f.ph;
+        x = lerp(px, BOBBER_TARGET.x + Math.cos(na) * 0.72, f.attract);
+        z = lerp(pz, BOBBER_TARGET.z + Math.sin(na) * 0.58, f.attract);
+      }
+
+      var wave = waveHeight(x, z, t);
+      var y = wave + 0.055 + Math.sin(t * 1.25 + f.ph) * 0.016;
+
+      // 진행 방향: 위치 변화로 방향을 잡고 부드럽게 돌린다
+      var step = Math.max(dt, 0.001);
+      var vx = (x - f.px) / step;
+      var vz = (z - f.pz) / step;
+      f.px = x;
+      f.pz = z;
+      if (isFinite(vx) && isFinite(vz) && (vx * vx + vz * vz) > 0.0004) {
+        var targetYaw = Math.atan2(-vz, vx);
+        var dyaw = targetYaw - f.yaw;
+        while (dyaw > Math.PI) dyaw -= Math.PI * 2;
+        while (dyaw < -Math.PI) dyaw += Math.PI * 2;
+        f.yaw += dyaw * Math.min(1, dt * 6);
+      }
+      f.x = x;
+      f.z = z;
+
+      var pitch = Math.sin(t * 1.25 + f.ph) * 0.05;
+      var roll = Math.sin(t * 0.85 + f.ph) * 0.06;
+
+      d.position.set(x, y, z);
+      d.rotation.set(pitch, f.yaw, roll);
+      d.scale.set(f.len, f.h * 1.65, f.w * 2.1);
+      d.updateMatrix();
+      fishSchool.bodies.setMatrixAt(k, d.matrix);
+
+      // 꼬리지느러미가 몸통 뒤에서 살랑거린다
+      var wag = Math.sin(t * (5.2 + f.sp * 7) + f.ph * 2.4) * 0.46;
+      var cy = Math.cos(f.yaw);
+      var sy = Math.sin(f.yaw);
+      var back = f.len * 0.48;
+      d.position.set(x - cy * back, y - Math.sin(pitch) * back * 0.5, z + sy * back);
+      d.rotation.set(pitch * 0.6, f.yaw + wag, roll * 0.5);
+      d.scale.set(f.len * 0.52, f.h * 1.7, 1);
+      d.updateMatrix();
+      fishSchool.tails.setMatrixAt(k, d.matrix);
+
+      // 수면 그림자
+      d.position.set(x, wave + 0.019, z);
+      d.rotation.set(-Math.PI / 2, 0, 0);
+      d.scale.set(f.len * 1.9, f.len * 1.4, 1);
+      d.updateMatrix();
+      fishSchool.shadows.setMatrixAt(k, d.matrix);
+    }
+
+    fishSchool.bodies.instanceMatrix.needsUpdate = true;
+    fishSchool.tails.instanceMatrix.needsUpdate = true;
+    fishSchool.shadows.instanceMatrix.needsUpdate = true;
+
+    // 가끔 수면에 잔물결을 남긴다
+    fishRippleTimer -= dt;
+    if (fishRippleTimer <= 0 && items.length) {
+      fishRippleTimer = rand(1.2, 2.4);
+      var rf = items[Math.floor(Math.random() * items.length)];
+      spawnRipple(rf.x, rf.z, 0.55, 1.1, 0.2);
+    }
+  }
+
+  /* =====================================================================
      12. UI 연결
      ===================================================================== */
   function bindUI() {
@@ -3110,6 +3709,8 @@
     el.dexSession = $("#dexSession");
     el.dexReset = $("#dexReset");
     el.dexBadge = $("#dexBadge");
+    el.dexSpecies = $("#dexSpecies");
+    el.dexFilters = $("#dexFilters");
 
     el.btnStrike.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -3126,6 +3727,18 @@
     });
     $("#dexClose").addEventListener("click", closeDex);
     $("#dexBackdrop").addEventListener("click", closeDex);
+
+    if (el.dexFilters) {
+      Array.prototype.forEach.call(el.dexFilters.querySelectorAll(".filter-chip"), function (chip) {
+        chip.addEventListener("click", function (e) {
+          e.stopPropagation();
+          dexFilter = chip.getAttribute("data-filter") || "all";
+          renderDex();
+          var scroller = $(".dex-scroll");
+          if (scroller) scroller.scrollTop = 0;
+        });
+      });
+    }
 
     el.dexReset.addEventListener("click", function () {
       if (!el.dexReset.classList.contains("confirm")) {
