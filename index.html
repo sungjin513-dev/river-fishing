@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="로우폴리 3D 강가에서 즐기는 잔잔한 낚시. 시간대와 날씨에 따라 빛과 200종의 생물이 바뀝니다.">
+<meta name="description" content="로우폴리 3D 강가에서 즐기는 잔잔한 낚시. 시간대와 날씨에 따라 빛과 310종의 생물이 바뀝니다.">
 <title>강가 낚시 · River Fishing</title>
 <style>
   :root {
@@ -366,6 +366,225 @@
     100% { transform: scale(1.55); opacity: 0; }
   }
 
+  /* ── ✨ 히든 입질 전용 알림 ───────────────────── */
+  #hiddenVignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 8;
+    opacity: 0;
+    border-radius: 18px;
+    transition: opacity 0.2s ease;
+  }
+  body.hidden-bite #hiddenVignette {
+    opacity: 1;
+    border: 3px solid rgba(255, 232, 160, 0.95);
+    background:
+      radial-gradient(120% 92% at 50% 48%, rgba(0, 0, 0, 0) 44%, rgba(255, 196, 96, 0.34) 80%, rgba(255, 140, 210, 0.5) 100%);
+    animation: hbVignette 0.85s ease-in-out infinite alternate;
+  }
+  @keyframes hbVignette {
+    from { opacity: 0.55; }
+    to   { opacity: 1; }
+  }
+
+  #hiddenBanner {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--safe-top) + 21%);
+    transform: translate(-50%, -50%) scale(0.72);
+    width: min(86vw, 340px);
+    display: none;
+    place-items: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 12;
+    text-align: center;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+  body.hidden-bite #hiddenBanner.on {
+    display: grid;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    animation: hbCardPulse 0.72s ease-in-out infinite;
+  }
+  #hiddenBanner .hb-card {
+    position: relative;
+    width: 100%;
+    padding: 13px 16px 12px;
+    border-radius: 20px;
+    background: linear-gradient(160deg, rgba(64, 34, 8, 0.94), rgba(30, 16, 48, 0.94));
+    border: 2px solid rgba(255, 222, 140, 0.95);
+    box-shadow: 0 0 34px rgba(255, 200, 90, 0.7), 0 0 90px rgba(180, 140, 255, 0.45), inset 0 0 30px rgba(255, 220, 140, 0.18);
+  }
+  #hiddenBanner .hb-kicker {
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    font-weight: 900;
+    color: #ffe9a8;
+    opacity: 0.9;
+  }
+  #hiddenBanner .hb-title {
+    margin-top: 2px;
+    font-size: 23px;
+    line-height: 1.15;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #fff6d6;
+    text-shadow: 0 0 14px rgba(255, 214, 120, 0.95), 0 2px 12px rgba(0, 0, 0, 0.6);
+  }
+  #hiddenBanner .hb-sub {
+    margin-top: 3px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffd9a0;
+  }
+  #hiddenBanner .hb-bar {
+    position: relative;
+    height: 7px;
+    margin: 9px 0 5px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.16);
+    overflow: hidden;
+  }
+  #hiddenBanner .hb-bar i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #fff3c0, #ffc65e 55%, #ff8ac0);
+    box-shadow: 0 0 12px rgba(255, 200, 110, 0.9);
+    transition: width 0.08s linear;
+  }
+  #hiddenBanner .hb-time {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffedc4;
+    font-variant-numeric: tabular-nums;
+  }
+  #hiddenBanner .hb-time b { font-size: 13px; color: #fff; }
+  @keyframes hbCardPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.045); }
+  }
+  #hiddenTap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--safe-top) + 120px);
+    bottom: 128px;
+    z-index: 9;
+    display: none;
+    pointer-events: none;
+  }
+  body.hidden-bite #hiddenTap { display: block; pointer-events: auto; cursor: pointer; }
+  body.hidden-bite #biteBanner { display: none; }
+  body.hidden-bite #btnStrike {
+    background: linear-gradient(135deg, #ffe6ae, #ffc45c 40%, #ff8ac0 75%, #9fd8ff);
+    border-color: #fff4d0;
+    color: #1d1104;
+    font-size: 13.5px;
+    font-weight: 900;
+    transform: scale(1.06);
+    box-shadow: 0 0 34px rgba(255, 196, 92, 0.9), 0 0 70px rgba(190, 150, 255, 0.55), 0 12px 28px rgba(0, 0, 0, 0.35);
+    animation: hbBtn 0.62s ease-in-out infinite;
+  }
+  @keyframes hbBtn {
+    0%, 100% { transform: scale(1.06); filter: saturate(1.1); }
+    50% { transform: scale(1.13); filter: saturate(1.45) brightness(1.08); }
+  }
+
+  /* ── 포획 이펙트 (화면) ──────────────────────── */
+  #catchFx {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 8;
+    opacity: 0;
+    --fx: #ffd07a;
+  }
+  #catchFx.on { animation: fxFlash 1.05s ease-out forwards; }
+  #catchFx .fx-burst {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    width: 58vw;
+    height: 58vw;
+    max-width: 320px;
+    max-height: 320px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--fx) 0%, transparent 62%);
+    opacity: 0.85;
+  }
+  #catchFx .fx-rays {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    width: 92vw;
+    height: 92vw;
+    max-width: 520px;
+    max-height: 520px;
+    transform: translate(-50%, -50%);
+    background: repeating-conic-gradient(from 0deg, var(--fx) 0deg 5deg, transparent 5deg 17deg);
+    border-radius: 50%;
+    opacity: 0.45;
+    animation: fxSpin 1.05s linear 1;
+  }
+  #catchFx .fx-label {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #221604;
+    background: linear-gradient(180deg, #fff6d6, var(--fx));
+    box-shadow: 0 0 28px var(--fx);
+    white-space: nowrap;
+  }
+  @keyframes fxFlash {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    55% { opacity: 0.6; }
+    100% { opacity: 0; }
+  }
+  @keyframes fxSpin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+  #catchFx.fx-splash { --fx: #bfe8ff; }
+  #catchFx.fx-emerald { --fx: #8fffd0; }
+  #catchFx.fx-gold { --fx: #ffd05a; }
+  #catchFx.fx-ink { --fx: #b08ae0; }
+  #catchFx.fx-sun { --fx: #fff0a0; }
+  #catchFx.fx-rain { --fx: #8fc8ff; }
+  #catchFx.fx-fog { --fx: #dfe8f2; }
+  #catchFx.fx-spark { --fx: #c8b8ff; }
+  #catchFx.fx-snow { --fx: #e6f6ff; }
+
+  /* ── 체력 · 보온 · 수동 배지 ─────────────────── */
+  .buff-chip.boost { background: rgba(255, 208, 122, 0.16); color: #ffe2ac; border-color: rgba(255, 208, 122, 0.4); }
+  .buff-chip.manual { background: rgba(150, 210, 255, 0.16); color: #cfe8ff; border-color: rgba(150, 210, 255, 0.38); }
+  .buff-chip.cold { background: rgba(120, 190, 255, 0.16); color: #bfe2ff; border-color: rgba(130, 195, 255, 0.4); }
+  .buff-chip.hot { background: rgba(255, 120, 90, 0.16); color: #ffc4a8; border-color: rgba(255, 140, 110, 0.42); }
+  .buff-chip.warm { background: rgba(255, 170, 100, 0.16); color: #ffd9b0; border-color: rgba(255, 180, 110, 0.42); }
+  #hpWrap.boost .hp-fill { background: linear-gradient(90deg, #8fe0b6, #ffd07a); }
+  .shop-row.mythic {
+    border-color: rgba(255, 214, 122, 0.55);
+    background: linear-gradient(110deg, rgba(255, 208, 122, 0.14), rgba(160, 140, 255, 0.10));
+    box-shadow: 0 0 22px rgba(255, 208, 122, 0.18);
+  }
+  .shop-row.mythic .shop-name { color: #ffe7b0; }
+  .shop-eff {
+    margin-top: 3px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #ffe0a8;
+  }
+  .shop-eff.warm { color: #ffcf9a; }
+  .shop-eff.cool { color: #bcdcff; }
+
   /* ── 토스트 ───────────────────────────────── */
   #toast {
     position: absolute;
@@ -507,75 +726,82 @@
     padding: 5px 6px 3px;
   }
 
-  #weatherBar {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 3px;
-    padding: 0 0 5px;
-    margin-bottom: 3px;
+  #weatherBadge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 4px 7px;
+    margin-bottom: 2px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    font-size: 11px;
+    font-weight: 700;
+    color: #cdd9ea;
+    pointer-events: none;
+    white-space: nowrap;
   }
-
-  .wx-btn {
-    appearance: none;
-    border: 0;
-    background: transparent;
-    color: #aebdd2;
-    font-family: inherit;
+  .wb-ico { font-size: 15px; line-height: 1; filter: drop-shadow(0 0 6px rgba(150, 200, 255, 0.45)); }
+  .wb-label { color: #eef4ff; font-size: 12px; }
+  .wb-note { color: #8fa2ba; font-weight: 600; font-size: 10px; overflow: hidden; text-overflow: ellipsis; }
+  .wb-next {
+    margin-left: auto;
     font-size: 10px;
     font-weight: 700;
-    border-radius: 10px;
-    padding: 4px 1px;
+    color: #b9cde6;
+    background: rgba(140, 180, 255, 0.13);
+    border: 1px solid rgba(150, 190, 255, 0.22);
+    border-radius: 9px;
+    padding: 2px 7px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #dayBar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 1px 0 0;
+    width: 100%;
+    pointer-events: none;
+  }
+  .day-seg {
+    position: relative;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 3px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-  }
-  .wx-btn .ico { font-size: 12px; }
-  .wx-btn:active { transform: scale(0.96); }
-  .wx-btn.active {
-    background: rgba(140, 180, 255, 0.18);
-    color: #eaf2ff;
-    box-shadow: inset 0 0 0 1px rgba(150, 190, 255, 0.3);
-  }
-
-  #bandBar {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
     gap: 4px;
-    padding: 0;
-    width: 100%;
-    max-width: 620px;
-    margin: 0 auto;
-  }
-
-  .band-btn {
-    appearance: none;
-    border: 0;
-    background: transparent;
-    color: #c7d4e6;
-    border-radius: 14px;
-    padding: 7px 2px 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    font-size: 11px;
+    padding: 6px 2px 5px;
+    border-radius: 12px;
+    color: #93a4bb;
+    font-size: 10.5px;
     font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, transform 0.12s;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
-  .band-btn .ico { font-size: 16px; line-height: 1.1; opacity: 0.9; }
-  .band-btn:active { transform: scale(0.95); }
-  .band-btn.active {
-    background: rgba(255, 255, 255, 0.13);
+  .day-seg .di { font-size: 14px; line-height: 1; opacity: 0.62; }
+  .day-seg .dfill {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(255, 214, 140, 0.55), #ffd07a);
+    box-shadow: 0 0 8px rgba(255, 208, 122, 0.7);
+  }
+  .day-seg.active {
     color: #fff;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.16);
   }
-  .band-btn.active .ico { filter: drop-shadow(0 0 8px rgba(255, 214, 140, 0.6)); }
+  .day-seg.active .di { opacity: 1; filter: drop-shadow(0 0 7px rgba(255, 214, 140, 0.65)); }
+
+  #dayTick {
+    padding: 5px 2px 2px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #9fb2c9;
+    font-variant-numeric: tabular-nums;
+  }
 
   #actionRow {
     display: grid;
@@ -1288,6 +1514,25 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .char-eff {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 7px;
+  }
+  .char-eff span {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #dbe7f6;
+    background: rgba(140, 180, 255, 0.12);
+    border: 1px solid rgba(150, 190, 255, 0.24);
+    border-radius: 9px;
+    padding: 3px 8px;
+  }
+  .char-eff span.warm { color: #ffd9b0; background: rgba(255, 160, 90, 0.14); border-color: rgba(255, 170, 100, 0.3); }
+  .char-eff span.cold { color: #bce4ff; background: rgba(120, 190, 255, 0.14); border-color: rgba(130, 195, 255, 0.3); }
+  .char-eff span.hot { color: #ffc4a8; background: rgba(255, 120, 90, 0.14); border-color: rgba(255, 140, 110, 0.3); }
+
   .char-sum { margin-top: 9px; font-size: 10.5px; color: var(--muted); line-height: 1.5; }
   .char-sum b { color: #ffe6b6; }
   .char-actions { display: flex; gap: 8px; margin-top: 10px; }
@@ -1538,9 +1783,11 @@
     z-index: 30;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     text-align: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: calc(var(--safe-top) + 24px) 24px calc(var(--safe-bottom) + 24px);
     background:
       radial-gradient(120% 90% at 50% 10%, rgba(255, 190, 120, 0.16), rgba(6, 10, 18, 0) 55%),
@@ -1551,7 +1798,7 @@
   }
   #intro.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-  .intro-inner { max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .intro-inner { max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 11px; margin: auto 0; }
   .intro-kicker {
     font-size: 11px;
     letter-spacing: 0.26em;
@@ -1580,11 +1827,11 @@
   }
   .intro-list {
     list-style: none;
-    margin: 4px 0 0;
+    margin: 2px 0 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
     text-align: left;
   }
@@ -1655,7 +1902,7 @@
     .time-card { padding: 6px 10px; }
     .time-mood { display: none; }
     .panel { border-radius: 16px; }
-    .band-btn { padding: 5px 2px 4px; font-size: 10px; }
+    .day-seg { padding: 8px 2px 6px; font-size: 10px; }
     .action-btn { padding: 9px 6px; font-size: 12px; }
     .hud-bottom { gap: 6px; }
   }
@@ -1679,7 +1926,6 @@
             <span id="bandName">새벽</span>
             <span id="clockText">06:24</span>
             <span class="wx-chip" id="wxChip" title="날씨">☀️</span>
-            <span class="chip" id="previewChip">미리보기</span>
             <span class="chip cos-preview" id="cosPreviewChip">미리보기 중 (실제 미구매)</span>
           </div>
           <div class="time-mood" id="moodLine">물안개가 강 위를 천천히 떠다녀요</div>
@@ -1715,27 +1961,38 @@
     <div class="bite-tip">지금 탭!</div>
   </div>
 
+  <div id="hiddenVignette" aria-hidden="true"></div>
+  <div id="hiddenBanner" role="alert" aria-live="assertive">
+    <div class="hb-card">
+      <div class="hb-kicker">✨ HIDDEN BITE ✨</div>
+      <div class="hb-title">히든 어종 입질!</div>
+      <div class="hb-sub">지금 화면을 터치해서 잡으세요!</div>
+      <div class="hb-bar"><i id="hbBar"></i></div>
+      <div class="hb-time"><b id="hbTime">4.6</b>초 안에 터치</div>
+    </div>
+  </div>
+  <div id="hiddenTap" aria-hidden="true"></div>
+  <div id="catchFx" aria-hidden="true"></div>
+
   <div id="toast" role="status" aria-live="polite"></div>
 
   <footer class="hud-bottom">
     <div id="notice"></div>
     <div id="statusPill"><span class="dot"></span><span id="statusText">찌를 던질 준비를 하고 있어요</span></div>
     <div class="panel" id="timePanel">
-      <div id="weatherBar" role="group" aria-label="날씨 전환">
-        <button class="wx-btn active" data-weather="auto"><span class="ico">🔄</span><span>자동</span></button>
-        <button class="wx-btn" data-weather="clear"><span class="ico">☀️</span><span>맑음</span></button>
-        <button class="wx-btn" data-weather="rain"><span class="ico">🌧️</span><span>비</span></button>
-        <button class="wx-btn" data-weather="fog"><span class="ico">🌫️</span><span>안개</span></button>
-        <button class="wx-btn" data-weather="storm"><span class="ico">⚡</span><span>뇌우</span></button>
-        <button class="wx-btn" data-weather="snow"><span class="ico">❄️</span><span>눈</span></button>
+      <div id="weatherBadge" role="status" aria-live="polite" aria-label="현재 날씨 · 자동으로 바뀝니다">
+        <span class="wb-ico" id="wxBadgeIco">☀️</span>
+        <span class="wb-label" id="wxBadgeLabel">맑음</span>
+        <span class="wb-note">날씨는 저절로 바뀌어요</span>
+        <span class="wb-next" id="wxBadgeNext">다음 변화 –</span>
       </div>
-      <div id="bandBar" role="group" aria-label="시간대 미리보기">
-        <button class="band-btn active" data-band="live"><span class="ico">⏱️</span><span>실시간</span></button>
-        <button class="band-btn" data-band="dawn"><span class="ico">🌄</span><span>새벽</span></button>
-        <button class="band-btn" data-band="day"><span class="ico">☀️</span><span>낮</span></button>
-        <button class="band-btn" data-band="sunset"><span class="ico">🌇</span><span>노을</span></button>
-        <button class="band-btn" data-band="night"><span class="ico">🌙</span><span>밤</span></button>
+      <div id="dayBar" aria-label="하루 20분 주기 · 시간대마다 5분">
+        <div class="day-seg" data-band="dawn"><span class="di">🌄</span><span class="dn">새벽</span><i class="dfill"></i></div>
+        <div class="day-seg" data-band="day"><span class="di">☀️</span><span class="dn">낮</span><i class="dfill"></i></div>
+        <div class="day-seg" data-band="sunset"><span class="di">🌇</span><span class="dn">노을</span><i class="dfill"></i></div>
+        <div class="day-seg" data-band="night"><span class="di">🌙</span><span class="dn">밤</span><i class="dfill"></i></div>
       </div>
+      <div id="dayTick">다음 시간대까지 5:00</div>
     </div>
     <div id="actionRow">
       <button class="action-btn" id="btnStrike"><span class="ico">🎣</span><span id="strikeLabel">낚아채기</span></button>
@@ -1749,18 +2006,12 @@
     <div class="dex-sheet">
       <div class="dex-head">
         <div class="dex-head-row">
-          <div class="dex-title">강가 도감<small id="dexSpecies">210종</small></div>
+          <div class="dex-title">강가 도감<small id="dexSpecies">전체 310종</small></div>
           <button class="close-btn" id="dexClose" aria-label="닫기">✕</button>
         </div>
         <div class="progress-wrap">
-          <div class="progress-top"><span>수집률</span><strong id="dexCount">0 / 210</strong></div>
+          <div class="progress-top"><span>채운 도감</span><strong id="dexCount">0 / 310종</strong></div>
           <div class="progress-track"><div id="dexProgressBar"></div></div>
-        </div>
-        <div class="dex-stats">
-          <span>총 <b id="dexTotal">0</b>마리</span>
-          <span>최대 <b id="dexBest">0cm</b></span>
-          <span>이번 세션 <b id="dexSession">0</b>마리</span>
-          <span>🥫 꽝 <b id="dexDuds">0</b>회</span>
         </div>
         <div class="dex-filters" id="dexFilters" role="group" aria-label="도감 필터">
           <button class="filter-chip active" data-filter="all">전체</button>
@@ -1883,14 +2134,14 @@
       <h1 class="intro-title">강가 낚시</h1>
       <p class="intro-sub">해가 바뀌면 강물 빛도, 찾아오는 물고기도 바뀝니다.<br>강가에 앉아 잔잔하게 한 마리씩 모아 보세요.</p>
       <ul class="intro-list">
-        <li><span class="ico">👆</span><span><b>찌가 흔들리면 탭</b> — 화면을 탭하면 조금 더 큰 개체가 걸려요</span></li>
-        <li><span class="ico">🕒</span><span><b>실시간 · 4가지 시간대</b> — 아래 버튼으로 새벽·낮·노을·밤을 바로 볼 수 있어요</span></li>
-        <li><span class="ico">🌦️</span><span><b>날씨 5종 · 히든 50종</b> — 맑음·비·안개·뇌우·눈마다 전용 히든 10종이 각 3%로 올라와요</span></li>
-        <li><span class="ico">🐟</span><span><b>강가 생물 210종 도감</b> — 물고기부터 바다거북·가오리·조개·게·문어·해파리까지</span></li>
+        <li><span class="ico">👆</span><span><b>찌가 흔들리면 탭</b> — 직접 탭해서 낚으면 희귀·전설·히든 확률 1.2배!</span></li>
+        <li><span class="ico">✨</span><span><b>✨ 히든 입질</b> — 날씨 히든은 자동 낚시로 잡히지 않아요. 알림이 뜨면 꼭 직접 터치!</span></li>
+        <li><span class="ico">🕒</span><span><b>5분마다 시간대 · 20분에 하루</b> — 새벽 → 낮 → 노을 → 밤이 저절로 흘러요</span></li>
+        <li><span class="ico">🌦️</span><span><b>날씨 5종 · 히든 50종</b> — 날씨는 저절로 바뀌고, 날씨마다 전용 히든 10종이 각 1%로 올라와요</span></li>
+        <li><span class="ico">🐟</span><span><b>강가 생물 310종 도감</b> — 민물·기수·심해의 물고기부터 거북·가오리·조개·게·문어·해파리까지</span></li>
         <li><span class="ico">🎯</span><span><b>오늘의 미션 · 업적</b> — 목표를 채우면 코인 보상을 받고, 완료된 보상은 한 번에 받을 수 있어요</span></li>
         <li><span class="ico">🪙</span><span><b>코인 · 상점 · 자판기</b> — 코인으로 낚싯대·미끼를 바꾸고 음료로 체력을 회복해요</span></li>
-        <li><span class="ico">👒</span><span><b>꾸미기 상점</b> — 모자·상의·안경·의자를 사서 꾸미고, 사기 전에 미리보기로 임어 봐요</span></li>
-        <li><span class="ico">👤</span><span><b>내 캐릭터</b> — 상단 👤을 누르면 꾸민 내 모습을 카메라로 가까이 볼 수 있어요</span></li>
+        <li><span class="ico">👒</span><span><b>꾸미기 상점 · 👤 내 캐릭터</b> — 옷은 <b>보온</b>으로 추위를 막고 리클라이너는 최대 체력을 올려요. 상단 👤으로 가까이 볼 수 있어요</span></li>
         <li><span class="ico">🥫</span><span><b>0.05%의 꽝</b> — 아주 가끔 낚싯줄에 찌그러진 캔이 걸려요</span></li>
       </ul>
       <button id="introStart">강가로 나가기</button>
@@ -2578,6 +2829,307 @@
     { id: "simhae-haepari", name: "심해해파리", en: "Abyss Jelly", rarity: "legendary", kind: "jellyfish", min: 60, max: 120,
       color: "#8f9ad8", body: 1.22,
       summary: "심해에서 올라온 거대한 해파리. 푸르게 빛난다." },
+
+    { id: "kkot-bungeo", name: "꽃붕어", en: "Blossom Carp", rarity: "common", kind: "fish", min: 14, max: 34,
+      color: "#d9a97a", body: 1.05, habitat: "민물",
+      summary: "봄에서 초여름, 옆구리에 연분홍 꽃잎 무늬가 번지는 붕어." },
+    { id: "julmunui-bungeo", name: "줄무늬붕어", en: "Banded Crucian", rarity: "uncommon", kind: "fish", min: 18, max: 40,
+      color: "#c9a05e", body: 1.06, habitat: "민물",
+      summary: "등에서 배까지 일곱 줄이 고른 간격으로 그어진 붕어." },
+    { id: "yeoul-piraemi", name: "여울피라미", en: "Rapid Chub", rarity: "common", kind: "fish", min: 6, max: 12,
+      color: "#b8cfd8", body: 0.96, habitat: "민물",
+      summary: "여울이 부서지는 바위 옆에만 모여 사는 작은 피라미." },
+    { id: "okbit-eunoe", name: "옥빛은어", en: "Jade Sweetfish", rarity: "rare", kind: "fish", min: 16, max: 32,
+      color: "#8fc7a8", body: 1.03, habitat: "민물",
+      summary: "물이 맑은 상류에서 옥빛으로 번뜩이는 은어." },
+    { id: "gipmul-songeo", name: "깊은물송어", en: "Deeppool Trout", rarity: "rare", kind: "fish", min: 30, max: 60,
+      color: "#7c93a8", body: 1.08, habitat: "민물",
+      summary: "물이 깊은 소에서만 지내는 송어. 물빛이 어두울수록 잘 걸린다." },
+    { id: "bam-songeo", name: "밤송어", en: "Night Trout", rarity: "rare", kind: "fish", min: 25, max: 50,
+      color: "#6f7fa0", body: 1.06, habitat: "민물",
+      summary: "밤에만 수면 가까이 올라오는 송어. 등에 별빛 같은 점이 흩어져 있다." },
+    { id: "noranip-bungeo", name: "노란입붕어", en: "Yellowlip Crucian", rarity: "uncommon", kind: "fish", min: 20, max: 45,
+      color: "#d8c26a", body: 1.07, habitat: "민물",
+      summary: "입가가 노랗게 물든 붕어. 노을 무렵 얕은 물가로 나온다." },
+    { id: "seomgang-jonggae", name: "섬강종개", en: "Seomgang Loach", rarity: "rare", kind: "fish", min: 10, max: 20,
+      color: "#8f7d5c", body: 0.98, habitat: "민물",
+      summary: "섬진강 물길에만 남은 종개. 밤에 모래를 조용히 뒤진다." },
+    { id: "hwangto-bungeo", name: "황토붕어", en: "Ochre Crucian", rarity: "common", kind: "fish", min: 16, max: 36,
+      color: "#b98c4e", body: 1.04, habitat: "민물",
+      summary: "흙탕물에서도 몸빛이 또렷한 황토빛 붕어." },
+    { id: "yeoreum-eunoe", name: "여름은어", en: "Summer Sweetfish", rarity: "common", kind: "fish", min: 10, max: 22,
+      color: "#cfe3ea", body: 1.0, habitat: "민물",
+      summary: "여름 내내 강 중류를 오가는 은어. 무리 지어 물빛을 가른다." },
+    { id: "jageunip-jang-eo", name: "작은입장어", en: "Smallmouth Eel", rarity: "uncommon", kind: "eel", min: 35, max: 80,
+      color: "#5f6a52", body: 1.18, habitat: "민물",
+      summary: "입이 작아 떡밥을 여러 번 물었다 놓치는 장어." },
+    { id: "bidulgi-mikkuri", name: "비둘기미꾸리", en: "Dove Loach", rarity: "common", kind: "eel", min: 7, max: 14,
+      color: "#8a7f66", body: 0.94, habitat: "민물",
+      summary: "몸빛이 비둘기 깃처럼 잿빛인 미꾸리. 모래 속에 반쯤 묻혀 지낸다." },
+    { id: "gureum-mikkuri", name: "구름미꾸리", en: "Cloud Loach", rarity: "uncommon", kind: "eel", min: 9, max: 18,
+      color: "#a8a48c", body: 1.0, habitat: "민물",
+      summary: "몸에 구름처럼 번진 무늬가 있는 미꾸리. 흐린 날 잘 걸린다." },
+    { id: "jinheuk-jang-eo", name: "진흙장어", en: "Mud Eel", rarity: "common", kind: "eel", min: 30, max: 70,
+      color: "#58513c", body: 1.16, habitat: "민물",
+      summary: "진흙을 파고드는 습성 때문에 손이 가장 더러워지는 장어." },
+    { id: "hwangto-daseulgi", name: "황토다슬기", en: "Ochre Snail", rarity: "common", kind: "snail", min: 3, max: 7,
+      color: "#7a6136", body: 0.88, habitat: "민물",
+      summary: "황토 물이 섞인 강바닥 돌에 붙어 사는 다슬기." },
+    { id: "solbangul-urong", name: "솔방울우렁", en: "Pinecone Snail", rarity: "uncommon", kind: "snail", min: 4, max: 9,
+      color: "#6b5a3e", body: 0.92, habitat: "민물",
+      summary: "껍데기 나선이 솔방울처럼 뾰족하게 솟은 우렁." },
+    { id: "gaemi-jogae", name: "개미조개", en: "Ant Clam", rarity: "common", kind: "clam", min: 2, max: 5,
+      color: "#a3906a", body: 0.8, habitat: "민물",
+      summary: "손톱만 한 조개. 모래 사이에서 부지런히 물을 거른다." },
+    { id: "dolhok-jogae", name: "돌혹조개", en: "Knobbed Clam", rarity: "uncommon", kind: "clam", min: 8, max: 16,
+      color: "#75694c", body: 0.96, habitat: "민물",
+      summary: "껍데기에 돌 같은 혹이 돋은 민물 조개." },
+    { id: "jari-saeu", name: "자리새우", en: "Mat Shrimp", rarity: "common", kind: "shrimp", min: 4, max: 8,
+      color: "#9aa886", body: 0.82, habitat: "민물",
+      summary: "수초 자리에 매달려 지내는 연녹색 민물새우." },
+    { id: "kkoma-bangge", name: "꼬마방게", en: "Tiny Shore Crab", rarity: "common", kind: "crab", min: 3, max: 6,
+      color: "#8c7f56", body: 0.9, habitat: "민물",
+      summary: "갯벌 대신 강가 자갈 밑에 사는 꼬마 게." },
+    { id: "songgot-saeu", name: "송곳새우", en: "Awl Shrimp", rarity: "uncommon", kind: "shrimp", min: 6, max: 12,
+      color: "#c9b48a", body: 0.88, habitat: "민물",
+      summary: "뾰족한 이마로 돌 틈을 파고드는 새우." },
+    { id: "jangsu-bangge", name: "장수방게", en: "Elder Shore Crab", rarity: "rare", kind: "crab", min: 8, max: 15,
+      color: "#7e6a48", body: 1.02, habitat: "민물",
+      summary: "십 년 넘게 같은 돌 밑에 산다는 방게." },
+    { id: "mulbangul-jogae", name: "물방울조개", en: "Dewdrop Clam", rarity: "common", kind: "clam", min: 3, max: 7,
+      color: "#9aa8a0", body: 0.84, habitat: "민물",
+      summary: "껍데기가 물방울처럼 둥근 작은 민물 조개." },
+    { id: "gaenmul-mangdung", name: "갯물망둑", en: "Estuary Goby", rarity: "common", kind: "fish", min: 8, max: 18,
+      color: "#8f8a6a", body: 1.0, habitat: "기수",
+      summary: "민물과 바닷물이 만나는 곳에 사는 망둑. 배로 바닥을 짚고 다닌다." },
+    { id: "gisu-sungeo", name: "기수숭어", en: "Brackish Mullet", rarity: "uncommon", kind: "fish", min: 30, max: 60,
+      color: "#b9c4cc", body: 1.1, habitat: "기수",
+      summary: "강어귀를 오가는 숭어. 몸이 은빛으로 길다." },
+    { id: "gangeogwi-nongeo", name: "강어귀농어", en: "Estuary Bass", rarity: "rare", kind: "fish", min: 35, max: 75,
+      color: "#9aa8b4", body: 1.12, habitat: "기수",
+      summary: "바다에서 강으로 올라온 농어. 어귀의 물결을 가르고 다닌다." },
+    { id: "gaetbaram-jeoneo", name: "갯바람전어", en: "Sea-breeze Gizzard Shad", rarity: "uncommon", kind: "fish", min: 15, max: 28,
+      color: "#c8cfd2", body: 1.04, habitat: "기수",
+      summary: "바닷바람이 부는 날 어귀에 몰려드는 전어." },
+    { id: "yeomsu-saeu", name: "염수새우", en: "Saltwater Shrimp", rarity: "common", kind: "shrimp", min: 5, max: 10,
+      color: "#b0a48e", body: 0.86, habitat: "기수",
+      summary: "짠물에 강한 새우. 밀물 때 강으로 밀려 들어온다." },
+    { id: "gisu-jogae", name: "기수조개", en: "Brackish Clam", rarity: "common", kind: "clam", min: 6, max: 12,
+      color: "#8f8468", body: 0.94, habitat: "기수",
+      summary: "민물과 바닷물을 오가는 조개. 껍데기가 두껍다." },
+    { id: "ppeol-ge", name: "뻘게", en: "Mudflat Crab", rarity: "common", kind: "crab", min: 5, max: 9,
+      color: "#6f6448", body: 0.94, habitat: "기수",
+      summary: "뻘속에 몸을 숨기고 눈만 내미는 게." },
+    { id: "gaetbeol-gaori", name: "갯벌가오리", en: "Tideland Ray", rarity: "rare", kind: "ray", min: 40, max: 80,
+      color: "#8a8570", body: 1.12, habitat: "기수",
+      summary: "갯벌 바닥을 미끄러지듯 지나가는 가오리. 등에 모래 무늬가 있다." },
+    { id: "giseup-byeoljelly", name: "기수별해파리", en: "Estuary Star Jelly", rarity: "uncommon", kind: "jellyfish", min: 10, max: 22,
+      color: "#a8c4d8", body: 0.96, habitat: "기수",
+      summary: "강어귀에서 별처럼 희미하게 빛나는 해파리." },
+    { id: "saeppul-mangdung", name: "새뿔망둑", en: "Beakhorn Goby", rarity: "rare", kind: "fish", min: 10, max: 20,
+      color: "#a8936a", body: 1.0, habitat: "기수",
+      summary: "이마가 새 부리처럼 솟은 망둑. 새벽 갯벌에서만 보인다." },
+    { id: "yeolmul-bungeo", name: "염물붕어", en: "Saltwater Crucian", rarity: "uncommon", kind: "fish", min: 20, max: 40,
+      color: "#c2a878", body: 1.06, habitat: "기수",
+      summary: "짠물에 적응한 붕어. 노을 무렵 어귀를 배회한다." },
+    { id: "ganghagu-jogae", name: "강하구조개", en: "Rivermouth Clam", rarity: "common", kind: "clam", min: 8, max: 16,
+      color: "#7d7160", body: 0.96, habitat: "기수",
+      summary: "강하구 모래톱에 사는 조개. 밀물에 껍데기를 연다." },
+    { id: "galmaegi-saeu", name: "갈매기새우", en: "Gull Shrimp", rarity: "common", kind: "shrimp", min: 4, max: 8,
+      color: "#b8b2a0", body: 0.84, habitat: "기수",
+      summary: "갈매기 떼가 지나간 자리에 남은 새우." },
+    { id: "yeomhwa-gaori", name: "염화가오리", en: "Brine Ray", rarity: "legendary", kind: "ray", min: 80, max: 150,
+      color: "#d88a6a", body: 1.22, habitat: "기수",
+      summary: "짠물과 민물이 부딪히는 곳에서만 오르는 붉은 가오리." },
+    { id: "bulbit-agwi", name: "불빛아귀", en: "Lampfish Angler", rarity: "rare", kind: "fish", min: 25, max: 55,
+      color: "#5f6a52", body: 1.14, habitat: "심해",
+      summary: "이마 끝에 작은 등불을 단 아귀. 어둠 속에서만 입질이 온다." },
+    { id: "eodum-galchi", name: "어둠갈치", en: "Dark Cutlassfish", rarity: "rare", kind: "fish", min: 40, max: 80,
+      color: "#9aa8b8", body: 1.18, habitat: "심해",
+      summary: "몸이 은색 거울 같은 심해 갈치. 빛이 닿지 않는 곳에 산다." },
+    { id: "simyeon-hong-eo", name: "심연홍어", en: "Abyss Skate", rarity: "rare", kind: "ray", min: 60, max: 120,
+      color: "#8a6a6a", body: 1.2, habitat: "심해",
+      summary: "심해 바닥을 나는 듯 헤엄치는 홍어. 날개 끝이 붉다." },
+    { id: "simhae-byeoljelly", name: "심해별해파리", en: "Deep Star Jelly", rarity: "uncommon", kind: "jellyfish", min: 15, max: 30,
+      color: "#8fa8e0", body: 0.98, habitat: "심해",
+      summary: "작은 별처럼 무리 지어 떠다니는 심해 해파리." },
+    { id: "nunbit-saeu", name: "눈빛새우", en: "Gleam-eye Shrimp", rarity: "uncommon", kind: "shrimp", min: 4, max: 9,
+      color: "#c8a8a8", body: 0.84, habitat: "심해",
+      summary: "눈이 유난히 큰 심해 새우. 빛을 찾아 수면까지 올라온다." },
+    { id: "simhae-dolge", name: "심해돌게", en: "Abyssal Stone Crab", rarity: "uncommon", kind: "crab", min: 6, max: 12,
+      color: "#6a6a78", body: 0.96, habitat: "심해",
+      summary: "돌처럼 굳은 등껍질의 심해 게. 움직임이 아주 느리다." },
+    { id: "simbul-ojingeo", name: "심불오징어", en: "Bluefire Squid", rarity: "rare", kind: "squid", min: 25, max: 50,
+      color: "#8a6aa0", body: 1.1, habitat: "심해",
+      summary: "몸속에 푸른 불빛을 품은 오징어. 심해에서만 빛난다." },
+    { id: "simhae-urong", name: "심해우렁", en: "Abyssal Snail", rarity: "uncommon", kind: "snail", min: 5, max: 10,
+      color: "#5a5a4a", body: 0.9, habitat: "심해",
+      summary: "깊은 물의 차가운 돌에 붙은 우렁. 껍데기가 검푸르다." },
+    { id: "eunhasu-gaori", name: "은하수가오리", en: "Galaxy Ray", rarity: "legendary", kind: "ray", min: 100, max: 180,
+      color: "#9aa8e8", body: 1.3, habitat: "심해",
+      summary: "등에 은하수 같은 점이 흐르는 거대한 가오리." },
+    { id: "mudae-jang-eo", name: "무대장어", en: "Platform Eel", rarity: "rare", kind: "eel", min: 60, max: 120,
+      color: "#4a5248", body: 1.22, habitat: "심해",
+      summary: "심해 바닥에서 몸을 길게 늘어뜨리는 장어." },
+    { id: "byeolbit-saeu", name: "별빛새우", en: "Starlight Shrimp", rarity: "rare", kind: "shrimp", min: 8, max: 15,
+      color: "#d8c8e0", body: 0.9, habitat: "심해",
+      summary: "몸 전체가 별빛처럼 반짝이는 새우." },
+    { id: "simhae-byeongeo", name: "심해병어", en: "Abyssal Pomfret", rarity: "uncommon", kind: "fish", min: 20, max: 40,
+      color: "#b0bcc4", body: 1.06, habitat: "심해",
+      summary: "납작하고 둥근 심해 병어. 물살을 거슬러 뜬다." },
+    { id: "simhae-jjuggumi", name: "심해쭈꾸미", en: "Abyssal Bobtail", rarity: "uncommon", kind: "octopus", min: 15, max: 30,
+      color: "#a0707a", body: 0.98, habitat: "심해",
+      summary: "차가운 심해 바닥을 기는 작은 쭈꾸미." },
+    { id: "hwanghon-galchi", name: "황혼갈치", en: "Dusk Cutlassfish", rarity: "uncommon", kind: "fish", min: 30, max: 60,
+      color: "#c4b8a0", body: 1.08, habitat: "심해",
+      summary: "해 질 무렵 수면 가까이 올라오는 갈치." },
+    { id: "gipbadak-agwi", name: "깊은바닥아귀", en: "Seafloor Angler", rarity: "rare", kind: "fish", min: 35, max: 70,
+      color: "#4f5a4a", body: 1.16, habitat: "심해",
+      summary: "깊은 바닥에 붙어 먹이를 기다리는 아귀." },
+    { id: "hwanggeum-hanchi", name: "황금한치", en: "Golden Firefly Squid", rarity: "rare", kind: "squid", min: 15, max: 30,
+      color: "#d8b45e", body: 1.0, habitat: "심해",
+      summary: "금빛으로 빛나는 한치. 밤 수면 아래를 미끄러진다." },
+    { id: "dolpan-muneo", name: "돌판문어", en: "Slate Octopus", rarity: "uncommon", kind: "octopus", min: 25, max: 50,
+      color: "#9a8a7a", body: 1.02, habitat: "심해",
+      summary: "돌판에 납작하게 붙어 사는 문어." },
+    { id: "kkotdeung-geobuk", name: "꽃등거북", en: "Flowerback Turtle", rarity: "legendary", kind: "turtle", min: 90, max: 170,
+      color: "#6a8f7a", body: 1.24, habitat: "바다",
+      summary: "등껍질에 꽃무늬가 피어난 거대한 바다거북." },
+    { id: "eunsaek-geobuk", name: "은색거북", en: "Silver Turtle", rarity: "rare", kind: "turtle", min: 50, max: 100,
+      color: "#a8b8b8", body: 1.14, habitat: "기수",
+      summary: "등껍질이 은색으로 빛나는 거북. 새벽 어귀에 오른다." },
+    { id: "jangsik-gaori", name: "장식가오리", en: "Ornate Ray", rarity: "rare", kind: "ray", min: 50, max: 100,
+      color: "#b09a8a", body: 1.14, habitat: "바다",
+      summary: "날개에 장식 같은 무늬가 있는 가오리." },
+    { id: "bulgeun-gaori", name: "붉은가오리", en: "Crimson Ray", rarity: "rare", kind: "ray", min: 60, max: 110,
+      color: "#c0705e", body: 1.16, habitat: "바다",
+      summary: "노을에 물든 붉은 가오리. 강 어귀를 크게 한 바퀴 돈다." },
+    { id: "haepari-wang", name: "해파리왕", en: "Jelly King", rarity: "legendary", kind: "jellyfish", min: 80, max: 150,
+      color: "#b8a8e8", body: 1.26, habitat: "바다",
+      summary: "강을 덮을 만큼 큰 해파리. 촉수가 달빛처럼 늘어진다." },
+    { id: "eunbit-haepari", name: "은빛해파리", en: "Silver Jelly", rarity: "uncommon", kind: "jellyfish", min: 12, max: 25,
+      color: "#c8d8e0", body: 0.96, habitat: "바다",
+      summary: "은빛으로 흐릿하게 보이는 작은 해파리." },
+    { id: "kkot-muneo", name: "꽃문어", en: "Flower Octopus", rarity: "rare", kind: "octopus", min: 30, max: 60,
+      color: "#b07a9a", body: 1.06, habitat: "바다",
+      summary: "몸빛이 꽃처럼 변하는 문어. 낮에만 바위틈에서 나온다." },
+    { id: "hwanghon-ojingeo", name: "황혼오징어", en: "Dusk Squid", rarity: "rare", kind: "squid", min: 20, max: 40,
+      color: "#c98a6a", body: 1.04, habitat: "바다",
+      summary: "노을빛에 몸색을 맞추는 오징어." },
+    { id: "byeolbit-hanchi", name: "별빛한치", en: "Starlit Squid", rarity: "uncommon", kind: "squid", min: 12, max: 24,
+      color: "#a8b8d8", body: 0.94, habitat: "바다",
+      summary: "작은 별 무늬가 몸에 흩어진 한치." },
+    { id: "gwangchae-ge", name: "광채게", en: "Lustrous Crab", rarity: "legendary", kind: "crab", min: 15, max: 28,
+      color: "#d8b45e", body: 1.1, habitat: "바다",
+      summary: "등껍질이 금빛으로 빛나는 게. 밤 모래톱을 가로지른다." },
+    { id: "bulkkot-saeu", name: "불꽃새우", en: "Flame Shrimp", rarity: "legendary", kind: "shrimp", min: 12, max: 20,
+      color: "#e08a6a", body: 1.0, habitat: "바다",
+      summary: "꼬리 끝이 불꽃처럼 붉은 새우." },
+    { id: "boratbit-jogae", name: "보랏빛조개", en: "Violet Clam", rarity: "legendary", kind: "clam", min: 20, max: 38,
+      color: "#8a6aa8", body: 1.06, habitat: "바다",
+      summary: "껍데기 안쪽이 보랏빛으로 빛나는 조개." },
+    { id: "hwanggeum-daseulgi", name: "황금다슬기", en: "Golden Snail", rarity: "rare", kind: "snail", min: 4, max: 8,
+      color: "#c9a84e", body: 0.9, habitat: "민물",
+      summary: "껍데기가 노랗게 빛나는 다슬기. 새벽 물가에서만 보인다." },
+    { id: "eunbit-saeu", name: "은빛새우", en: "Silver Shrimp", rarity: "uncommon", kind: "shrimp", min: 5, max: 11,
+      color: "#d0d8e0", body: 0.88, habitat: "바다",
+      summary: "몸이 은가루를 뿌린 듯한 새우." },
+    { id: "dolbawi-muneo", name: "돌바위문어", en: "Boulder Octopus", rarity: "rare", kind: "octopus", min: 40, max: 80,
+      color: "#7a6a62", body: 1.14, habitat: "바다",
+      summary: "바위에 몸을 완전히 붙여 숨는 큰 문어." },
+    { id: "kkoma-haepari", name: "꼬마해파리", en: "Tiny Jelly", rarity: "common", kind: "jellyfish", min: 3, max: 8,
+      color: "#c8e0e8", body: 0.82, habitat: "바다",
+      summary: "손바닥보다 작은 해파리. 얕은 물가에 떼로 떠다닌다." },
+    { id: "yongui-bineul", name: "용의비늘", en: "Dragon Scale", rarity: "legendary", kind: "fish", min: 60, max: 120,
+      color: "#6a9ac8", body: 1.26, habitat: "민물",
+      summary: "비늘 하나하나가 용의 갑옷처럼 단단한 잉어과의 왕." },
+    { id: "baeknyeon-bungeo", name: "백년붕어", en: "Century Crucian", rarity: "legendary", kind: "fish", min: 70, max: 130,
+      color: "#c8a86a", body: 1.24, habitat: "민물",
+      summary: "백 년을 살았다는 붕어. 새벽 물안개 속에서만 모습을 보인다." },
+    { id: "cheondung-wang", name: "천둥의왕", en: "Thunder King", rarity: "legendary", kind: "fish", min: 80, max: 150,
+      color: "#6a6a8a", body: 1.3, habitat: "민물",
+      summary: "천둥이 칠 때마다 수면을 가르는 거대한 메기." },
+    { id: "byeoreul-samkin-gaori", name: "별을삼킨가오리", en: "Star-swallowing Ray", rarity: "legendary", kind: "ray", min: 120, max: 200,
+      color: "#5a6aa8", body: 1.32, habitat: "심해",
+      summary: "등에 별이 박힌 거대한 가오리. 밤 강을 한 바퀴 돈다." },
+    { id: "simyeonui-wanggwan", name: "심연의왕관", en: "Crown of the Abyss", rarity: "legendary", kind: "jellyfish", min: 100, max: 180,
+      color: "#8a7ac8", body: 1.3, habitat: "심해",
+      summary: "왕관 모양 갓을 쓴 심해 해파리. 푸른 빛이 강을 물들인다." },
+    { id: "hwanggeum-urong", name: "황금우렁", en: "Golden Pond Snail", rarity: "legendary", kind: "snail", min: 8, max: 14,
+      color: "#e0c060", body: 0.98, habitat: "민물",
+      summary: "껍데기 전체가 금빛인 우렁. 만지면 따뜻하다." },
+    { id: "cheonnyeon-muneo", name: "천년문어", en: "Millennium Octopus", rarity: "legendary", kind: "octopus", min: 90, max: 160,
+      color: "#8a5a7a", body: 1.3, habitat: "심해",
+      summary: "천 년을 살았다는 문어. 다리 하나가 강을 가로지른다." },
+    { id: "bulkkot-songeo", name: "불꽃송어", en: "Flame Trout", rarity: "legendary", kind: "fish", min: 40, max: 75,
+      color: "#e08a5a", body: 1.14, habitat: "민물",
+      summary: "노을 속에서 몸이 불꽃처럼 붉어지는 송어." },
+    { id: "eunhaui-nongeo", name: "은하의농어", en: "Galactic Bass", rarity: "legendary", kind: "fish", min: 50, max: 95,
+      color: "#7a8ac8", body: 1.2, habitat: "기수",
+      summary: "몸에 은하수 같은 점이 흐르는 농어. 밤에만 입질이 온다." },
+    { id: "dalbit-hanchi", name: "달빛한치", en: "Moonlit Squid", rarity: "legendary", kind: "squid", min: 25, max: 45,
+      color: "#c8c8e8", body: 1.08, habitat: "심해",
+      summary: "달빛을 머금은 오징어. 물 위로 떠오르면 강이 밝아진다." },
+    { id: "hwanghon-geobuk", name: "황혼거북", en: "Dusk Turtle", rarity: "rare", kind: "turtle", min: 60, max: 120,
+      color: "#b0906a", body: 1.16, habitat: "바다",
+      summary: "노을빛 등껍질을 한 거북. 해 질 무렵 어귀에 오른다." },
+    { id: "simhae-wang", name: "심해왕해파리", en: "Abyssal King Jelly", rarity: "legendary", kind: "jellyfish", min: 90, max: 160,
+      color: "#7a8ac8", body: 1.28, habitat: "심해",
+      summary: "심해의 가장 깊은 곳에서만 오르는 왕관 해파리." },
+    { id: "eunbit-jang-eo", name: "은빛장어", en: "Silvery Eel", rarity: "rare", kind: "eel", min: 50, max: 100,
+      color: "#a8b0b8", body: 1.18, habitat: "심해",
+      summary: "몸 전체가 은빛으로 빛나는 장어." },
+    { id: "bulgeun-jogae", name: "붉은조개", en: "Red Clam", rarity: "uncommon", kind: "clam", min: 10, max: 20,
+      color: "#b06a5a", body: 0.98, habitat: "기수",
+      summary: "껍데기가 붉게 물든 조개." },
+    { id: "kkotbawi-daseulgi", name: "꽃바위다슬기", en: "Flower-rock Snail", rarity: "uncommon", kind: "snail", min: 3, max: 6,
+      color: "#8a7a5a", body: 0.86, habitat: "민물",
+      summary: "꽃무늬가 있는 돌에만 붙는 다슬기." },
+    { id: "gureum-saeu", name: "구름새우", en: "Cloud Shrimp", rarity: "uncommon", kind: "shrimp", min: 4, max: 9,
+      color: "#c8d0d8", body: 0.86, habitat: "민물",
+      summary: "몸이 구름처럼 뿌연 새우." },
+    { id: "neup-jang-eo", name: "늪장어", en: "Marsh Eel", rarity: "rare", kind: "eel", min: 45, max: 90,
+      color: "#4f5a42", body: 1.2, habitat: "민물",
+      summary: "늪의 진흙 속에서 오래 버티는 장어." },
+    { id: "hwanggeum-bangge", name: "황금방게", en: "Golden Shore Crab", rarity: "rare", kind: "crab", min: 6, max: 12,
+      color: "#d0a860", body: 0.98, habitat: "기수",
+      summary: "등껍질이 노란 방게. 밤 갯벌에서 눈에 띈다." },
+    { id: "eunbit-muneo", name: "은빛문어", en: "Silver Octopus", rarity: "rare", kind: "octopus", min: 35, max: 70,
+      color: "#a8b0c0", body: 1.12, habitat: "기수",
+      summary: "새벽 물속에서 은빛으로 번지는 문어." },
+    { id: "byeolbit-geobuk", name: "별빛거북", en: "Starlight Turtle", rarity: "legendary", kind: "turtle", min: 100, max: 190,
+      color: "#5a7a9a", body: 1.28, habitat: "바다",
+      summary: "등껍질에 별자리가 새겨진 거북." },
+    { id: "mujigae-hanchi", name: "무지개한치", en: "Rainbow Firefly Squid", rarity: "rare", kind: "squid", min: 15, max: 28,
+      color: "#c8a0c8", body: 0.96, habitat: "바다",
+      summary: "몸색이 무지개로 바뀌는 한치." },
+    { id: "cheongok-gaori", name: "청옥가오리", en: "Jade Ray", rarity: "legendary", kind: "ray", min: 90, max: 170,
+      color: "#5a9a9a", body: 1.26, habitat: "바다",
+      summary: "청옥빛 날개를 편 가오리. 낮의 강을 미끄러진다." },
+    { id: "baekjin-jogae", name: "백진조개", en: "Hundred-pearl Clam", rarity: "legendary", kind: "clam", min: 25, max: 45,
+      color: "#e0e0e8", body: 1.08, habitat: "바다",
+      summary: "진주가 백 개 들었다는 전설의 조개." },
+    { id: "yong-jang-eo", name: "용장어", en: "Dragon Eel", rarity: "legendary", kind: "eel", min: 100, max: 180,
+      color: "#7a8a6a", body: 1.32, habitat: "심해",
+      summary: "용의 머리를 닮은 거대한 장어. 뇌우가 칠 때만 오른다." },
+    { id: "kkumui-songeo", name: "꿈의송어", en: "Dream Trout", rarity: "rare", kind: "fish", min: 35, max: 65,
+      color: "#a8b8d8", body: 1.1, habitat: "민물",
+      summary: "꿈에서만 보던 색의 송어. 새벽 안개 속에서 걸린다." },
+    { id: "hwanghon-muneo", name: "황혼문어", en: "Dusk Octopus", rarity: "rare", kind: "octopus", min: 30, max: 55,
+      color: "#a07a6a", body: 1.08, habitat: "바다",
+      summary: "노을에 몸색을 맞추는 문어." },
+    { id: "eunbit-daseulgi", name: "은빛다슬기", en: "Silver Snail", rarity: "uncommon", kind: "snail", min: 3, max: 6,
+      color: "#a8a8a0", body: 0.86, habitat: "민물",
+      summary: "밤에만 껍데기가 은빛으로 빛나는 다슬기." },
+    { id: "kkoma-bungeo", name: "꼬마붕어", en: "Little Crucian", rarity: "common", kind: "fish", min: 8, max: 16,
+      color: "#d0b080", body: 0.96, habitat: "민물",
+      summary: "손바닥만 한 붕어. 얕은 물풀 사이에서 자란다." },
+    { id: "hwangto-mangdung", name: "황토망둑", en: "Ochre Goby", rarity: "common", kind: "fish", min: 6, max: 12,
+      color: "#b09a6a", body: 0.94, habitat: "민물",
+      summary: "황토 물가에 사는 망둑. 배로 바닥을 짚고 기어 다닌다." },
+    { id: "simyeon-saeu", name: "심연새우", en: "Abyssal Shrimp", rarity: "rare", kind: "shrimp", min: 10, max: 18,
+      color: "#8a7a9a", body: 0.94, habitat: "심해",
+      summary: "심연에서만 사는 새우. 몸에 푸른 점이 있다." },
   ];
 
   // 시간대별 출현 가중치 (합 100)
@@ -2594,7 +3146,27 @@
       ["baega-sari", 1.7], ["beodeul-gaji", 1.7], ["wang-jonggae", 0.8],
       ["tung-gari", 0.8], ["jaga-sari", 0.8], ["dol-jjukkumi", 0.8],
       ["yuryeong-haepari", 1.7], ["hwasal-ojingeo", 0.8], ["mujigae-bit-haepari", 0.5],
-      ["cheonnyeon-jara", 0.4]
+      ["cheonnyeon-jara", 0.4],
+      ["kkot-bungeo", 1.7],
+      ["yeoul-piraemi", 1.7],
+      ["okbit-eunoe", 0.45],
+      ["gipmul-songeo", 0.45],
+      ["yeoreum-eunoe", 1.7],
+      ["bidulgi-mikkuri", 1.7],
+      ["gureum-mikkuri", 1.0],
+      ["hwangto-daseulgi", 1.7],
+      ["jari-saeu", 1.7],
+      ["gaenmul-mangdung", 1.7],
+      ["saeppul-mangdung", 0.45],
+      ["eunsaek-geobuk", 0.45],
+      ["eunbit-haepari", 1.0],
+      ["hwanggeum-daseulgi", 0.45],
+      ["baeknyeon-bungeo", 0.16],
+      ["hwanggeum-urong", 0.16],
+      ["kkotbawi-daseulgi", 1.0],
+      ["eunbit-muneo", 0.45],
+      ["kkumui-songeo", 0.45],
+      ["hwangto-mangdung", 1.7],
     ],
     day: [
       ["olive-ridley", 0.9], ["blue-seaturtle", 0.6], ["hawksbill", 0.5], ["cham-bungeo", 1.2], ["dol-gogi", 1.4], ["mangdung-eo", 1.2], ["cham-jogae", 1.2], ["dol-ge", 1], ["hwangto-urong", 1], ["kkoma-muneo", 1], ["munjeol-mangdung", 0.9], ["sungeo", 0.8], ["hakgongchi", 0.7], ["jeom-bakgi-gaori", 0.6], ["kkot-saeu", 0.6], ["dol-muneo", 0.7], ["byeongeo", 0.4], ["hwanggeum-jogae", 0.35], ["hwanggeum-ge", 0.35], ["doldom", 0.15], ["hwanggeum-ojingeo", 0.1],
@@ -2611,7 +3183,40 @@
       ["jinggeomi", 1.5], ["minmul-damchi", 1.5], ["jung-gogi", 1.5],
       ["cham-junggogi", 0.8], ["baega-sari", 0.8], ["beodeul-gaji", 0.8],
       ["gireum-jonggae", 1.5], ["dol-jjukkumi", 0.8], ["gap-o-jingeo", 0.8],
-      ["eunbit-cheolgap", 0.4]
+      ["eunbit-cheolgap", 0.4],
+      ["kkot-bungeo", 1.7],
+      ["julmunui-bungeo", 1.0],
+      ["yeoul-piraemi", 1.7],
+      ["okbit-eunoe", 0.45],
+      ["noranip-bungeo", 1.0],
+      ["hwangto-bungeo", 1.7],
+      ["yeoreum-eunoe", 1.7],
+      ["gureum-mikkuri", 1.0],
+      ["hwangto-daseulgi", 1.7],
+      ["solbangul-urong", 1.0],
+      ["gaemi-jogae", 1.7],
+      ["dolhok-jogae", 1.0],
+      ["kkoma-bangge", 1.7],
+      ["mulbangul-jogae", 1.7],
+      ["gaenmul-mangdung", 1.7],
+      ["gisu-sungeo", 1.0],
+      ["gaetbaram-jeoneo", 1.0],
+      ["gisu-jogae", 1.7],
+      ["giseup-byeoljelly", 1.0],
+      ["galmaegi-saeu", 1.7],
+      ["kkotdeung-geobuk", 0.16],
+      ["jangsik-gaori", 0.45],
+      ["kkot-muneo", 0.45],
+      ["eunbit-saeu", 1.0],
+      ["kkoma-haepari", 1.7],
+      ["bulgeun-jogae", 1.0],
+      ["gureum-saeu", 1.0],
+      ["neup-jang-eo", 0.45],
+      ["mujigae-hanchi", 0.45],
+      ["cheongok-gaori", 0.16],
+      ["baekjin-jogae", 0.16],
+      ["kkoma-bungeo", 1.7],
+      ["hwangto-mangdung", 1.7],
     ],
     sunset: [
       ["blue-seaturtle", 0.5], ["loggerhead", 0.5], ["mangdung-eo", 0.8], ["sungeo", 0.7], ["jeoneo", 0.9], ["dodari", 0.8], ["cham-gaori", 0.5], ["kkot-ge", 0.6], ["eunbit-ojingeo", 0.7], ["nongeo", 0.5], ["gwang-eo", 0.5], ["chamdom", 0.45], ["mujigae-ojingeo", 0.3], ["eunbit-gaori", 0.12], ["hwanggeum-muneo", 0.1],
@@ -2626,7 +3231,23 @@
       ["minmul-damchi", 1.6], ["jung-gogi", 1.6], ["cham-junggogi", 1.6],
       ["nun-dongjagae", 0.8], ["peol-jogae", 1.6], ["mi-yugi", 0.8],
       ["cham-jjukkumi", 0.8], ["gap-o-jingeo", 2.4], ["muneo", 1.6],
-      ["nomura-haepari", 0.5], ["eunbit-cheolgap", 0.4]
+      ["nomura-haepari", 0.5], ["eunbit-cheolgap", 0.4],
+      ["kkot-bungeo", 1.7],
+      ["julmunui-bungeo", 1.0],
+      ["noranip-bungeo", 1.0],
+      ["hwangto-bungeo", 1.7],
+      ["dolhok-jogae", 1.0],
+      ["gisu-sungeo", 1.0],
+      ["gangeogwi-nongeo", 0.45],
+      ["yeolmul-bungeo", 1.0],
+      ["yeomhwa-gaori", 0.16],
+      ["hwanghon-galchi", 1.0],
+      ["bulgeun-gaori", 0.45],
+      ["hwanghon-ojingeo", 0.45],
+      ["boratbit-jogae", 0.16],
+      ["bulkkot-songeo", 0.16],
+      ["hwanghon-geobuk", 0.45],
+      ["hwanghon-muneo", 0.45],
     ],
     night: [
       ["loggerhead", 0.35], ["leatherback", 0.18], ["geomjeong-mangdung", 1.4], ["mikkuraji", 1.6], ["dol-ge", 0.8], ["dol-saeu", 1.2], ["eolluk-dongsari", 0.8], ["bollak", 0.8], ["cham-gaori", 0.7], ["dalbit-jogae", 0.7], ["neup-ge", 0.6], ["eodum-haepari", 0.7], ["nongeo", 0.35], ["ssombaengi", 0.45], ["gamseongdom", 0.4], ["seodae", 0.4], ["choryong-agwi", 0.35], ["simhae-galchi", 0.3], ["jebi-galchi", 0.28], ["simhae-hong-eo", 0.3], ["heuk-gaori", 0.28], ["simhae-jogae", 0.3], ["simhae-saeu", 0.3], ["simhae-muneo", 0.3], ["chang-ojingeo", 0.3], ["simhae-agwi", 0.12], ["eundaegu", 0.1], ["boreumdal-jogae", 0.1], ["dae-ge", 0.1], ["dokdo-saeu", 0.1], ["simhae-haepari", 0.09],
@@ -2646,7 +3267,59 @@
       ["hanchi", 2.1], ["muneo", 1.4], ["boreumdal-mulhaepari", 2.1],
       ["yuryeong-haepari", 0.7], ["hwasal-ojingeo", 1.4], ["banbit-ojingeo", 0.8],
       ["mujigae-bit-haepari", 0.7], ["nomura-haepari", 0.3], ["eunhasu-haepari", 0.6],
-      ["dalbit-muneo", 0.6], ["cheonnyeon-jara", 0.3], ["simyeon-ojingeo", 0.4]
+      ["dalbit-muneo", 0.6], ["cheonnyeon-jara", 0.3], ["simyeon-ojingeo", 0.4],
+      ["gipmul-songeo", 0.45],
+      ["bam-songeo", 0.45],
+      ["seomgang-jonggae", 0.45],
+      ["jageunip-jang-eo", 1.0],
+      ["bidulgi-mikkuri", 1.7],
+      ["jinheuk-jang-eo", 1.7],
+      ["solbangul-urong", 1.0],
+      ["jari-saeu", 1.7],
+      ["kkoma-bangge", 1.7],
+      ["songgot-saeu", 1.0],
+      ["jangsu-bangge", 0.45],
+      ["gangeogwi-nongeo", 0.45],
+      ["yeomsu-saeu", 1.7],
+      ["ppeol-ge", 1.7],
+      ["gaetbeol-gaori", 0.45],
+      ["ganghagu-jogae", 1.7],
+      ["bulbit-agwi", 0.45],
+      ["eodum-galchi", 0.45],
+      ["simyeon-hong-eo", 0.45],
+      ["simhae-byeoljelly", 1.0],
+      ["nunbit-saeu", 1.0],
+      ["simhae-dolge", 1.0],
+      ["simbul-ojingeo", 0.45],
+      ["simhae-urong", 1.0],
+      ["eunhasu-gaori", 0.16],
+      ["mudae-jang-eo", 0.45],
+      ["byeolbit-saeu", 0.45],
+      ["simhae-byeongeo", 1.0],
+      ["simhae-jjuggumi", 1.0],
+      ["hwanghon-galchi", 1.0],
+      ["gipbadak-agwi", 0.45],
+      ["hwanggeum-hanchi", 0.45],
+      ["dolpan-muneo", 1.0],
+      ["haepari-wang", 0.16],
+      ["byeolbit-hanchi", 1.0],
+      ["gwangchae-ge", 0.16],
+      ["bulkkot-saeu", 0.16],
+      ["dolbawi-muneo", 0.45],
+      ["yongui-bineul", 0.16],
+      ["cheondung-wang", 0.16],
+      ["byeoreul-samkin-gaori", 0.16],
+      ["simyeonui-wanggwan", 0.16],
+      ["cheonnyeon-muneo", 0.16],
+      ["eunhaui-nongeo", 0.16],
+      ["dalbit-hanchi", 0.16],
+      ["simhae-wang", 0.16],
+      ["eunbit-jang-eo", 0.45],
+      ["hwanggeum-bangge", 0.45],
+      ["byeolbit-geobuk", 0.16],
+      ["yong-jang-eo", 0.16],
+      ["eunbit-daseulgi", 1.0],
+      ["simyeon-saeu", 0.45],
     ]
   };
 
@@ -2683,7 +3356,7 @@
   var FISH_BY_ID = {};
   FISH.forEach(function (f) { FISH_BY_ID[f.id] = f; });
 
-  /* 날씨 전용 히든 — clear·rain·fog·storm·snow 각 10종, 각 3%(합 30%) 확률로 걸린다.
+  /* 날씨 전용 히든 — clear·rain·fog·storm·snow 각 10종, 각 1%(날씨당 합 10%) 확률로 걸린다.
      낚싯대·미끼 보정은 히든에는 적용되지 않는다. */
   var WEATHER_HIDDEN = {
     clear: ["sunbeam-chub", "glassfin-minnow", "midday-carp", "sunspot-trout", "skyblue-ayu",
@@ -2768,7 +3441,7 @@
   }
 
   /* ── 🥫 0.05% 꽝 (duds) ────────────────────────────────────────────────
-     어종 210종과 완전히 분리된 별도 결과. 도감/어종 카운트에는 절대 들어가지 않고
+     어종 310종과 완전히 분리된 별도 결과. 도감/어종 카운트에는 절대 들어가지 않고
      economy.duds 에만 따로 쌓인다. 모든 날씨에서 0.05% (DUD_CHANCE). */
   var DUD_CHANCE = 0.0005;
 
@@ -2804,14 +3477,17 @@
     };
   }
 
-  function rollFish(band, rareMul) {
-    // ① 한 번의 추첨으로 꽝 0.05% → 날씨 히든 10% → 나머지 89.95% 순서로 나눈다
+  function rollFish(band, rareMul, hiddenMul) {
+    // ① 한 번의 추첨으로 꽝 0.05% → 날씨 히든 (기본 10%, 수동 1.2배) → 나머지 순서로 나눈다
     var r = Math.random();
     if (r < DUD_CHANCE) return rollDud();
     var hList = WEATHER_HIDDEN[weather.current];
+    var hmul = hiddenMul || 1;
     if (hList && hList.length) {
-      if (r < DUD_CHANCE + HIDDEN_TOTAL_CHANCE) {
-        var hi = Math.min(hList.length - 1, Math.floor((r - DUD_CHANCE) / HIDDEN_CHANCE_EACH));
+      var hidTotal = Math.min(0.9, HIDDEN_TOTAL_CHANCE * hmul);
+      if (r < DUD_CHANCE + hidTotal) {
+        var per = hidTotal / hList.length;
+        var hi = Math.min(hList.length - 1, Math.floor((r - DUD_CHANCE) / per));
         var hf = FISH_BY_ID[hList[hi]];
         if (hf) return hf;
       }
@@ -2893,7 +3569,7 @@
       if (!parsed || typeof parsed !== "object") return;
       if (typeof parsed.sound === "boolean") settings.sound = parsed.sound;
       if (typeof parsed.auto === "boolean") settings.auto = parsed.auto;
-      if (parsed.wx === "auto" || parsed.wx === "clear" || parsed.wx === "rain" || parsed.wx === "fog" || parsed.wx === "storm" || parsed.wx === "snow") settings.wx = parsed.wx;
+      settings.wx = "auto";   // 날씨 직접 선택은 없어졌다 (항상 자동 랜덤)
     } catch (err) { /* 무시 */ }
   }
 
@@ -2911,7 +3587,8 @@
     { id: "glass",    name: "글라스 낚싯대",   price: 300,  waitMul: 0.9, rareMul: 1.25, bigBonus: 1.06, color: 0x5f8f7a, swatch: "#5f8f7a", desc: "입질 대기 -10% · 희귀 확률 +25% · 크기 +6%" },
     { id: "carbon",   name: "카본 낚싯대",     price: 900,  waitMul: 0.8, rareMul: 1.55, bigBonus: 1.12, color: 0x272b31, swatch: "#3a4049", desc: "입질 대기 -20% · 희귀 확률 +55% · 크기 +12%" },
     { id: "titanium", name: "티타늄 낚싯대",   price: 2200, waitMul: 0.7, rareMul: 1.9,  bigBonus: 1.2,  color: 0xb9c4cd, swatch: "#b9c4cd", desc: "입질 대기 -30% · 희귀 확률 +90% · 크기 +20%" },
-    { id: "gold",     name: "황금 낚싯대",     price: 5000, waitMul: 0.6, rareMul: 2.6,  bigBonus: 1.32, color: 0xf2c14e, swatch: "#f2c14e", desc: "입질 대기 -40% · 희귀 확률 +160% · 크기 +32% · 빛난다" }
+    { id: "gold",     name: "황금 낚싯대",     price: 5000, waitMul: 0.6, rareMul: 2.6,  bigBonus: 1.32, color: 0xf2c14e, swatch: "#f2c14e", desc: "입질 대기 -40% · 희귀 확률 +160% · 크기 +32% · 빛난다" },
+    { id: "mythic",   name: "천년 별빛 낚싯대", price: 50000, waitMul: 0.5, rareMul: 3.2, bigBonus: 1.4,  hiddenMul: 1.3, color: 0xffe08a, swatch: "#ffe08a", desc: "입질 대기 -50% · 희귀·전설 +220% · 날씨 히든 +30% · 크기 +40% · 별빛과 보석이 흐른다" }
   ];
 
   var BAITS = [
@@ -2949,25 +3626,25 @@
 
   var COSMETICS = {
     hat: [
-      { id: "straw",  name: "기본 밀짚모자", price: 0,   hex: 0xd8b271, swatch: "#d8b271", desc: "강가에서 쓰던 밀짚모자. 챙이 햇빛을 막아 줘요" },
-      { id: "cap",    name: "야구 캡",       price: 312, hex: 0x4a6fa8, swatch: "#4a6fa8", desc: "푸른 야구 캡. 챙이 눈을 가려 주고 뒤가 시원해요" },
-      { id: "beret",  name: "베레모",        price: 504, hex: 0xa05a6a, swatch: "#a05a6a", desc: "동글동글 베레모. 강가에서도 감성은 놓치지 않아요" },
-      { id: "beanie", name: "털비니",        price: 456, hex: 0x5a6b7a, swatch: "#5a6b7a", desc: "보드라운 털비니. 안개 낀 새벽에 귀가 따뜻해요" },
-      { id: "fedora", name: "탐험가 페도라", price: 912, hex: 0x8a6a43, swatch: "#8a6a43", desc: "챙이 넓은 탐험가 모자. 햇살이 부드럽게 내려앉아요" },
-      { id: "earflap", name: "겨울 귀마개 모자", price: 540, hex: 0xb8483f, swatch: "#b8483f", desc: "볼까지 따뜻하게 덮는 귀마개 모자. 눈 내리는 날 딱이에요" }
+      { id: "straw",  name: "기본 밀짚모자", price: 0,   hex: 0xd8b271, swatch: "#d8b271", warmth: "thin", desc: "강가에서 쓰던 밀짚모자. 챙이 햇빛을 막아 줘요" },
+      { id: "cap",    name: "야구 캡",       price: 312, hex: 0x4a6fa8, swatch: "#4a6fa8", warmth: "thin", desc: "푸른 야구 캡. 챙이 눈을 가려 주고 뒤가 시원해요" },
+      { id: "beret",  name: "베레모",        price: 504, hex: 0xa05a6a, swatch: "#a05a6a", warmth: "normal", desc: "동글동글 베레모. 강가에서도 감성은 놓치지 않아요" },
+      { id: "beanie", name: "털비니",        price: 456, hex: 0x5a6b7a, swatch: "#5a6b7a", warmth: "warm", desc: "보드라운 털비니. 안개 낀 새벽에 귀가 따뜻해요" },
+      { id: "fedora", name: "탐험가 페도라", price: 912, hex: 0x8a6a43, swatch: "#8a6a43", warmth: "normal", desc: "챙이 넓은 탐험가 모자. 햇살이 부드럽게 내려앉아요" },
+      { id: "earflap", name: "겨울 귀마개 모자", price: 540, hex: 0xb8483f, swatch: "#b8483f", warmth: "warm", desc: "볼까지 따뜻하게 덮는 귀마개 모자. 눈 내리는 날 딱이에요" }
     ],
     top: [
-      { id: "teal",     name: "기본 청록 재킷", price: 0,   hex: 0x3f6f83, swatch: "#3f6f83", desc: "처음부터 입고 있던 청록 재킷" },
-      { id: "anorak",   name: "주황 아노락",    price: 408, hex: 0xd97a3a, swatch: "#d97a3a", desc: "주황 아노락. 노을 진 강가에 딱 맞는 색이에요" },
-      { id: "hoody",    name: "네이비 후드",    price: 552, hex: 0x2f3f66, swatch: "#2f3f66", desc: "네이비 후드. 목 뒤로 후드가 살짝 올라와 있어요" },
-      { id: "vest",     name: "올리브 베스트",  price: 624, hex: 0x6b7343, swatch: "#6b7343", desc: "올리브 조끼. 소매가 없어 팔이 자유로워요" },
-      { id: "cardigan", name: "핑크 가디건",    price: 816, hex: 0xd69aae, swatch: "#d69aae", desc: "핑크 가디건. 앞단추가 달린 포근한 차림" },
-      { id: "puffer",   name: "겨울 패딩",      price: 980, hex: 0x2d3d5c, swatch: "#2d3d5c", desc: "가로로 누벼진 두툼한 겨울 패딩. 눈보라가 와도 따뜻해요" },
-      { id: "fishvest", name: "낚시 베스트 풀세트", price: 760, hex: 0x8a7442, swatch: "#8a7442", desc: "주머니 가득한 낚시 조끼. 루어와 소품이 줄줄이 달렸어요" },
-      { id: "hawaiian", name: "하와이안 셔츠",  price: 600, hex: 0x2f8f9a, swatch: "#2f8f9a", desc: "꽃무늬가 흩날리는 하와이안 셔츠. 겨울 강가에서도 휴가 기분" },
-      { id: "stripeknit", name: "스트라이프 니트", price: 690, hex: 0xc9dfe8, swatch: "#c9dfe8", desc: "굵은 줄무늬 니트. 목선이 둥글게 내려앉은 차분한 스타일" },
-      { id: "ranger",   name: "레인저 점퍼",    price: 850, hex: 0x6b5a3a, swatch: "#6b5a3a", desc: "어깨 견장과 큰 포켓이 있는 레인저 점퍼. 움직이기 편해요" },
-      { id: "fleece",   name: "코지 후리스",    price: 800, hex: 0xe0d0c4, swatch: "#e0d0c4", desc: "몽글몽글 양털 결이 살아 있는 코지 후리스. 새벽 강가의 포근함" }
+      { id: "teal",     name: "기본 청록 재킷", price: 0,   hex: 0x3f6f83, swatch: "#3f6f83", warmth: "normal", desc: "처음부터 입고 있던 청록 재킷" },
+      { id: "anorak",   name: "주황 아노락",    price: 408, hex: 0xd97a3a, swatch: "#d97a3a", warmth: "normal", desc: "주황 아노락. 노을 진 강가에 딱 맞는 색이에요" },
+      { id: "hoody",    name: "네이비 후드",    price: 552, hex: 0x2f3f66, swatch: "#2f3f66", warmth: "normal", desc: "네이비 후드. 목 뒤로 후드가 살짝 올라와 있어요" },
+      { id: "vest",     name: "올리브 베스트",  price: 624, hex: 0x6b7343, swatch: "#6b7343", warmth: "thin", desc: "올리브 조끼. 소매가 없어 팔이 자유로워요" },
+      { id: "cardigan", name: "핑크 가디건",    price: 816, hex: 0xd69aae, swatch: "#d69aae", warmth: "normal", desc: "핑크 가디건. 앞단추가 달린 포근한 차림" },
+      { id: "puffer",   name: "겨울 패딩",      price: 980, hex: 0x2d3d5c, swatch: "#2d3d5c", warmth: "warm", desc: "가로로 누벼진 두툼한 겨울 패딩. 눈보라가 와도 따뜻해요" },
+      { id: "fishvest", name: "낚시 베스트 풀세트", price: 760, hex: 0x8a7442, swatch: "#8a7442", warmth: "thin", desc: "주머니 가득한 낚시 조끼. 루어와 소품이 줄줄이 달렸어요" },
+      { id: "hawaiian", name: "하와이안 셔츠",  price: 600, hex: 0x2f8f9a, swatch: "#2f8f9a", warmth: "thin", desc: "꽃무늬가 흩날리는 하와이안 셔츠. 겨울 강가에서도 휴가 기분" },
+      { id: "stripeknit", name: "스트라이프 니트", price: 690, hex: 0xc9dfe8, swatch: "#c9dfe8", warmth: "warm", desc: "굵은 줄무늬 니트. 목선이 둥글게 내려앉은 차분한 스타일" },
+      { id: "ranger",   name: "레인저 점퍼",    price: 850, hex: 0x6b5a3a, swatch: "#6b5a3a", warmth: "warm", desc: "어깨 견장과 큰 포켓이 있는 레인저 점퍼. 움직이기 편해요" },
+      { id: "fleece",   name: "코지 후리스",    price: 800, hex: 0xe0d0c4, swatch: "#e0d0c4", warmth: "warm", desc: "몽글몽글 양털 결이 살아 있는 코지 후리스. 새벽 강가의 포근함" }
     ],
     glasses: [
       { id: "none",       name: "안경 없음",     price: 0,   hex: 0x39465a, swatch: "#39465a", desc: "맨눈으로 강물을 봐요" },
@@ -2977,9 +3654,9 @@
       { id: "goggles",    name: "스노우 고글",   price: 480, hex: 0x8fc4e0, swatch: "#8fc4e0", desc: "눈보라 속에서도 잘 보이는 넓은 고글. 머리 뒤로 밴드가 감겼어요" }
     ],
     chair: [
-      { id: "camping",  name: "기본 캠핑 의자",  price: 0,    hex: 0x3e6b57, swatch: "#3e6b57", desc: "접이식 캠핑 의자. 가볍고 튼튼해요" },
-      { id: "wooden",   name: "원목 접이식 의자", price: 576,  hex: 0xa87a4a, swatch: "#a87a4a", desc: "나무 결이 살아 있는 원목 접이식 의자" },
-      { id: "recliner", name: "럭셔리 리클라이너", price: 1680, hex: 0x7a4a6a, swatch: "#7a4a6a", desc: "쿠션과 머리받침이 있는 리클라이너. 낚시가 편안해져요" }
+      { id: "camping",  name: "기본 캠핑 의자",  price: 0,    hex: 0x3e6b57, swatch: "#3e6b57", maxHp: 100, regenMul: 1,   drainMul: 1,    desc: "접이식 캠핑 의자. 가볍고 튼튼해요" },
+      { id: "wooden",   name: "원목 접이식 의자", price: 576,  hex: 0xa87a4a, swatch: "#a87a4a", maxHp: 110, regenMul: 1.3, drainMul: 0.92, desc: "나무 결이 살아 있는 원목 접이식 의자 · 최대 체력 +10" },
+      { id: "recliner", name: "럭셔리 리클라이너", price: 1680, hex: 0x7a4a6a, swatch: "#7a4a6a", maxHp: 130, regenMul: 1.8, drainMul: 0.8, desc: "쿠션과 머리받침이 있는 리클라이너 · 최대 체력 +30 · 회복 1.8배 · 체력 소모 20% 경감" }
     ]
   };
 
@@ -2998,6 +3675,75 @@
       if (COSMETIC_CATS[i].id === cat) return COSMETIC_CATS[i].def;
     }
     return null;
+  }
+
+  /* 보온(옷 두께) · 의자 체력 보강 */
+  var WARMTH_INFO = {
+    thin:   { label: "얇음",  icon: "🌬️", score: 0 },
+    normal: { label: "보통",  icon: "🧥", score: 1 },
+    warm:   { label: "두꺼움", icon: "🧣", score: 2 }
+  };
+
+  function warmthOf(cat) {
+    var it = cosmeticItem(cat, effectiveCos(cat));
+    return (it && it.warmth) || "normal";
+  }
+
+  function chairStats() {
+    var it = cosmeticItem("chair", effectiveCos("chair")) || COSMETICS.chair[0];
+    return {
+      id: it.id,
+      name: it.name,
+      maxHp: it.maxHp || 100,
+      regenMul: it.regenMul || 1,
+      drainMul: it.drainMul || 1
+    };
+  }
+
+  function maxHP() { return chairStats().maxHp; }
+
+  /* 상의 + 모자 보온 점수: 0(얇음) ~ 2(두꺼움)씩 합산 */
+  function outfitWarmth() {
+    var top = warmthOf("top");
+    var hat = warmthOf("hat");
+    var score = WARMTH_INFO[top].score + WARMTH_INFO[hat].score;
+    return {
+      top: top, hat: hat, score: score,
+      level: score <= 1 ? "thin" : (score >= 3 ? "warm" : "normal")
+    };
+  }
+
+  /* 날씨 × 옷 두께 → 체력 소모 배율과 HUD 문구 */
+  function weatherOutfitEffect() {
+    var w = weather.current;
+    var lv = outfitWarmth().level;
+    var cold = (w === "snow" || w === "storm" || w === "rain");
+    if (cold) {
+      if (lv === "thin") return { mul: 1.5, chip: "🥶 얇은 옷: 체력 소모↑", cls: "cold" };
+      if (lv === "warm") return { mul: 0.75, chip: "🧣 따뜻한 옷: 추위 완화", cls: "warm" };
+      return { mul: 1, chip: "🧥 보통 옷: 추위 그대로", cls: "" };
+    }
+    if (w === "clear") {
+      if (lv === "warm") return { mul: 1.15, chip: "🥵 두꺼운 옷: 더위", cls: "hot" };
+      if (lv === "thin") return { mul: 0.9, chip: "🍃 얇은 옷: 쾌적", cls: "cool" };
+    }
+    return { mul: 1, chip: "", cls: "" };
+  }
+
+  function hpDrainMul() {
+    return chairStats().drainMul * weatherOutfitEffect().mul;
+  }
+
+  function hpRegenSeconds() { return 18 / chairStats().regenMul; }
+
+  function formatPlaytime(sec) {
+    sec = Math.max(0, Math.floor(Number(sec) || 0));
+    var h = Math.floor(sec / 3600);
+    var m = Math.floor((sec % 3600) / 60);
+    var s = sec % 60;
+    if (h > 0) return h + "시간 " + m + "분";
+    if (m > 0) return m + "분 " + s + "초";
+    return s + "초";
   }
 
   function ownedCosmeticCount(cat) {
@@ -3040,7 +3786,8 @@
       ownedCos: cos.ownedCos,     // { hat: { straw: true }, ... } 보유한 꾸미기
       drinksBought: 0,            // 누적 자판기 음료 (업적용)
       baitsEver: { worm: true },  // 한 번이라도 산 미끼 (업적용)
-      duds: { total: 0, kinds: {}, firstAt: 0 }   // 0.05% 꽝 기록 (어종 210종과 분리)
+      duds: { total: 0, kinds: {}, firstAt: 0 },  // 0.05% 꽝 기록 (어종 310종과 분리)
+      playSeconds: 0                              // 누적 플레이타임 (초)
     };
   }
 
@@ -3055,6 +3802,7 @@
       economy.coins = Math.max(0, Math.floor(Number(p.coins) || 0));
       economy.totalEarned = Math.max(0, Math.floor(Number(p.totalEarned) || 0));
       economy.hp = clamp(typeof p.hp === "number" ? p.hp : 100, 0, 100);
+      economy.playSeconds = Math.max(0, Math.floor(Number(p.playSeconds) || 0));
       economy.rods = { bamboo: true };
       if (p.rods && typeof p.rods === "object") {
         Object.keys(p.rods).forEach(function (id) {
@@ -3111,6 +3859,7 @@
           if (BAITS_BY_ID[id] && Number(p.baits[id]) > 0) economy.baitsEver[id] = true;
         });
       }
+      economy.hp = clamp(economy.hp, 0, maxHP());
       economy.buffs = {};
       if (p.buffs && typeof p.buffs === "object") {
         Object.keys(p.buffs).forEach(function (id) {
@@ -3142,7 +3891,7 @@
   }
 
   function spendHP(n) {
-    economy.hp = clamp(economy.hp - n, 0, 100);
+    economy.hp = clamp(economy.hp - n * hpDrainMul(), 0, maxHP());
   }
 
   function caughtCount() { return Object.keys(book.records).length; }
@@ -3342,6 +4091,19 @@
       this.noiseBurst(t, 0.18, 1500, 0.18);
     },
 
+    /* 히든 입질 전용 알람 — 일반 입질(낮은 plop)과 완전히 구분되는 맑은 3음 상승 차임 */
+    hiddenAlarm: function () {
+      this.alarmCount = (this.alarmCount || 0) + 1;
+      if (!this.enabled || !this.ctx) return;
+      var t = this.ctx.currentTime + 0.01;
+      this.tone(t, 1318.5, 0.30, 0.20, "triangle");        // E6
+      this.tone(t + 0.13, 1661.2, 0.30, 0.18, "triangle"); // G#6
+      this.tone(t + 0.26, 1975.5, 0.44, 0.20, "triangle"); // B6
+      this.tone(t + 0.26, 2637.0, 0.34, 0.07, "sine");     // E7 반짝임
+      this.tone(t + 0.40, 2637.0, 0.24, 0.05, "sine");
+      this.noiseBurst(t + 0.26, 0.26, 5200, 0.045);
+    },
+
     catchFish: function (rarity) {
       if (!this.enabled || !this.ctx) return;
       var t = this.ctx.currentTime + 0.02;
@@ -3515,7 +4277,9 @@
     session: 0,
     lastCatch: null,
     biteFish: null,        // 입질 순간 미리 뽑아 둔 어종 (무거운 입질 연출용)
-    biteHeavy: false       // 이번 입질이 무거운 물고기인지
+    biteHeavy: false,      // 이번 입질이 무거운 물고기인지
+    biteHidden: false,     // 이번 입질이 날씨 히든인지 (자동 챔질 금지)
+    castManual: false      // 이번 캐스팅을 직접 탭해서 던졌는지 (수동 1.2×)
   };
 
   var hour = 0;           // 현재 목표 시각 (0~24)
@@ -3568,12 +4332,11 @@
   function setWeatherMode(mode) {
     if (mode !== "auto" && !WEATHER_INFO[mode]) return;
     weather.mode = mode;
-    settings.wx = mode;
-    saveSettings();
     if (mode === "auto") {
       weather.t = 0;
       weather.nextAt = rand(45, 100);
     } else {
+      // 검증용 훅에서만 쓰는 고정 날씨 (화면 버튼 없음 · 저장하지 않음)
       weather.current = mode;
     }
     updateWeatherButtons();
@@ -3897,6 +4660,7 @@
     buildAngler();
     buildBobber();
     buildRipples();
+    buildCatchFx();
     buildFireflies();
     buildRain();
     buildSnow();
@@ -4716,13 +5480,16 @@
     // ① 기본 밀짚모자
     var hatGroup = new THREE.Group();
     var brim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.025, 12), hatMat);
-    brim.position.y = 0.13;
+    brim.position.y = 0.165;
+    brim.position.z = 0.012;
+    brim.rotation.x = 0.13;                 // 앞챙을 살짝 들어 눈·안경을 가리지 않게
     hatGroup.add(brim);
     var crown = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.19, 0.18, 10), hatMat);
-    crown.position.y = 0.22;
+    crown.position.y = 0.252;
+    crown.position.z = 0.012;
     hatGroup.add(crown);
     var hookDeco = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.008, 4, 8), new THREE.MeshStandardMaterial({ color: 0xc9a24a, roughness: 0.6 }));
-    hookDeco.position.set(0.17, 0.19, 0);
+    hookDeco.position.set(0.17, 0.225, 0.012);
     hookDeco.rotation.y = Math.PI / 2;
     hatGroup.add(hookDeco);
     head.add(hatGroup);
@@ -4732,15 +5499,15 @@
     var capMat = new THREE.MeshStandardMaterial({ color: 0x4a6fa8, roughness: 0.86, flatShading: true });
     var capGroup = new THREE.Group();
     var capCrown = new THREE.Mesh(new THREE.SphereGeometry(0.198, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.56), capMat);
-    capCrown.position.y = 0.055;
+    capCrown.position.y = 0.082;
     capCrown.scale.y = 0.95;
     capGroup.add(capCrown);
     var capBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.235, 0.235, 0.022, 14, 1, false, Math.PI - 1.2, 2.4), capMat);
-    capBrim.position.set(0, 0.052, -0.02);
-    capBrim.rotation.x = -0.07;
+    capBrim.position.set(0, 0.095, -0.028);
+    capBrim.rotation.x = 0.20;              // 앞챙을 들어 얼굴을 가리지 않게
     capGroup.add(capBrim);
     var capButton = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), new THREE.MeshStandardMaterial({ color: 0x35507a, roughness: 0.8 }));
-    capButton.position.y = 0.178;
+    capButton.position.y = 0.205;
     capGroup.add(capButton);
     capGroup.visible = false;
     head.add(capGroup);
@@ -4751,11 +5518,11 @@
     var beretGroup = new THREE.Group();
     var beret = new THREE.Mesh(new THREE.SphereGeometry(0.225, 14, 10), beretMat);
     beret.scale.set(1, 0.42, 1);
-    beret.position.set(0, 0.145, 0.012);
+    beret.position.set(0, 0.172, 0.02);
     beret.rotation.z = 0.16;
     beretGroup.add(beret);
     var beretStem = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.016, 0.045, 6), beretMat);
-    beretStem.position.set(0.045, 0.245, 0.012);
+    beretStem.position.set(0.045, 0.272, 0.02);
     beretGroup.add(beretStem);
     beretGroup.visible = false;
     head.add(beretGroup);
@@ -4765,14 +5532,14 @@
     var beanieMat = new THREE.MeshStandardMaterial({ color: 0x5a6b7a, roughness: 0.95, flatShading: true });
     var beanieGroup = new THREE.Group();
     var beanieTop = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.62), beanieMat);
-    beanieTop.position.y = 0.045;
+    beanieTop.position.y = 0.072;
     beanieTop.scale.y = 1.18;
     beanieGroup.add(beanieTop);
     var beanieRim = new THREE.Mesh(new THREE.CylinderGeometry(0.209, 0.209, 0.075, 14, 1, true), beanieMat);
-    beanieRim.position.y = 0.062;
+    beanieRim.position.y = 0.092;
     beanieGroup.add(beanieRim);
     var pom = new THREE.Mesh(new THREE.IcosahedronGeometry(0.055, 0), beanieMat);
-    pom.position.y = 0.29;
+    pom.position.y = 0.317;
     beanieGroup.add(pom);
     beanieGroup.visible = false;
     head.add(beanieGroup);
@@ -4783,16 +5550,21 @@
     var fedoraBandMat = new THREE.MeshStandardMaterial({ color: 0x4d3826, roughness: 0.9, flatShading: true });
     var fedoraGroup = new THREE.Group();
     var fedoraBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.325, 0.325, 0.022, 16), fedoraMat);
-    fedoraBrim.position.y = 0.115;
+    fedoraBrim.position.y = 0.152;
+    fedoraBrim.position.z = 0.014;
+    fedoraBrim.rotation.x = 0.12;
     fedoraGroup.add(fedoraBrim);
     var fedoraCrown = new THREE.Mesh(new THREE.CylinderGeometry(0.148, 0.178, 0.2, 10), fedoraMat);
-    fedoraCrown.position.y = 0.215;
+    fedoraCrown.position.y = 0.248;
+    fedoraCrown.position.z = 0.014;
     fedoraGroup.add(fedoraCrown);
     var fedoraBand = new THREE.Mesh(new THREE.CylinderGeometry(0.181, 0.181, 0.05, 10, 1, true), fedoraBandMat);
-    fedoraBand.position.y = 0.135;
+    fedoraBand.position.y = 0.168;
+    fedoraBand.position.z = 0.014;
     fedoraGroup.add(fedoraBand);
     var fedoraPinch = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.03, 0.2), fedoraBandMat);
-    fedoraPinch.position.y = 0.315;
+    fedoraPinch.position.y = 0.348;
+    fedoraPinch.position.z = 0.014;
     fedoraGroup.add(fedoraPinch);
     fedoraGroup.visible = false;
     head.add(fedoraGroup);
@@ -4803,11 +5575,11 @@
     var furMat2 = new THREE.MeshStandardMaterial({ color: 0xf2ece2, roughness: 1, flatShading: true });
     var earGroup = new THREE.Group();
     var earTop = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.6), earMat);
-    earTop.position.y = 0.05;
+    earTop.position.y = 0.078;
     earTop.scale.y = 1.1;
     earGroup.add(earTop);
     var earBand = new THREE.Mesh(new THREE.CylinderGeometry(0.213, 0.213, 0.06, 14, 1, true), furMat2);
-    earBand.position.y = 0.052;
+    earBand.position.y = 0.080;
     earGroup.add(earBand);
     [-1, 1].forEach(function (s2) {
       var flap = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.19, 0.13), earMat);
@@ -4819,7 +5591,7 @@
       earGroup.add(fur);
     });
     var earPom = new THREE.Mesh(new THREE.IcosahedronGeometry(0.058, 0), furMat2);
-    earPom.position.y = 0.285;
+    earPom.position.y = 0.313;
     earGroup.add(earPom);
     earGroup.visible = false;
     head.add(earGroup);
@@ -4841,18 +5613,18 @@
     var roundG = new THREE.Group();
     [-1, 1].forEach(function (s2) {
       var ring = new THREE.Mesh(new THREE.TorusGeometry(0.048, 0.0085, 5, 12), metalMat);
-      ring.position.set(0.07 * s2, 0.035, -0.168);
+      ring.position.set(0.07 * s2, 0.038, -0.200);
       roundG.add(ring);
       var lens = new THREE.Mesh(new THREE.CircleGeometry(0.045, 12), lensClearMat);
-      lens.position.set(0.07 * s2, 0.035, -0.171);
+      lens.position.set(0.07 * s2, 0.038, -0.203);
       roundG.add(lens);
-      var temple = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.17), metalMat);
-      temple.position.set(0.128 * s2, 0.045, -0.09);
+      var temple = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.20), metalMat);
+      temple.position.set(0.128 * s2, 0.048, -0.10);
       temple.rotation.x = 0.06;
       roundG.add(temple);
     });
     var roundBridge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.011, 0.012), metalMat);
-    roundBridge.position.set(0, 0.045, -0.172);
+    roundBridge.position.set(0, 0.048, -0.204);
     roundG.add(roundBridge);
     roundG.visible = false;
     head.add(roundG);
@@ -4861,18 +5633,18 @@
     // 선글라스
     var sunG = new THREE.Group();
     [-1, 1].forEach(function (s2) {
-      var frame = new THREE.Mesh(new THREE.BoxGeometry(0.098, 0.058, 0.016), lensDarkMat);
-      frame.position.set(0.07 * s2, 0.035, -0.176);
+      var frame = new THREE.Mesh(new THREE.BoxGeometry(0.098, 0.058, 0.018), lensDarkMat);
+      frame.position.set(0.07 * s2, 0.038, -0.208);
       sunG.add(frame);
-      var rim = new THREE.Mesh(new THREE.BoxGeometry(0.106, 0.012, 0.012), metalMat);
-      rim.position.set(0.07 * s2, 0.066, -0.172);
+      var rim = new THREE.Mesh(new THREE.BoxGeometry(0.108, 0.013, 0.014), metalMat);
+      rim.position.set(0.07 * s2, 0.069, -0.204);
       sunG.add(rim);
-      var temple = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.014, 0.17), metalMat);
-      temple.position.set(0.128 * s2, 0.045, -0.09);
+      var temple = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.014, 0.20), metalMat);
+      temple.position.set(0.128 * s2, 0.048, -0.10);
       sunG.add(temple);
     });
     var sunBridge = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.014, 0.014), metalMat);
-    sunBridge.position.set(0, 0.05, -0.176);
+    sunBridge.position.set(0, 0.053, -0.208);
     sunG.add(sunBridge);
     sunG.visible = false;
     head.add(sunG);
@@ -4889,14 +5661,14 @@
     heartGeo.translate(0, 0.018, 0);
     [-1, 1].forEach(function (s2) {
       var h = new THREE.Mesh(heartGeo, lensPinkMat);
-      h.position.set(0.072 * s2, 0.038, -0.176);
+      h.position.set(0.072 * s2, 0.041, -0.208);
       heartG.add(h);
-      var temple = new THREE.Mesh(new THREE.BoxGeometry(0.011, 0.011, 0.17), metalMat);
-      temple.position.set(0.13 * s2, 0.048, -0.09);
+      var temple = new THREE.Mesh(new THREE.BoxGeometry(0.011, 0.011, 0.20), metalMat);
+      temple.position.set(0.13 * s2, 0.051, -0.10);
       heartG.add(temple);
     });
     var heartBridge = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.01, 0.012), metalMat);
-    heartBridge.position.set(0, 0.046, -0.176);
+    heartBridge.position.set(0, 0.049, -0.208);
     heartG.add(heartBridge);
     heartG.visible = false;
     head.add(heartG);
@@ -4920,20 +5692,20 @@
     var goggleBack = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.06, 0.026), gBandMat);
     goggleBack.position.set(0, 0.045, 0.178);
     goggleG.add(goggleBack);
-    var goggleFrame = new THREE.Mesh(new THREE.BoxGeometry(0.335, 0.15, 0.035), gFrameMat);
-    goggleFrame.position.set(0, 0.035, -0.198);
+    var goggleFrame = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.152, 0.038), gFrameMat);
+    goggleFrame.position.set(0, 0.038, -0.214);
     goggleFrame.rotation.x = 0.03;
     goggleG.add(goggleFrame);
-    var goggleLens = new THREE.Mesh(new THREE.BoxGeometry(0.305, 0.118, 0.03), gLensMat);
-    goggleLens.position.set(0, 0.035, -0.214);
+    var goggleLens = new THREE.Mesh(new THREE.BoxGeometry(0.31, 0.12, 0.034), gLensMat);
+    goggleLens.position.set(0, 0.038, -0.232);
     goggleLens.rotation.x = 0.03;
     goggleG.add(goggleLens);
-    var goggleRim = new THREE.Mesh(new THREE.BoxGeometry(0.345, 0.026, 0.03), gFrameMat);
-    goggleRim.position.set(0, 0.102, -0.196);
+    var goggleRim = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.026, 0.032), gFrameMat);
+    goggleRim.position.set(0, 0.106, -0.212);
     goggleG.add(goggleRim);
     var goggleGlint = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.022, 0.012),
-      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 }));
-    goggleGlint.position.set(-0.03, 0.082, -0.228);
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 }));
+    goggleGlint.position.set(-0.03, 0.085, -0.248);
     goggleGlint.rotation.z = -0.12;
     goggleG.add(goggleGlint);
     goggleG.visible = false;
@@ -5220,6 +5992,39 @@
       new THREE.MeshStandardMaterial({ color: 0x8a6a43, roughness: 0.9 }));
     grip.position.y = 0.1;
     rodGroup.add(grip);
+
+    // 천년 별빛 낚싯대 전용 장식 (황금 테 + 보석 + 빛나는 끝)
+    var rodDeco = new THREE.Group();
+    rodDeco.visible = false;
+    rodGroup.add(rodDeco);
+    var decoGold = new THREE.MeshStandardMaterial({
+      color: 0xffd45e, metalness: 0.9, roughness: 0.22,
+      emissive: 0x6a4700, emissiveIntensity: 0.85, flatShading: true
+    });
+    var decoGem = new THREE.MeshStandardMaterial({
+      color: 0x9fd8ff, metalness: 0.5, roughness: 0.1,
+      emissive: 0x2a6aa8, emissiveIntensity: 1.1, flatShading: true
+    });
+    [0.03, 0.84, 1.65].forEach(function (yy, i) {
+      var band = new THREE.Mesh(new THREE.CylinderGeometry(0.034 - i * 0.009, 0.036 - i * 0.009, 0.05, 8), decoGold);
+      band.position.y = yy;
+      rodDeco.add(band);
+      var gem = new THREE.Mesh(new THREE.IcosahedronGeometry(0.028 - i * 0.006, 0), decoGem);
+      gem.position.set(0.033 - i * 0.008, yy + 0.05, 0);
+      rodDeco.add(gem);
+    });
+    var tipOrb = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 8), decoGem);
+    tipOrb.position.y = 2.34;
+    rodDeco.add(tipOrb);
+    var tipHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlowTexture("rgba(200,240,255,1)", "rgba(140,200,255,0.35)"),
+      color: 0xffffff, transparent: true, opacity: 0.85, depthWrite: false,
+      blending: THREE.AdditiveBlending
+    }));
+    tipHalo.position.y = 2.34;
+    tipHalo.scale.set(0.42, 0.42, 0.42);
+    rodDeco.add(tipHalo);
+    angler.userData.rodDeco = rodDeco;
 
     rodTip = new THREE.Object3D();
     rodTip.position.set(0, 0.70, 0);
@@ -6054,6 +6859,7 @@
   var el = {};
 
   function setPhase(phase) {
+    if (phase !== "biting") exitHiddenBite();
     state.phase = phase;
     state.phaseTime = 0;
     // 입질용으로 미리 뽑아 둔 어종은 한 번만 쓰고 버린다
@@ -6066,13 +6872,13 @@
     pill.classList.toggle("biting", phase === "biting");
 
     if (phase === "idle") {
-      el.statusText.textContent = "찌를 다시 준비하고 있어요";
+      el.statusText.textContent = settings.auto ? "찌를 다시 준비하고 있어요" : "탭해서 찌를 던지세요 · 수동 1.2×";
     } else if (phase === "casting") {
       el.statusText.textContent = "찌를 던지는 중";
     } else if (phase === "waiting") {
       el.statusText.textContent = "입질을 기다리는 중 · 지켜보세요";
     } else if (phase === "biting") {
-      el.statusText.textContent = "입질! 지금 낚아채세요";
+      el.statusText.textContent = state.biteHidden ? "✨ 히든 입질! 직접 터치하세요!" : "입질! 지금 낚아채세요";
     } else if (phase === "caught") {
       el.statusText.textContent = "낚아챘어요";
     } else if (phase === "missed") {
@@ -6085,17 +6891,73 @@
     el.biteBanner.classList.toggle("on", hot);
   }
 
-  function startFishing() {
+  /* ── ✨ 히든 입질: auto 모드에서도 직접 터치해야 잡힌다 ─────────── */
+  var HIDDEN_BITE_WINDOW = 4.6;
+  var MANUAL_RARE_MUL = 1.2;
+  var hiddenAlarmTimer = null;
+
+  function vibrate(pattern) {
+    if (!navigator || !navigator.vibrate) return;
+    try { navigator.vibrate(pattern); } catch (err) { /* 무시 */ }
+  }
+
+  function updateHiddenMeter() {
+    var bar = $("#hbBar");
+    var time = $("#hbTime");
+    var left = Math.max(0, state.biteWindow - state.biteElapsed);
+    if (bar) bar.style.width = (state.biteWindow > 0 ? (left / state.biteWindow) * 100 : 0) + "%";
+    if (time) time.textContent = left.toFixed(1);
+  }
+
+  function startHiddenAlarm() {
+    stopHiddenAlarm();
+    Sound.resume();
+    Sound.hiddenAlarm();
+    vibrate([0, 70, 55, 70, 55, 150]);
+    hiddenAlarmTimer = setInterval(function () {
+      Sound.hiddenAlarm();
+      vibrate([0, 55, 45, 55]);
+    }, 1100);
+  }
+
+  function stopHiddenAlarm() {
+    if (hiddenAlarmTimer) {
+      clearInterval(hiddenAlarmTimer);
+      hiddenAlarmTimer = null;
+    }
+  }
+
+  function enterHiddenBite() {
+    state.biteHidden = true;
+    if (el.hiddenBanner) el.hiddenBanner.classList.add("on");
+    if (el.strikeLabel) el.strikeLabel.textContent = "지금 터치!";
+    if (el.statusText) el.statusText.textContent = "✨ 히든 입질! 직접 터치하세요!";
+    document.body.classList.add("hidden-bite");
+    updateHiddenMeter();
+    startHiddenAlarm();
+    flashNotice("✨ 히든 어종 입질! 자동으로는 잡히지 않아요 · 직접 터치!");
+  }
+
+  function exitHiddenBite() {
+    state.biteHidden = false;
+    if (el.hiddenBanner) el.hiddenBanner.classList.remove("on");
+    document.body.classList.remove("hidden-bite");
+    stopHiddenAlarm();
+  }
+
+  function startFishing(manual) {
     if (state.phase === "idle") {
       setPhase("casting");
       state.manual = false;
       state.pendingStrike = false;
+      state.castManual = !!manual;
       Sound.cast();
+      updateHUD();
     }
   }
 
   function currentBand() {
-    return state.mode === "live" ? bandForHour(hour) : state.mode;
+    return state.mode === "live" ? DAY_BANDS[gameBandIndex()] : state.mode;
   }
 
   var raycaster = null, tapNDC = null;
@@ -6131,11 +6993,18 @@
       return;
     }
     if (state.phase === "waiting") {
-      flashNotice("아직 입질이 없어요. 찌를 조금만 더 지켜봐 주세요");
+      // 입질 전에 직접 탭하면 이번 캐스팅을 '수동 낚시'로 전환 (희귀·전설·히든 1.2배)
+      if (!state.castManual) {
+        state.castManual = true;
+        flashNotice("👆 직접 낚시로 전환! 이번 캐스팅은 희귀·히든 확률 1.2배");
+        updateHUD();
+      } else {
+        flashNotice("아직 입질이 없어요. 찌를 조금만 더 지켜봐 주세요");
+      }
       return;
     }
     if (state.phase === "idle") {
-      startFishing();
+      startFishing(true);
       return;
     }
     if (state.phase === "casting") {
@@ -6151,7 +7020,7 @@
 
     // 체력은 조금씩 자연 회복 (지쳐도 낚시는 계속된다)
     hpRegenT += dt;
-    if (hpRegenT >= 18) {
+    if (hpRegenT >= hpRegenSeconds()) {
       hpRegenT = 0;
       if (economy.hp < 100) {
         economy.hp = Math.min(100, economy.hp + 1);
@@ -6161,7 +7030,8 @@
     }
 
     if (state.phase === "idle") {
-      if (state.phaseTime > 1.4) startFishing();
+      // 자동 낚시일 때만 스스로 던진다. 수동 모드에서는 직접 탭해야 캐스팅된다.
+      if (settings.auto && state.phaseTime > 1.4) startFishing(false);
       return;
     }
 
@@ -6176,14 +7046,19 @@
 
     if (state.phase === "waiting") {
       if (state.phaseTime >= state.waitDuration) {
-        state.biteFish = rollFish(currentBand(), currentRareMul());
+        // 직접 탭해서 던진 캐스팅(수동 모드 포함)이면 희귀·전설·히든 확률 1.2배
+        var mmul = state.castManual ? MANUAL_RARE_MUL : 1;
+        state.biteFish = rollFish(currentBand(), currentRareMul() * mmul, currentHiddenMul() * mmul);
         state.biteHeavy = heavyFish(state.biteFish);
+        state.biteHidden = !!(state.biteFish && state.biteFish.rarity === "hidden");
+        state.biteWindow = state.biteHidden ? HIDDEN_BITE_WINDOW : 1.8;
         setPhase("biting");
         state.biteElapsed = 0;
         state.pendingStrike = false;
         state.autoDelay = rand(0.55, 1.2);
         cam.shake = 0.06;
         Sound.bite();
+        if (state.biteHidden) enterHiddenBite();
         spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 2.4, 1.2, 0.8);
         spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 1.4, 1.6, 0.6);
         if (navigator.vibrate) {
@@ -6195,21 +7070,24 @@
 
     if (state.phase === "biting") {
       state.biteElapsed += dt;
+      if (state.biteHidden) updateHiddenMeter();
       if (state.pendingStrike) {
         state.manual = true;
         landFish(true);
         return;
       }
-      if (settings.auto && state.biteElapsed >= state.autoDelay) {
+      // 히든 입질은 auto 모드에서도 절대 자동으로 낚이지 않는다 (직접 터치 필수)
+      if (settings.auto && !state.biteHidden && state.biteElapsed >= state.autoDelay) {
         state.manual = false;
         landFish(false);
         return;
       }
       if (state.biteElapsed >= state.biteWindow) {
+        exitHiddenBite();
         setPhase("missed");
         state.pendingStrike = false;
         el.biteBanner.classList.remove("on");
-        flashNotice("놓쳤어요… 찌가 다시 잠잠해집니다");
+        flashNotice(state.biteHidden ? "✨ 히든을 놓쳤어요… 다시 노려보세요" : "놓쳤어요… 찌가 다시 잠잠해집니다");
         Sound.miss();
         spendHP(1);
         saveEconomy();
@@ -6229,6 +7107,11 @@
     }
   }
 
+  function currentHiddenMul() {
+    var rod = RODS_BY_ID[economy.rod] || RODS[0];
+    return rod.hiddenMul || 1;
+  }
+
   function currentRareMul() {
     var rod = RODS_BY_ID[economy.rod] || RODS[0];
     var bait = BAITS_BY_ID[economy.bait] || BAITS[0];
@@ -6238,6 +7121,7 @@
   }
 
   function landFish(manual) {
+    if (state.biteHidden) exitHiddenBite();
     var rod = RODS_BY_ID[economy.rod] || RODS[0];
     var bait = BAITS_BY_ID[economy.bait] || BAITS[0];
     var bigBuff = activeBuff("big");
@@ -6246,12 +7130,13 @@
     // 입질 때 미리 뽑아 둔 어종이 있으면 그것을 올린다 (없으면 지금 뽑는다)
     var fish = state.biteFish || rollFish(currentBand(), currentRareMul());
     state.biteFish = null;
-    // 0.05% 꽝 — 어종 도감(210종)과 완전히 분리된 결과로 처리한다
+    // 0.05% 꽝 — 어종 도감(310종)과 완전히 분리된 결과로 처리한다
     if (fish && fish.isDud) {
       landDud(fish, manual);
       return;
     }
     state.biteHeavy = heavyFish(fish);
+    spawnCatchEffect(fish);
     var bonus = (manual ? 1.12 : 1.0) * bigBonus;
     var len = Math.min(fish.max, Math.round(rollLength(fish) * bonus * 10) / 10);
 
@@ -6340,6 +7225,7 @@
     el.biteBanner.classList.remove("on");
     spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 1.6, 1.2, 0.4);
     soundDud();
+    spawnCatchEffect({ id: "dud", kind: "dud", rarity: "common", color: "#9aa8b8" });
     showDudToast(dud, first);
     updateMissionBadge();
     renderMissionsIfOpen();
@@ -6920,12 +7806,8 @@
   function renderDex() {
     var caught = caughtCount();
     var pct = FISH.length ? (caught / FISH.length) * 100 : 0;
-    el.dexCount.textContent = caught + " / " + FISH.length;
+    el.dexCount.textContent = caught + " / " + FISH.length + "종";
     el.dexProgressBar.style.width = pct.toFixed(1) + "%";
-    el.dexTotal.textContent = String(totalCatches());
-    el.dexBest.textContent = bestLength() > 0 ? bestLength().toFixed(1) + "cm" : "0cm";
-    el.dexSession.textContent = String(state.session);
-    if (el.dexDuds) el.dexDuds.textContent = String(dudTotal());
     if (el.dexSpecies) el.dexSpecies.textContent = FISH.length + "종";
 
     // 필터 칩 숫자 갱신
@@ -7008,10 +7890,13 @@
   function updateHUD() {
     if (el.coinText) el.coinText.textContent = economy.coins.toLocaleString();
     if (el.hpFill) {
-      el.hpFill.style.width = clamp(economy.hp, 0, 100) + "%";
+      var mh = maxHP();
+      el.hpFill.style.width = clamp((economy.hp / mh) * 100, 0, 100) + "%";
       el.hpText.textContent = String(Math.round(economy.hp));
+      el.hpWrap.title = "체력 " + Math.round(economy.hp) + " / " + mh + (mh > 100 ? " (의자 보강)" : "");
       el.hpWrap.classList.toggle("tired", economy.hp <= 0);
-      el.hpWrap.classList.toggle("low", economy.hp > 0 && economy.hp <= 30);
+      el.hpWrap.classList.toggle("low", economy.hp > 0 && economy.hp <= mh * 0.3);
+      el.hpWrap.classList.toggle("boost", mh > 100);
     }
     if (el.buffRow) {
       var html = "";
@@ -7023,6 +7908,14 @@
           html += '<span class="buff-chip">' + defs[id][0] + ' ' + defs[id][1] + ' <b>' + label + '</b></span>';
         }
       });
+      var chair = chairStats();
+      if (chair.maxHp > 100) {
+        html += '<span class="buff-chip boost">🪑 ' + chair.name.replace("럭셔리 ", "") + ' · 최대 ' + chair.maxHp + '</span>';
+      }
+      var woe = weatherOutfitEffect();
+      if (woe.chip) html += '<span class="buff-chip ' + (woe.cls || "") + '">' + woe.chip + '</span>';
+      if (state.castManual) html += '<span class="buff-chip manual">👆 수동 1.2×</span>';
+      else if (!settings.auto) html += '<span class="buff-chip manual">👆 수동 모드 · 탭해서 캐스팅</span>';
       if (isTired()) html += '<span class="buff-chip tired">😮‍💨 지침 · 입질이 느려짐</span>';
       el.buffRow.innerHTML = html;
     }
@@ -7034,12 +7927,15 @@
     var rod = RODS_BY_ID[economy.rod] || RODS[0];
     var tier = RODS.indexOf(rod);
     rodBodyMat.color.setHex(rod.color);
-    rodBodyMat.metalness = tier >= 2 ? 0.35 + tier * 0.15 : 0.05;
-    rodBodyMat.roughness = tier >= 2 ? 0.4 - tier * 0.05 : 0.8;
-    rodBodyMat.emissive.setHex(rod.id === "gold" ? 0x4a3208 : 0x000000);
-    rodBodyMat.emissiveIntensity = rod.id === "gold" ? 0.35 : 1;
-    var thick = 1 + tier * 0.07;
+    rodBodyMat.metalness = tier >= 2 ? Math.min(1, 0.35 + tier * 0.14) : 0.05;
+    rodBodyMat.roughness = tier >= 2 ? 0.4 - tier * 0.045 : 0.8;
+    var mythic = rod.id === "mythic";
+    rodBodyMat.emissive.setHex(mythic ? 0x5a3c00 : (rod.id === "gold" ? 0x4a3208 : 0x000000));
+    rodBodyMat.emissiveIntensity = mythic ? 0.7 : (rod.id === "gold" ? 0.35 : 1);
+    var thick = 1 + tier * 0.06;
     rodMesh.scale.set(thick, 1, thick);
+    var deco = angler && angler.userData ? angler.userData.rodDeco : null;
+    if (deco) deco.visible = mythic;
   }
 
   /* ---------- 꾸미기 미리보기 (구매 전 임시 착용) ----------
@@ -7201,6 +8097,22 @@
 
   var shopTab = "gear";
 
+  function cosmeticEffectHTML(cat, item) {
+    if (cat === "chair") {
+      var extra = item.maxHp > 100 ? " (+" + (item.maxHp - 100) + ")" : "";
+      return {
+        cls: item.maxHp > 100 ? "warm" : "",
+        text: "🪑 최대 체력 " + item.maxHp + extra + " · 회복 ×" + item.regenMul + " · 소모 ×" + item.drainMul
+      };
+    }
+    if (cat === "hat" || cat === "top") {
+      var w = WARMTH_INFO[item.warmth || "normal"];
+      var note = item.warmth === "warm" ? " · 추운 날 체력 소모 완화" : (item.warmth === "thin" ? " · 추운 날 체력 소모↑" : "");
+      return { cls: item.warmth === "warm" ? "warm" : (item.warmth === "thin" ? "cool" : ""), text: w.icon + " 보온 " + w.label + note };
+    }
+    return null;
+  }
+
   function cosmeticRowHTML(cat, item) {
     var owned = !!(economy.ownedCos[cat] && economy.ownedCos[cat][item.id]);
     var equipped = effectiveCos(cat) === item.id;
@@ -7222,7 +8134,11 @@
     return '<div class="shop-row' + (equipped ? " equipped" : "") + (previewing ? " previewing" : "") + '">' +
       '<span class="rod-dot" style="background:' + item.swatch + '"></span>' +
       '<div class="shop-info"><div class="shop-name">' + item.name + tag + '</div>' +
-      '<div class="shop-desc">' + item.desc + '</div></div>' + btns + '</div>';
+      '<div class="shop-desc">' + item.desc + '</div>' +
+      (function () {
+        var eff = cosmeticEffectHTML(cat, item);
+        return eff ? '<div class="shop-eff ' + eff.cls + '">' + eff.text + '</div>' : '';
+      })() + '</div>' + btns + '</div>';
   }
 
   function renderShopTabs() {
@@ -7254,7 +8170,9 @@
         parts.push(cosmeticRowHTML(c.id, item));
       });
     });
-    parts.push('<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 구매하면 바로 장착되고, 비·뇌우에는 노란 우비가 우선이에요. 눈이 올 때는 꾸민 차림 그대로 낚시해요. 사기 전에는 <b>👀 미리보기</b>로 임어 볼 수 있어요</div>');
+    parts.push('<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 구매하면 바로 장착되고, 비·뇌우에는 노란 우비가 우선이에요. 눈이 올 때는 꾸민 차림 그대로 낚시해요. ' +
+      '상의·모자의 <b>보온</b>은 추운 날(비·뇌우·눈) 체력 소모를 줄이고, 맑은 날 두꺼운 옷은 조금 더워요. ' +
+      '의자는 <b>최대 체력</b>과 회복 속도를 올려 줘요. 사기 전에는 <b>👀 미리보기</b>로 임어 볼 수 있어요</div>');
     return parts.join("");
   }
 
@@ -7262,18 +8180,23 @@
     if (el.shopCoins) el.shopCoins.textContent = economy.coins.toLocaleString() + " 🪙";
     renderShopTabs();
 
-    var rodRows = RODS.map(function (r) {
+    function rodRowHTML(r) {
       var owned = !!economy.rods[r.id];
       var equipped = economy.rod === r.id;
       var btn;
       if (equipped) btn = '<button class="buy-btn owned" disabled>장착 중</button>';
       else if (owned) btn = '<button class="buy-btn equip" data-act="equipRod" data-id="' + r.id + '">장착</button>';
       else btn = '<button class="buy-btn' + (economy.coins < r.price ? " poor" : "") + '" data-act="buyRod" data-id="' + r.id + '">' + r.price.toLocaleString() + ' 🪙</button>';
-      return '<div class="shop-row' + (equipped ? " equipped" : "") + '">' +
+      return '<div class="shop-row' + (equipped ? " equipped" : "") + (r.id === "mythic" ? " mythic" : "") + '">' +
         '<span class="rod-dot" style="background:' + r.swatch + '"></span>' +
         '<div class="shop-info"><div class="shop-name">' + r.name + (equipped ? '<small>장착됨</small>' : '') + '</div>' +
         '<div class="shop-desc">' + r.desc + '</div></div>' + btn + '</div>';
-    }).join("");
+    }
+
+    var mythicRod = RODS_BY_ID["mythic"];
+    var rodRows = (mythicRod ? '<div class="shop-section">👑 최종 낚싯대</div>' + rodRowHTML(mythicRod) : "") +
+      '<div class="shop-section">낚싯대</div>' +
+      RODS.filter(function (r) { return r.id !== "mythic"; }).map(rodRowHTML).join("");
 
     var baitRows = BAITS.map(function (b) {
       var have = economy.baits[b.id] === -1 ? "∞" : String(economy.baits[b.id] || 0);
@@ -7296,7 +8219,7 @@
       return;
     }
     el.shopBody.innerHTML =
-      '<div class="shop-section">낚싯대</div>' + rodRows +
+      rodRows +
       '<div class="shop-section">미끼 · 소품</div>' + baitRows +
       '<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 낚싯대를 바꾸면 강가 3D 장면의 낚싯대도 바로 바뀌어요</div>';
   }
@@ -7388,7 +8311,7 @@
     if (economy.coins < d.price) { flashNotice("코인이 부족해요 · 낚아서 모아 보세요"); Sound.miss(); return; }
     economy.coins -= d.price;
     economy.drinksBought = (economy.drinksBought || 0) + 1;
-    economy.hp = Math.min(100, economy.hp + d.hp);
+    economy.hp = Math.min(maxHP(), economy.hp + d.hp);
     if (d.buff) economy.buffs[d.buff] = Date.now() + d.buffMs;
     missionAdd("drink", 1);
     saveEconomy();
@@ -7396,7 +8319,7 @@
     renderDrinks();
     Sound.canDrop();
     setTimeout(function () { Sound.sip(); }, 850);
-    flashNotice(d.name + " 구매! " + (economy.hp >= 100 ? "체력이 가득 찼어요" : "체력이 회복됐어요"));
+    flashNotice(d.name + " 구매! " + (economy.hp >= maxHP() ? "체력이 가득 찼어요" : "체력이 회복됐어요"));
   }
 
   /* =====================================================================
@@ -7492,7 +8415,9 @@
     { id: "dex75",   name: "도감 75종",               desc: "서로 다른 생물 75종 만나기", goal: 75,  reward: 1200, value: function () { return caughtCount(); } },
     { id: "dex100",  name: "강가 도감 100종 완성",    desc: "서로 다른 생물 100종 모으기", goal: 100, reward: 3000, value: function () { return caughtCount(); } },
     { id: "dex150",  name: "도감 150종",              desc: "서로 다른 생물 150종 모으기", goal: 150, reward: 6000, value: function () { return caughtCount(); } },
-    { id: "dex200",  name: "강가 도감 200종 완성",    desc: "200종을 모두 도감에 올리기", goal: 200, reward: 15000, value: function () { return caughtCount(); } },
+    { id: "dex200",  name: "강가 도감 200종 완성",    desc: "서로 다른 생물 200종 모으기", goal: 200, reward: 15000, value: function () { return caughtCount(); } },
+    { id: "dex260",  name: "도감 260종",              desc: "서로 다른 생물 260종 모으기", goal: 260, reward: 22000, value: function () { return caughtCount(); } },
+    { id: "dex310",  name: "강가 도감 310종 완성",    desc: "310종을 모두 도감에 올리기", goal: 310, reward: 40000, value: function () { return caughtCount(); } },
 
     /* ── 낚시 횟수 ── */
     { id: "catch10",  name: "누적 10마리",            desc: "모두 10마리를 낚아 올리기", goal: 10,   reward: 60,   value: function () { return totalCatches(); } },
@@ -8161,7 +9086,19 @@
       });
       var w = WEATHER_INFO[weather.current] || WEATHER_INFO.clear;
       var pv = cosPreview ? ' · <b>미리보기 중 (실제 미구매)</b>' : "";
-      sum.innerHTML = '지금 <b>' + w.icon + ' ' + w.label + '</b> 날씨 · 보유 꾸미기 <b>' + ownedAll + ' / ' + totalAll + '</b>' + pv;
+      var chair = chairStats();
+      var ow = outfitWarmth();
+      var woe = weatherOutfitEffect();
+      var warmthLabel = WARMTH_INFO[ow.level].icon + " 보온 " + WARMTH_INFO[ow.level].label +
+        " (상의 " + WARMTH_INFO[ow.top].label + " · 모자 " + WARMTH_INFO[ow.hat].label + ")";
+      sum.innerHTML = '지금 <b>' + w.icon + ' ' + w.label + '</b> 날씨 · 보유 꾸미기 <b>' + ownedAll + ' / ' + totalAll + '</b>' + pv +
+        '<div class="char-eff">' +
+          '<span class="warm">🪑 ' + chair.name + ' · 최대 체력 ' + chair.maxHp +
+            (chair.maxHp > 100 ? ' (+' + (chair.maxHp - 100) + ')' : '') +
+            ' · 회복 ×' + chair.regenMul + ' · 소모 ×' + chair.drainMul + '</span>' +
+          '<span class="' + (woe.cls || "") + '">' + warmthLabel + (woe.chip ? " · " + woe.chip : "") + '</span>' +
+          '<span>⏱️ 플레이 ' + formatPlaytime(economy.playSeconds) + '</span>' +
+        '</div>';
     }
     updatePreviewChip();
   }
@@ -8496,6 +9433,201 @@
   }
 
   /* =====================================================================
+     11-1b. 포획 이펙트 — 등급 · 종류 · 날씨별 파티클 + 링 + 화면 버스트
+     ===================================================================== */
+  var FX_THEMES = {
+    splash:  { colors: [0xe8f6ff, 0xbfe0f5, 0x8fd0e8], count: 34, ring: 0xdff0ff, label: "물보라!", icon: "💦", cls: "fx-splash", motion: { up: 2.4, spread: 1.5, grav: 5.5, life: 0.8, drift: 0.2 } },
+    emerald: { colors: [0x8fffd0, 0x62e0b0, 0x8fb4ff], count: 54, ring: 0x8fffd0, label: "희귀 포획!", icon: "✨", cls: "fx-emerald", motion: { up: 1.7, spread: 1.3, grav: 1.6, life: 1.3, drift: 0.5 } },
+    gold:    { colors: [0xffe08a, 0xffc04e, 0xfff3c0], count: 88, ring: 0xffd07a, label: "전설 포획!", icon: "👑", cls: "fx-gold", motion: { up: 3.4, spread: 2.3, grav: 2.1, life: 1.55, drift: 0.4 } },
+    ink:     { colors: [0x9a6ac0, 0x5f3a8a, 0xc09ae0], count: 48, ring: 0x9a6ac0, label: "먹물!", icon: "🦑", cls: "fx-ink", motion: { up: 1.2, spread: 1.8, grav: 4.6, life: 1.15, drift: 0.15 } },
+    sun:     { colors: [0xfff0a0, 0xffd060, 0xfffbe0], count: 74, ring: 0xfff0a0, label: "햇살 히든!", icon: "☀️", cls: "fx-sun", motion: { up: 3.1, spread: 2.0, grav: 1.1, life: 1.25, drift: 0.3 } },
+    rain:    { colors: [0x8fc8ff, 0x5fa8e8, 0xd6ecff], count: 66, ring: 0x8fc8ff, label: "빗방울 히든!", icon: "🌧️", cls: "fx-rain", motion: { up: 0.7, spread: 1.2, grav: 6.5, life: 1.05, drift: 0.1 } },
+    fog:     { colors: [0xd8e2ea, 0xa8b8c8, 0xffffff], count: 60, ring: 0xd8e2ea, label: "안개 히든!", icon: "🌫️", cls: "fx-fog", motion: { up: 1.0, spread: 1.7, grav: 0.45, life: 1.7, drift: 0.95 } },
+    spark:   { colors: [0xc8b8ff, 0xfff0a0, 0x9aa8ff], count: 78, ring: 0xc8b8ff, label: "번개 히든!", icon: "⚡", cls: "fx-spark", motion: { up: 3.8, spread: 2.7, grav: 3.2, life: 0.9, drift: 0.2 } },
+    snow:    { colors: [0xffffff, 0xcfe8ff, 0xa8d0f0], count: 68, ring: 0xe8f4ff, label: "눈꽃 히든!", icon: "❄️", cls: "fx-snow", motion: { up: 0.55, spread: 1.6, grav: 1.35, life: 1.75, drift: 0.85 } }
+  };
+
+  var FX_SPARK_N = 460;
+  var fxSparks = null, fxColors = null, fxSparkData = [], fxCursor = 0, fxRings = [], fxLast = null, fxDomTimer = null, fxHold = false;
+
+  function catchFxTheme(fish) {
+    if (!fish) return "splash";
+    if (fish.rarity === "hidden" && fish.hiddenWx) {
+      if (fish.hiddenWx === "clear") return "sun";
+      if (fish.hiddenWx === "rain") return "rain";
+      if (fish.hiddenWx === "fog") return "fog";
+      if (fish.hiddenWx === "storm") return "spark";
+      return "snow";
+    }
+    if (fish.kind === "octopus" || fish.kind === "squid") {
+      if (fish.rarity === "legendary") return "ink";
+      return "ink";
+    }
+    if (fish.rarity === "legendary") return "gold";
+    if (fish.rarity === "rare") return "emerald";
+    return "splash";
+  }
+
+  function buildCatchFx() {
+    var pos = new Float32Array(FX_SPARK_N * 3);
+    fxColors = new Float32Array(FX_SPARK_N * 3);
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(fxColors, 3));
+    var tex = makeGlowTexture("rgba(255,255,255,1)", "rgba(255,255,255,0.18)");
+    var mat = new THREE.PointsMaterial({
+      size: 0.5, map: tex, vertexColors: true, transparent: true, opacity: 1,
+      depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true, fog: false
+    });
+    fxSparks = new THREE.Points(geo, mat);
+    fxSparks.frustumCulled = false;
+    fxSparks.visible = false;
+    fxSparks.renderOrder = 9;
+    scene.add(fxSparks);
+
+    for (var i = 0; i < FX_SPARK_N; i++) {
+      fxSparkData.push({ life: 0, max: 1, x: 0, y: -50, z: 0, vx: 0, vy: 0, vz: 0, grav: 3, r: 1, g: 1, b: 1 });
+      pos[i * 3 + 1] = -50;
+    }
+
+    var ringGeo = new THREE.RingGeometry(0.55, 0.80, 42);
+    for (var k = 0; k < 12; k++) {
+      var rm = new THREE.MeshBasicMaterial({
+        color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
+        side: THREE.DoubleSide, blending: THREE.AdditiveBlending
+      });
+      var mesh = new THREE.Mesh(ringGeo, rm);
+      mesh.visible = false;
+      mesh.renderOrder = 8;
+      scene.add(mesh);
+      fxRings.push({ mesh: mesh, life: 0, dur: 1, flat: true });
+    }
+  }
+
+  function spawnCatchEffect(fish) {
+    var theme = catchFxTheme(fish);
+    var T = FX_THEMES[theme] || FX_THEMES.splash;
+    var M = T.motion;
+    var cx = BOBBER_TARGET.x;
+    var cz = BOBBER_TARGET.z;
+    var cy = waveHeight(cx, cz, sceneTime) + 0.28;
+
+    // 파티클
+    if (fxSparks && fxSparks.geometry) {
+      var col = new THREE.Color();
+      for (var i = 0; i < T.count; i++) {
+        var d = fxSparkData[fxCursor];
+        fxCursor = (fxCursor + 1) % FX_SPARK_N;
+        var a = Math.random() * Math.PI * 2;
+        var sp = M.spread * (0.35 + Math.random() * 0.9);
+        d.life = d.max = M.life * (0.7 + Math.random() * 0.6);
+        d.x = cx + rand(-0.2, 0.2);
+        d.y = cy + rand(0, 0.25);
+        d.z = cz + rand(-0.2, 0.2);
+        d.vx = Math.cos(a) * sp;
+        d.vz = Math.sin(a) * sp * 0.7;
+        d.vy = M.up * (0.45 + Math.random() * 0.9);
+        if (theme === "rain" || theme === "snow") {
+          d.y = cy + rand(1.2, 3.4);
+          d.vy = -Math.abs(M.up) - Math.random() * 1.2;
+        }
+        if (theme === "ink") d.vy = rand(0.2, 1.6);
+        d.grav = M.grav;
+        col.setHex(T.colors[i % T.colors.length]);
+        d.r = col.r;
+        d.g = col.g;
+        d.b = col.b;
+      }
+      fxSparks.visible = true;
+    }
+
+    // 물결 · 빛 링
+    var nRings = theme === "gold" ? 3 : (theme === "splash" ? 1 : 2);
+    var used = 0;
+    for (var r = 0; r < fxRings.length && used < nRings; r++) {
+      var it = fxRings[r];
+      if (it.life > 0) continue;
+      used += 1;
+      it.life = it.dur = 0.75 + used * 0.22;
+      it.flat = !(theme === "gold" && used === 2);
+      it.mesh.material.color.setHex(T.ring);
+      it.mesh.position.set(cx, cy + (it.flat ? -0.2 : 0.3), cz);
+      it.mesh.rotation.set(it.flat ? -Math.PI / 2 : 0, 0, 0);
+      it.mesh.scale.set(0.35, 0.35, 0.35);
+      it.mesh.material.opacity = 0.85;
+      it.mesh.visible = true;
+    }
+    spawnRipple(cx, cz, 2.2, 1.1, 0.6);
+
+    // 화면 버스트
+    var dom = $("#catchFx");
+    if (dom) {
+      dom.className = "on " + T.cls;
+      dom.innerHTML = '<div class="fx-burst"></div><div class="fx-rays"></div>' +
+        '<div class="fx-label">' + T.icon + " " + T.label + '</div>';
+      if (fxDomTimer) clearTimeout(fxDomTimer);
+      if (!fxHold) {
+        fxDomTimer = setTimeout(function () { dom.className = ""; dom.innerHTML = ""; }, 1100);
+      }
+    }
+
+    fxLast = {
+      theme: theme, label: T.label, particles: T.count, rings: used,
+      kind: fish && fish.kind, rarity: fish && fish.rarity, wx: (fish && fish.hiddenWx) || null,
+      at: Date.now()
+    };
+  }
+
+  function updateCatchFx(dt) {
+    if (!fxSparks) return;
+    var posAttr = fxSparks.geometry.getAttribute("position");
+    var colAttr = fxSparks.geometry.getAttribute("color");
+    var alive = 0;
+    for (var i = 0; i < FX_SPARK_N; i++) {
+      var d = fxSparkData[i];
+      if (d.life <= 0) continue;
+      d.life -= dt;
+      if (d.life <= 0) {
+        posAttr.array[i * 3 + 1] = -50;
+        colAttr.array[i * 3] = colAttr.array[i * 3 + 1] = colAttr.array[i * 3 + 2] = 0;
+        continue;
+      }
+      alive += 1;
+      d.vy -= d.grav * dt;
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+      d.z += d.vz * dt;
+      if (d.y < waveHeight(d.x, d.z, sceneTime) + 0.02) {
+        d.y = waveHeight(d.x, d.z, sceneTime) + 0.02;
+        d.vy *= -0.28;
+        d.vx *= 0.7;
+        d.vz *= 0.7;
+      }
+      var f = Math.max(0, d.life / d.max);
+      posAttr.array[i * 3] = d.x;
+      posAttr.array[i * 3 + 1] = d.y;
+      posAttr.array[i * 3 + 2] = d.z;
+      colAttr.array[i * 3] = d.r * f;
+      colAttr.array[i * 3 + 1] = d.g * f;
+      colAttr.array[i * 3 + 2] = d.b * f;
+    }
+    posAttr.needsUpdate = true;
+    colAttr.needsUpdate = true;
+    fxSparks.visible = alive > 0;
+
+    for (var r = 0; r < fxRings.length; r++) {
+      var it = fxRings[r];
+      if (it.life <= 0) continue;
+      it.life -= dt;
+      if (it.life <= 0) { it.mesh.visible = false; continue; }
+      var t = 1 - it.life / it.dur;
+      var sc = 0.35 + t * 3.6;
+      it.mesh.scale.set(sc, sc, sc);
+      it.mesh.material.opacity = Math.max(0, (1 - t) * 0.85);
+    }
+  }
+
+  /* =====================================================================
      11-2. 물속을 헤엄치는 물고기 떼 (InstancedMesh · 드로우콜 3)
      ===================================================================== */
   var fishSchool = null;
@@ -8730,13 +9862,9 @@
     el.dexGrid = $("#dexGrid");
     el.dexCount = $("#dexCount");
     el.dexProgressBar = $("#dexProgressBar");
-    el.dexTotal = $("#dexTotal");
-    el.dexBest = $("#dexBest");
-    el.dexSession = $("#dexSession");
     el.dexReset = $("#dexReset");
     el.dexBadge = $("#dexBadge");
     el.dexSpecies = $("#dexSpecies");
-    el.dexDuds = $("#dexDuds");
     el.dexFilters = $("#dexFilters");
     el.shopModal = $("#shopModal");
     el.shopBody = $("#shopBody");
@@ -8757,6 +9885,18 @@
     el.missionDot = $("#missionDot");
     el.missionBtn = $("#btnMission");
     el.lightningFlash = $("#lightningFlash");
+    el.hiddenBanner = $("#hiddenBanner");
+    el.catchFx = $("#catchFx");
+    var hiddenTap = $("#hiddenTap");
+    if (hiddenTap) {
+      hiddenTap.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (state.phase === "biting" && state.biteHidden) {
+          state.pendingStrike = true;
+        }
+      });
+    }
 
     el.btnStrike.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -8797,171 +9937,6 @@
       claimAllRewards();
     });
 
-    // 날씨 전환
-    var wxBar = $("#weatherBar");
-    if (wxBar) {
-      Array.prototype.forEach.call(wxBar.querySelectorAll(".wx-btn"), function (b) {
-        b.addEventListener("click", function (e) {
-          e.stopPropagation();
-          var m = b.getAttribute("data-weather");
-          setWeatherMode(m);
-          if (typeof Sound !== "undefined") Sound.resume();
-          if (m !== "auto") flashNotice(WEATHER_INFO[m].icon + " " + WEATHER_INFO[m].label + " 날씨로 바꿨어요");
-          else flashNotice("날씨가 자연스럽게 바뀌어요");
-        });
-      });
-    }
-
-    setupCharViewControls();
-
-    if (el.shopTabs) {
-      el.shopTabs.addEventListener("click", function (e) {
-        var b = e.target.closest ? e.target.closest(".shop-tab") : null;
-        if (!b) return;
-        e.stopPropagation();
-        shopTab = b.getAttribute("data-tab") || "gear";
-        renderShop();
-        var scroller = el.shopModal.querySelector(".dex-scroll");
-        if (scroller) scroller.scrollTop = 0;
-      });
-    }
-
-    el.shopBody.addEventListener("click", function (e) {
-      var btn = e.target.closest ? e.target.closest("[data-act]") : null;
-      if (!btn || btn.disabled) return;
-      var act = btn.getAttribute("data-act");
-      var id = btn.getAttribute("data-id");
-      var cat = btn.getAttribute("data-cat");
-      if (act === "buyRod") buyRod(id);
-      else if (act === "equipRod") equipRod(id);
-      else if (act === "buyBait") buyBait(id);
-      else if (act === "equipBait") equipBait(id);
-      else if (act === "buyCos") buyCosmetic(cat, id);
-      else if (act === "equipCos") equipCosmetic(cat, id);
-      else if (act === "unequipCos") unequipCosmetic(cat);
-      else if (act === "previewCos") startPreview(cat, id);
-      else if (act === "previewOff") clearPreview();
-      else if (act === "previewBuy") buyCosmetic(cat, id);
-      else if (act === "previewChar") { closeShop(true); openCharView(); }
-    });
-    el.drinkBody.addEventListener("click", function (e) {
-      var btn = e.target.closest ? e.target.closest("[data-act]") : null;
-      if (!btn || btn.disabled) return;
-      if (btn.getAttribute("data-act") === "buyDrink") buyDrink(btn.getAttribute("data-id"));
-    });
-
-    if (el.dexFilters) {
-      Array.prototype.forEach.call(el.dexFilters.querySelectorAll(".filter-chip"), function (chip) {
-        chip.addEventListener("click", function (e) {
-          e.stopPropagation();
-          dexFilter = chip.getAttribute("data-filter") || "all";
-          renderDex();
-          var scroller = $(".dex-scroll");
-          if (scroller) scroller.scrollTop = 0;
-        });
-      });
-    }
-
-    // 히든 카드 이미지 공유 (도감 · 결과 토스트)
-    if (el.dexGrid) el.dexGrid.addEventListener("click", function (e) {
-      var b = e.target.closest ? e.target.closest("[data-share]") : null;
-      if (!b) return;
-      e.stopPropagation();
-      openShareCard(b.getAttribute("data-share"));
-    });
-    if (el.toast) el.toast.addEventListener("click", function (e) {
-      var b = e.target.closest ? e.target.closest("[data-share]") : null;
-      if (!b) return;
-      e.stopPropagation();
-      openShareCard(b.getAttribute("data-share"));
-    });
-    var shareBtn = $("#shareBtn");
-    if (shareBtn) shareBtn.addEventListener("click", function (e) { e.stopPropagation(); shareCatchCard(); });
-    var shareSave = $("#shareSave");
-    if (shareSave) shareSave.addEventListener("click", function (e) {
-      e.stopPropagation();
-      if (shareCanvas && shareFishId) downloadCard(shareCanvas, FISH_BY_ID[shareFishId]);
-    });
-    var shareCloseBtn = $("#shareClose");
-    if (shareCloseBtn) shareCloseBtn.addEventListener("click", closeShareCard);
-    var shareBackdrop = $("#shareBackdrop");
-    if (shareBackdrop) shareBackdrop.addEventListener("click", closeShareCard);
-
-    el.dexReset.addEventListener("click", function () {
-      if (!el.dexReset.classList.contains("confirm")) {
-        el.dexReset.classList.add("confirm");
-        el.dexReset.textContent = "정말 초기화할까요? 다시 탭";
-        if (dexResetTimer) clearTimeout(dexResetTimer);
-        dexResetTimer = setTimeout(resetDexResetButton, 3200);
-        return;
-      }
-      book = { records: {} };
-      saveBook();
-      state.session = 0;
-      updateDexBadge();
-      resetDexResetButton();
-      renderDex();
-      flashNotice("도감을 초기화했어요");
-    });
-
-    // 자동 낚시 토글
-    var btnAuto = $("#btnAuto");
-    var autoLabel = $("#autoLabel");
-    function applyAuto() {
-      btnAuto.classList.toggle("off", !settings.auto);
-      btnAuto.querySelector(".ico").textContent = settings.auto ? "🤖" : "✋";
-      autoLabel.textContent = settings.auto ? "자동 낚시" : "수동 낚시";
-    }
-    btnAuto.addEventListener("click", function (e) {
-      e.stopPropagation();
-      settings.auto = !settings.auto;
-      saveSettings();
-      applyAuto();
-      flashNotice(settings.auto ? "자동 낚시를 켰어요. 입질 때 탭하면 보너스!" : "수동 낚시예요. 입질 때 직접 탭해 주세요");
-    });
-    applyAuto();
-
-    // 소리 토글
-    var btnSound = $("#btnSound");
-    function applySound() {
-      btnSound.textContent = settings.sound ? "🔊" : "🔇";
-      btnSound.classList.toggle("off", !settings.sound);
-      Sound.setEnabled(settings.sound);
-    }
-    btnSound.addEventListener("click", function (e) {
-      e.stopPropagation();
-      settings.sound = !settings.sound;
-      saveSettings();
-      if (settings.sound) Sound.resume();
-      applySound();
-    });
-
-    // 시간대 미리보기
-    var bandButtons = Array.prototype.slice.call(document.querySelectorAll(".band-btn"));
-    bandButtons.forEach(function (btn) {
-      btn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        var band = btn.getAttribute("data-band");
-        if (band === "live") {
-          if (state.mode !== "live") {
-            state.mode = "live";
-            flashNotice("실시간 시각을 따라가요");
-          }
-        } else {
-          if (state.mode === band) {
-            state.mode = "live";
-            flashNotice("실시간 시각을 따라가요");
-          } else {
-            state.mode = band;
-          }
-        }
-        bandButtons.forEach(function (b) {
-          b.classList.toggle("active", b.getAttribute("data-band") === state.mode);
-        });
-        if (typeof Sound !== "undefined") Sound.resume();
-      });
-    });
-
     // 인트로
     var intro = $("#intro");
     $("#introStart").addEventListener("click", function (e) {
@@ -8992,6 +9967,24 @@
      13. 시간/HUD 갱신
      ===================================================================== */
   var hudTick = 0;
+  var playAccum = 0, playSaveAccum = 0, playLastAt = 0;
+
+  /* 실제 경과 시간 기준으로 누적한다 (프레임이 느려도 1초는 1초).
+     탭이 백그라운드로 오래 비어 있던 구간(2초 초과)은 세지 않는다. */
+  function accruePlaytime() {
+    var now = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (!playLastAt) { playLastAt = now; return; }
+    var d = (now - playLastAt) / 1000;
+    playLastAt = now;
+    if (!state.started || d <= 0 || d > 2) return;
+    playAccum += d;
+    if (playAccum < 1) return;
+    var whole = Math.floor(playAccum);
+    playAccum -= whole;
+    economy.playSeconds = (economy.playSeconds || 0) + whole;
+    playSaveAccum += whole;
+    if (playSaveAccum >= 15) { playSaveAccum = 0; saveEconomy(); }
+  }
 
   function updateWeatherHUDText() {
     var info = WEATHER_INFO[weather.current] || WEATHER_INFO.clear;
@@ -9011,24 +10004,99 @@
     }
   }
 
+  /* 날씨는 자동 랜덤 전환만 동작한다 — 화면에는 현재 날씨 배지만 (직접 선택 불가). */
   function updateWeatherButtons() {
-    var bar = $("#weatherBar");
-    if (!bar) return;
-    Array.prototype.forEach.call(bar.querySelectorAll(".wx-btn"), function (b) {
-      b.classList.toggle("active", b.getAttribute("data-weather") === weather.mode);
+    var badge = $("#weatherBadge");
+    var info = WEATHER_INFO[weather.current] || WEATHER_INFO.clear;
+    if (badge) {
+      badge.setAttribute("data-wx", weather.current);
+      $("#wxBadgeIco").textContent = info.icon;
+      $("#wxBadgeLabel").textContent = info.label;
+      var chip = $("#wxChip");
+      if (chip) {
+        chip.textContent = info.icon;
+        chip.title = "날씨 · " + info.label + " (자동)";
+      }
+    }
+    var next = $("#wxBadgeNext");
+    if (next) {
+      if (weather.mode === "auto") {
+        var left = Math.max(0, weather.nextAt - weather.t);
+        next.textContent = "다음 변화 " + Math.floor(left / 60) + ":" + pad2(Math.floor(left % 60));
+      } else {
+        next.textContent = "테스트 고정";
+      }
+    }
+  }
+
+  /* 하루 = 20분. 시간대(새벽→낮→노을→밤)가 5분마다 넘어간다. */
+  var BAND_SECONDS = 300;
+  var DAY_BANDS = ["dawn", "day", "sunset", "night"];
+  var DAY_SECONDS = BAND_SECONDS * DAY_BANDS.length;
+  var clock = { t: 0, day: 1, band: 0 };
+
+  function gameBandIndex() {
+    return Math.floor((((clock.t % DAY_SECONDS) + DAY_SECONDS) % DAY_SECONDS) / BAND_SECONDS);
+  }
+
+  function gameHour() {
+    var idx = gameBandIndex();
+    var f = (((clock.t % BAND_SECONDS) + BAND_SECONDS) % BAND_SECONDS) / BAND_SECONDS;
+    var span = { dawn: [5, 8], day: [8, 17], sunset: [17, 20], night: [20, 29] }[DAY_BANDS[idx]] || [8, 17];
+    return (span[0] + (span[1] - span[0]) * f) % 24;
+  }
+
+  function bandClockText() {
+    var h = gameHour();
+    var hh = Math.floor(h);
+    var mm = Math.floor((h - hh) * 60);
+    return pad2(hh) + ":" + pad2(mm);
+  }
+
+  function updateDayBar() {
+    var idx = state.mode === "live" ? gameBandIndex() : DAY_BANDS.indexOf(state.mode);
+    var f = ((clock.t % BAND_SECONDS) + BAND_SECONDS) % BAND_SECONDS / BAND_SECONDS;
+    var segs = document.querySelectorAll("#dayBar .day-seg");
+    Array.prototype.forEach.call(segs, function (seg, i) {
+      seg.classList.toggle("active", i === idx);
+      var fill = seg.querySelector(".dfill");
+      if (fill) fill.style.width = (i === idx ? Math.round(f * 100) : (i < idx ? 100 : 0)) + "%";
     });
+    var tick = $("#dayTick");
+    if (tick) {
+      var left = Math.max(0, BAND_SECONDS - (clock.t % BAND_SECONDS));
+      var nextIdx = (idx + 1) % DAY_BANDS.length;
+      var nx = BANDS[DAY_BANDS[nextIdx]];
+      var sec = state.mode === "live" ? left : BAND_SECONDS;
+      tick.textContent = "다음 " + nx.name + "까지 " + Math.floor(sec / 60) + ":" + pad2(Math.floor(sec % 60));
+    }
+  }
+
+  function advanceClock(dt) {
+    clock.t += dt;
+    var day = Math.floor(clock.t / DAY_SECONDS) + 1;
+    if (day !== clock.day) {
+      clock.day = day;
+    }
+    var idx = gameBandIndex();
+    if (idx !== clock.band) {
+      clock.band = idx;
+      if (state.started) {
+        var b = BANDS[DAY_BANDS[idx]];
+        flashNotice(b.icon + " " + b.name + "이(가) 왔어요 · 하루가 " + (DAY_SECONDS / 60) + "분마다 돌아요");
+      }
+      updateDayBar();
+    } else if (Math.random() < dt * 2) {
+      updateDayBar();
+    }
   }
 
   function updateTime(dt) {
-    var now = new Date();
-    var realHour = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
-    var previewing = state.mode !== "live";
+    advanceClock(dt);
 
-    if (previewing) {
-      hour = BANDS[state.mode].preview;
-    } else {
-      hour = realHour;
-    }
+    accruePlaytime();
+    var previewing = state.mode !== "live";
+    hour = previewing ? BANDS[state.mode].preview : gameHour();
 
     var target = moodAtHour(hour);
     if (!moodReady) {
@@ -9051,15 +10119,13 @@
     $("#bandName").textContent = BANDS[band].name;
     $("#timeIcon").textContent = BANDS[band].icon;
     updateWeatherHUDText();
-    $("#previewChip").classList.toggle("on", previewing);
     if (checkDayRollover()) { updateMissionBadge(); renderMissionsIfOpen(); }
 
-    if (previewing) {
-      var ph = BANDS[state.mode].preview;
-      $("#clockText").textContent = pad2(Math.floor(ph)) + ":" + pad2(Math.round((ph % 1) * 60));
-    } else {
-      $("#clockText").textContent = pad2(now.getHours()) + ":" + pad2(now.getMinutes());
-    }
+    $("#clockText").textContent = previewing
+      ? pad2(Math.floor(BANDS[state.mode].preview)) + ":" + pad2(Math.round((BANDS[state.mode].preview % 1) * 60))
+      : bandClockText();
+    updateDayBar();
+    updateWeatherButtons();
   }
 
   /* =====================================================================
@@ -9078,6 +10144,7 @@
     updateTime(dt);
     updateGame(dt);
     updateWorld(dt);
+    updateCatchFx(dt);
     updateCamera(dt);
     renderer.render(scene, camera);
   }
@@ -9135,10 +10202,13 @@
 
     bindUI();
     updateDexBadge();
+    document.addEventListener("visibilitychange", function () { if (document.hidden) saveEconomy(); });
+    window.addEventListener("pagehide", function () { saveEconomy(); });
 
-    // 날씨 초기값 (저장된 전환 모드가 있으면 그대로)
-    weather.mode = settings.wx || "auto";
-    weather.current = weather.mode === "auto" ? "clear" : weather.mode;
+    // 날씨는 언제나 자동 랜덤 — 저장된 수동 날씨는 쓰지 않는다
+    settings.wx = "auto";
+    weather.mode = "auto";
+    weather.current = ["clear", "clear", "rain", "fog", "storm", "snow"][Math.floor(Math.random() * 6)];
     weather.rain = (weather.current === "rain" || weather.current === "storm") ? 1 : 0;
     weather.snow = weather.current === "snow" ? 1 : 0;
     weather.fog = weather.current === "fog" ? 1 : 0;
@@ -9173,14 +10243,14 @@
         $("#bootError").classList.remove("show");
         lastFrameTime = performance.now();
         requestAnimationFrame(loop);
-        // 첫 시간대 HUD
-        var now = new Date();
-        var h = now.getHours() + now.getMinutes() / 60;
-        var band = bandForHour(h);
-        $("#bandName").textContent = BANDS[band].name;
-        $("#timeIcon").textContent = BANDS[band].icon;
-        $("#moodLine").textContent = BANDS[band].mood;
-        $("#clockText").textContent = pad2(now.getHours()) + ":" + pad2(now.getMinutes());
+        // 첫 시간대 HUD (게임 시계는 새벽부터)
+        var band0 = currentBand();
+        $("#bandName").textContent = BANDS[band0].name;
+        $("#timeIcon").textContent = BANDS[band0].icon;
+        $("#moodLine").textContent = BANDS[band0].mood;
+        $("#clockText").textContent = bandClockText();
+        updateDayBar();
+        updateWeatherButtons();
       } catch (err) {
         showBootError();
         if (window.console && console.error) console.error(err);
@@ -9197,7 +10267,212 @@
   /* 자동화 검증용 최소 훅 (게임 로직을 읽고 체력/낚시를 강제하는 것 외 기능 없음) */
   window.__rf = {
     economy: function () { return JSON.parse(JSON.stringify(economy)); },
-    setHP: function (v) { economy.hp = clamp(Number(v) || 0, 0, 100); saveEconomy(); updateHUD(); },
+    setHP: function (v) { economy.hp = clamp(Number(v) || 0, 0, maxHP()); saveEconomy(); updateHUD(); },
+    hp: function () {
+      var chair = chairStats();
+      var ow = outfitWarmth();
+      var woe = weatherOutfitEffect();
+      return {
+        hp: Math.round(economy.hp * 10) / 10,
+        maxHp: maxHP(),
+        baseMaxHp: 100,
+        chair: chair,
+        regenSeconds: Math.round(hpRegenSeconds() * 100) / 100,
+        drainMul: Math.round(hpDrainMul() * 1000) / 1000,
+        weatherMul: woe.mul,
+        outfit: {
+          top: ow.top, hat: ow.hat, topLabel: WARMTH_INFO[ow.top].label,
+          hatLabel: WARMTH_INFO[ow.hat].label, level: ow.level,
+          label: WARMTH_INFO[ow.level].label
+        },
+        chip: woe.chip,
+        weather: weather.current
+      };
+    },
+    rods: function () {
+      return RODS.map(function (r) {
+        return { id: r.id, name: r.name, price: r.price, owned: !!economy.rods[r.id], equipped: economy.rod === r.id,
+                 waitMul: r.waitMul, rareMul: r.rareMul, bigBonus: r.bigBonus, hiddenMul: r.hiddenMul || 1 };
+      });
+    },
+    buyRod: function (id) { buyRod(id); return window.__rf.rodState(); },
+    equipRod: function (id) { equipRod(id); return window.__rf.rodState(); },
+    rodState: function () {
+      var rod = RODS_BY_ID[economy.rod] || RODS[0];
+      var deco = angler && angler.userData ? angler.userData.rodDeco : null;
+      return {
+        equipped: economy.rod, name: rod.name, price: rod.price, owned: !!economy.rods[rod.id],
+        stats: { waitMul: rod.waitMul, rareMul: rod.rareMul, bigBonus: rod.bigBonus, hiddenMul: rod.hiddenMul || 1 },
+        hiddenMul: currentHiddenMul(),
+        decoVisible: !!(deco && deco.visible),
+        color: rodBodyMat ? "#" + rodBodyMat.color.getHexString() : null,
+        emissive: rodBodyMat ? "#" + rodBodyMat.emissive.getHexString() : null,
+        shopMythic: (function () {
+          var r = document.querySelector("#shopBody .shop-row.mythic");
+          return r ? r.textContent.replace(/\s+/g, " ").trim() : null;
+        })(),
+        shopFirstSection: (function () {
+          var s0 = document.querySelector("#shopBody .shop-section");
+          return s0 ? s0.textContent.trim() : null;
+        })()
+      };
+    },
+    grantCosmetic: function (cat, id) {
+      if (!economy.ownedCos[cat]) economy.ownedCos[cat] = {};
+      if (!cosmeticItem(cat, id)) return false;
+      economy.ownedCos[cat][id] = true;
+      economy.cosmetics[cat] = id;
+      economy.hp = Math.min(economy.hp, maxHP());
+      applyCosmetics(); saveEconomy(); updateHUD(); renderShop(); renderCharPanel();
+      return true;
+    },
+    playtime: function () {
+      return { seconds: economy.playSeconds || 0, text: formatPlaytime(economy.playSeconds), charView: $("#charSum") ? $("#charSum").textContent : null };
+    },
+    setPlaySeconds: function (v) { economy.playSeconds = Math.max(0, Math.floor(Number(v) || 0)); saveEconomy(); renderCharPanel(); return window.__rf.playtime(); },
+    time: function () {
+      return {
+        band: currentBand(), index: gameBandIndex(), clock: bandClockText(),
+        t: Math.round(clock.t * 10) / 10, day: clock.day,
+        bandSeconds: BAND_SECONDS, daySeconds: DAY_SECONDS,
+        bandElapsed: Math.round((clock.t % BAND_SECONDS) * 10) / 10,
+        bandLeft: Math.round((BAND_SECONDS - (clock.t % BAND_SECONDS)) * 10) / 10,
+        mode: state.mode,
+        dayBarActive: (function () {
+          var a = document.querySelector("#dayBar .day-seg.active");
+          return a ? a.getAttribute("data-band") : null;
+        })(),
+        clockText: $("#clockText") ? $("#clockText").textContent : null,
+        tick: $("#dayTick") ? $("#dayTick").textContent : null
+      };
+    },
+    setTime: function (sec) { clock.t = Math.max(0, Number(sec) || 0); clock.band = gameBandIndex(); updateDayBar(); return window.__rf.time(); },
+    advanceTime: function (sec) {
+      var left = Math.max(0, Number(sec) || 0);
+      while (left > 0.0001) {
+        var step = Math.min(0.05, left);
+        updateTime(step);
+        left -= step;
+      }
+      return window.__rf.time();
+    },
+    setBand: function (band) {
+      if (band === "live") { state.mode = "live"; return window.__rf.time(); }
+      if (!BANDS[band]) return null;
+      state.mode = band;
+      return window.__rf.time();
+    },
+    start: function () { startExperience(); state.started = true; return true; },
+    pinWeather: function (w) {
+      if (!WEATHER_INFO[w]) return null;
+      weather.current = w;
+      // 검증·미리보기용: 날씨 연출 강도를 즉시 맞춘다
+      weather.rain = (w === "rain" || w === "storm") ? 1 : 0;
+      weather.fog = w === "fog" ? 1 : 0;
+      weather.storm = w === "storm" ? 1 : 0;
+      weather.snow = w === "snow" ? 1 : 0;
+      weather.soundRain = weather.rain;
+      updateWeatherHUDText();
+      updateWeatherButtons();
+      return window.__rf.weather();
+    },
+    hiddenBite: function (wx) {
+      var w = (wx && WEATHER_HIDDEN[wx]) ? wx : weather.current;
+      if (wx && WEATHER_HIDDEN[wx]) window.__rf.pinWeather(wx);
+      var list = WEATHER_HIDDEN[w] || [];
+      var f = FISH_BY_ID[list[Math.floor(Math.random() * list.length)]];
+      settings.auto = true;            // auto 모드에서도 자동 포획되지 않아야 한다
+      state.biteFish = f;
+      state.biteHeavy = heavyFish(f);
+      state.biteWindow = HIDDEN_BITE_WINDOW;
+      state.biteElapsed = 0;
+      state.pendingStrike = false;
+      setPhase("biting");
+      enterHiddenBite();
+      return window.__rf.hiddenState();
+    },
+    hiddenState: function () {
+      var last = state.lastCatch;
+      return {
+        phase: state.phase,
+        hidden: !!state.biteHidden,
+        fish: state.biteFish ? state.biteFish.id : null,
+        auto: !!settings.auto,
+        window: state.biteWindow,
+        elapsed: Math.round(state.biteElapsed * 100) / 100,
+        bannerOn: el.hiddenBanner ? el.hiddenBanner.classList.contains("on") : null,
+        bannerText: el.hiddenBanner ? el.hiddenBanner.textContent.replace(/\s+/g, " ").trim() : null,
+        bodyClass: document.body.classList.contains("hidden-bite"),
+        vignette: !!$("#hiddenVignette"),
+        alarmCalls: Sound.alarmCount || 0,
+        alarmTimer: !!hiddenAlarmTimer,
+        barWidth: $("#hbBar") ? $("#hbBar").style.width : null,
+        tapLayer: $("#hiddenTap") ? getComputedStyle($("#hiddenTap")).pointerEvents : null,
+        lastManual: last ? last.manual : null,
+        lastFish: last && last.fish ? last.fish.id : null
+      };
+    },
+    strike: function () { state.pendingStrike = true; return true; },
+    tap: function (x, y) { handleTap(x, y); return { phase: state.phase, castManual: !!state.castManual }; },
+    tickGame: function (sec) {
+      var left = Math.max(0, Number(sec) || 0);
+      while (left > 0.0001) {
+        var step = Math.min(0.05, left);
+        updateGame(step);
+        left -= step;
+      }
+      return window.__rf.hiddenState();
+    },
+    forceFish: function (id) {
+      var f = FISH_BY_ID[id];
+      if (!f) return null;
+      exitHiddenBite();
+      state.biteFish = f;
+      state.biteHeavy = heavyFish(f);
+      state.biteWindow = 9999;
+      state.pendingStrike = false;
+      setPhase("biting");
+      landFish(true);
+      return window.__rf.fx();
+    },
+    fxHold: function (v) { fxHold = !!v; return fxHold; },
+    spawnEffect: function (id) {
+      var f = FISH_BY_ID[id] || { id: "test", kind: "fish", rarity: "common", color: "#bfe8ff" };
+      spawnCatchEffect(f);
+      return window.__rf.fx();
+    },
+    fx: function () {
+      var alive = 0;
+      for (var i = 0; i < fxSparkData.length; i++) if (fxSparkData[i].life > 0) alive += 1;
+      var rings = 0;
+      for (var r = 0; r < fxRings.length; r++) if (fxRings[r].life > 0) rings += 1;
+      return {
+        last: fxLast, liveParticles: alive, liveRings: rings,
+        pointsVisible: !!(fxSparks && fxSparks.visible),
+        domClass: $("#catchFx") ? $("#catchFx").className : null,
+        domLabel: $("#catchFx .fx-label") ? $("#catchFx .fx-label").textContent : null,
+        themes: Object.keys(FX_THEMES)
+      };
+    },
+    weatherUI: function () {
+      return {
+        buttons: document.querySelectorAll("#weatherBar .wx-btn, #bandBar .band-btn, .wx-btn, .band-btn").length,
+        badge: $("#weatherBadge") ? $("#weatherBadge").textContent.replace(/\s+/g, " ").trim() : null,
+        badgePointer: $("#weatherBadge") ? getComputedStyle($("#weatherBadge")).pointerEvents : null,
+        mode: weather.mode,
+        next: $("#wxBadgeNext") ? $("#wxBadgeNext").textContent : null
+      };
+    },
+    manualBonus: function () {
+      return {
+        mul: MANUAL_RARE_MUL,
+        auto: !!settings.auto,
+        castManual: !!state.castManual,
+        chip: Array.prototype.some.call(document.querySelectorAll("#buffRow .buff-chip"), function (n) {
+          return n.textContent.indexOf("수동 1.2") !== -1;
+        })
+      };
+    },
     addCoins: function (n) { var k = Math.floor(Number(n) || 0); economy.coins = Math.max(0, economy.coins + k); if (k > 0) economy.totalEarned += k; saveEconomy(); updateHUD(); },
     forceCatch: function (manual) { landFish(!!manual); },
     state: function () { return { phase: state.phase, session: state.session, started: state.started, band: currentBand() }; },
@@ -9246,6 +10521,7 @@
       }
       if (!fish) fish = FISH.filter(function (f) { return heavyFish(f) === want; })[0] || FISH[0];
       settings.auto = false;           // 검증 중 자동 낚아채기를 멈춘다 (저장하지 않음)
+      exitHiddenBite();
       state.biteFish = fish;
       state.biteHeavy = heavyFish(fish);
       state.biteWindow = 9999;
@@ -9286,12 +10562,14 @@
     setWeather: function (m) { setWeatherMode(m); return window.__rf.weather(); },
     raining: function () { return isRaining(); },
     tickWeather: function (sec) { var n = Math.max(1, Math.round((Number(sec) || 3) * 60)); for (var i = 0; i < n; i++) updateWeather(0.016); return window.__rf.weather(); },
-    rollMany: function (n, band) {
+    rollMany: function (n, band, manual) {
       var k = Math.max(1, Math.min(200000, Math.floor(Number(n) || 1000)));
       var b = band || currentBand();
+      var mm = manual ? MANUAL_RARE_MUL : 1;
+      var hm = currentHiddenMul() * mm;
       var counts = {};
       for (var i = 0; i < k; i++) {
-        var f = rollFish(b, 1);
+        var f = rollFish(b, mm, hm);
         counts[f.id] = (counts[f.id] || 0) + 1;
       }
       return counts;
@@ -9397,6 +10675,7 @@
     },
     openMissions: function () { openMissions(); },
     openDex: function () { openDex(); },
+    closeDex: function () { closeDex(); },
     dexFilter: function (f) { dexFilter = f; renderDex(); },
     /* ── 2026-11-17 추가 기능 검증용 훅 ── */
     snowState: function () {
@@ -9498,7 +10777,7 @@
         total: dudTotal(),
         kinds: JSON.parse(JSON.stringify((economy.duds && economy.duds.kinds) || {})),
         firstAt: (economy.duds && economy.duds.firstAt) || 0,
-        dexCount: $("#dexDuds") ? $("#dexDuds").textContent : null,
+        dexCount: $("#dexCount") ? $("#dexCount").textContent : null,
         toastHtml: el.toast ? el.toast.innerHTML : null,
         toastShown: el.toast ? el.toast.classList.contains("show") : null
       };
@@ -9512,6 +10791,7 @@
         rarity: "dud", kind: "dud", min: 0, max: 0
       };
       settings.auto = false;
+      exitHiddenBite();
       state.biteFish = dud;
       state.biteHeavy = false;
       state.biteWindow = 9999;
