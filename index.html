@@ -2693,7 +2693,8 @@
       var dayF = clamp(m.sunIntensity / 1100, 0, 1);
       var nightF = clamp(m.starOpacity, 0, 1);
       var moonF = clamp(m.moonOpacity, 0, 1);
-      var lit = 0.46 + 0.52 * dayF * (1 - nightF) + 0.16 * moonF;
+      var amb = clamp(m.ambientIntensity / 460, 0, 1);
+      var lit = 0.40 + 0.34 * amb + 0.34 * dayF * (1 - nightF) + 0.14 * moonF;
       fishSchool.mat.color.setRGB(lit, lit * 1.01, lit * 1.03);
       fishSchool.mat.emissive.setRGB(
         clamp(m.water[0] * 0.55 + 0.04, 0, 1) * (0.12 + nightF * 0.5),
@@ -3522,7 +3523,7 @@
     }
     // 등지느러미 (위로 솟은 얇은 판)
     var base = pos.length / 3;
-    pos.push(-0.18, 0.22, 0,  0.16, 0.18, 0,  0.04, 0.34, 0,  -0.22, 0.30, 0);
+    pos.push(-0.26, 0.20, 0,  0.20, 0.16, 0,  0.02, 0.30, 0,  -0.28, 0.27, 0);
     idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
 
     var geo = new THREE.BufferGeometry();
