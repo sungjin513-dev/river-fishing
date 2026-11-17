@@ -509,7 +509,7 @@
 
   #weatherBar {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 3px;
     padding: 0 0 5px;
     margin-bottom: 3px;
@@ -1114,6 +1114,402 @@
   .shop-hint { font-size: 11px; color: var(--muted); line-height: 1.5; padding: 10px 2px 4px; }
   .shop-hint b { color: #ffe6b6; }
 
+  /* ── ❄️ 눈 날씨 ─────────────────────────────── */
+  .wx-chip.snow {
+    background: rgba(198, 224, 255, 0.22);
+    border-color: rgba(214, 234, 255, 0.62);
+    color: #eaf5ff;
+  }
+  .dex-bands span.hx-snow {
+    background: rgba(210, 232, 255, 0.2);
+    color: #dceeff;
+    border-color: rgba(216, 236, 255, 0.55);
+  }
+  .dex-meta .hx-hint.hx-snow { color: #d6ecff; }
+
+  /* ── 완료된 보상 일괄 수령 ──────────────────── */
+  .claim-all-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 0;
+  }
+  .claim-all-btn {
+    appearance: none;
+    font-family: inherit;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 208, 122, 0.5);
+    background: linear-gradient(180deg, rgba(255, 230, 174, 0.96), rgba(255, 196, 92, 0.96));
+    color: #221604;
+    font-size: 12.5px;
+    font-weight: 800;
+    padding: 9px 13px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(255, 180, 70, 0.22);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .claim-all-btn:active { transform: scale(0.97); }
+  .claim-all-btn.idle {
+    background: rgba(255, 255, 255, 0.07);
+    color: #9fb0c6;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: none;
+  }
+  .claim-all-btn .n {
+    display: inline-grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    margin-left: 5px;
+    padding: 0 5px;
+    border-radius: 99px;
+    background: rgba(20, 14, 4, 0.24);
+    font-size: 10.5px;
+  }
+  .claim-all-hint { font-size: 10.5px; color: var(--muted); line-height: 1.45; }
+
+  /* ── 👤 내 캐릭터 상세보기 ─────────────────── */
+  #charModal {
+    position: absolute;
+    inset: 0;
+    z-index: 24;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.24s ease;
+  }
+  #charModal.open { opacity: 1; pointer-events: auto; }
+  .char-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: calc(var(--safe-top) + 14px) calc(var(--safe-right) + 16px) 0 calc(var(--safe-left) + 16px);
+  }
+  .char-title {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+  }
+  .char-title small { font-size: 11px; font-weight: 600; color: #c8d6e8; }
+  .char-stage {
+    flex: 1 1 auto;
+    position: relative;
+    min-height: 0;
+    cursor: grab;
+    touch-action: none;
+  }
+  .char-stage:active { cursor: grabbing; }
+  .char-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    transform: translateX(-50%);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #dbe8f8;
+    background: rgba(8, 13, 23, 0.52);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 4px 10px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .char-zoom {
+    position: absolute;
+    right: 14px;
+    top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .char-zoom button {
+    appearance: none;
+    font-family: inherit;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(10, 16, 26, 0.55);
+    color: #eaf2ff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .char-panel {
+    flex: 0 0 auto;
+    margin: 0 calc(var(--safe-right) + 10px) calc(var(--safe-bottom) + 10px) calc(var(--safe-left) + 10px);
+    padding: 12px 14px 13px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(16, 24, 38, 0.94), rgba(9, 14, 24, 0.97));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+  }
+  .char-preview-tag {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 9px;
+    padding: 6px 10px;
+    border-radius: 11px;
+    background: rgba(140, 180, 255, 0.16);
+    border: 1px solid rgba(150, 190, 255, 0.4);
+    font-size: 11px;
+    font-weight: 800;
+    color: #cfe4ff;
+  }
+  .char-preview-tag.on { display: flex; }
+  .char-equip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 8px;
+  }
+  .char-slot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    min-width: 0;
+  }
+  .char-slot .k { font-size: 10px; font-weight: 800; color: #8d9bb0; flex: 0 0 auto; }
+  .char-slot .v {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #eaf2ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .char-sum { margin-top: 9px; font-size: 10.5px; color: var(--muted); line-height: 1.5; }
+  .char-sum b { color: #ffe6b6; }
+  .char-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .char-btn {
+    appearance: none;
+    flex: 1 1 0;
+    font-family: inherit;
+    border: 1px solid rgba(255, 208, 122, 0.45);
+    background: rgba(255, 208, 122, 0.16);
+    color: #ffe6b6;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 10px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  .char-btn.ghost {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd8ea;
+  }
+  body.char-view .hud-top,
+  body.char-view .hud-bottom { opacity: 0; pointer-events: none; }
+
+  /* ── 꾸미기 미리보기 ───────────────────────── */
+  .chip.cos-preview { background: rgba(140, 180, 255, 0.92); color: #08101c; }
+  .preview-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 4px 0 10px;
+    padding: 10px 11px;
+    border-radius: 14px;
+    background: rgba(140, 180, 255, 0.12);
+    border: 1px solid rgba(150, 190, 255, 0.38);
+  }
+  .preview-bar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #cfe4ff;
+  }
+  .preview-bar b { color: #e8f3ff; }
+  .preview-bar-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .shop-row.previewing { border-color: rgba(150, 190, 255, 0.55); background: rgba(140, 180, 255, 0.12); }
+  .shop-name .pv-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 2px 5px;
+    border-radius: 6px;
+    background: rgba(150, 190, 255, 0.24);
+    color: #cfe4ff;
+    border: 1px solid rgba(160, 200, 255, 0.45);
+  }
+  .buy-btn.preview {
+    background: rgba(255, 255, 255, 0.09);
+    color: #cfe4ff;
+    box-shadow: inset 0 0 0 1px rgba(160, 200, 255, 0.42);
+  }
+
+  .dex-card.got .dex-fish svg { filter: drop-shadow(0 3px 8px rgba(150, 200, 255, 0.28)); }
+  #toast .toast-fish svg { filter: drop-shadow(0 2px 7px rgba(150, 200, 255, 0.35)); }
+
+  /* ── 🆕 NEW 배지 · 이름 옆 미니 아이콘 ─────── */
+  #toast .toast-name .name-ico {
+    display: inline-block;
+    width: 22px;
+    height: 15px;
+    vertical-align: -2px;
+    margin-right: 5px;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
+  }
+  #toast .toast-name .name-ico svg { width: 100%; height: 100%; display: block; }
+  #toast .new-tag {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    padding: 2px 5px;
+    margin-left: 5px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #ffe6ae, #ffc45c);
+    color: #221604;
+    vertical-align: 1px;
+  }
+  #toast .toast-badge.new {
+    background: linear-gradient(180deg, #ffe6ae, #ffc45c);
+    color: #221604;
+    font-weight: 900;
+  }
+  .dex-card .new-badge {
+    margin-left: 5px;
+    font-size: 8.5px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    padding: 1px 4px;
+    border-radius: 5px;
+    background: linear-gradient(180deg, #ffe6ae, #ffc45c);
+    color: #221604;
+    vertical-align: 1px;
+  }
+  .dex-card.is-new {
+    border-color: rgba(255, 208, 122, 0.42);
+    box-shadow: inset 0 0 0 1px rgba(255, 208, 122, 0.18);
+  }
+
+  /* ── 📸 포획 인증 카드 공유 ─────────────────── */
+  #toast.show { pointer-events: auto; }
+  #toast .toast-share {
+    position: absolute;
+    top: -11px;
+    right: -8px;
+    appearance: none;
+    font-family: inherit;
+    border: 1px solid rgba(200, 228, 255, 0.55);
+    background: linear-gradient(180deg, rgba(58, 96, 148, 0.98), rgba(30, 54, 88, 0.98));
+    color: #eaf4ff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 10px;
+    border-radius: 99px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+    white-space: nowrap;
+  }
+  #toast .toast-share:active { transform: scale(0.95); }
+  #toast.dud { border-color: rgba(200, 210, 224, 0.32); max-width: 92vw; }
+  #toast.dud .toast-body { max-width: 52vw; }
+  #toast.dud .toast-name span { font-weight: 900; }
+  #toast.dud .toast-meta {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  #toast .toast-fish.dud-ico {
+    font-size: 27px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+  }
+  #toast .toast-badge.dud-badge { background: rgba(180, 196, 214, 0.22); color: #e2ecf8; }
+  #toast .toast-meta.dud-note { line-height: 1.35; }
+
+  .dex-share {
+    appearance: none;
+    font-family: inherit;
+    margin-left: auto;
+    flex: 0 0 auto;
+    border: 1px solid rgba(160, 200, 255, 0.42);
+    background: rgba(140, 180, 255, 0.16);
+    color: #dbeaff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .dex-share:active { transform: scale(0.94); }
+
+  #shareModal {
+    position: absolute;
+    inset: 0;
+    z-index: 26;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  #shareModal.open { opacity: 1; pointer-events: auto; }
+  #shareModal .backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 6, 12, 0.74);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  #shareModal .dex-sheet { transform: translateY(26px); }
+  #shareModal.open .dex-sheet { transform: translateY(0); }
+  .share-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    padding-bottom: 6px;
+  }
+  #sharePreview {
+    width: 100%;
+    max-width: 300px;
+    display: block;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .share-hint { font-size: 11px; color: var(--muted); text-align: center; line-height: 1.5; }
+  .share-actions { display: flex; gap: 8px; width: 100%; max-width: 300px; }
+  .share-actions button {
+    flex: 1 1 0;
+    appearance: none;
+    font-family: inherit;
+    border: 0;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 800;
+    padding: 11px 8px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ffe6ae, #ffc45c);
+    color: #221604;
+    box-shadow: 0 6px 16px rgba(255, 180, 70, 0.24);
+  }
+  .share-actions button.ghost {
+    background: rgba(255, 255, 255, 0.08);
+    color: #cfe0f4;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  }
+
   .drink-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1284,6 +1680,7 @@
             <span id="clockText">06:24</span>
             <span class="wx-chip" id="wxChip" title="날씨">☀️</span>
             <span class="chip" id="previewChip">미리보기</span>
+            <span class="chip cos-preview" id="cosPreviewChip">미리보기 중 (실제 미구매)</span>
           </div>
           <div class="time-mood" id="moodLine">물안개가 강 위를 천천히 떠다녀요</div>
         </div>
@@ -1298,6 +1695,7 @@
       <div class="buff-row" id="buffRow"></div>
     </div>
     <div class="top-actions">
+      <button class="icon-btn" id="btnChar" aria-label="내 캐릭터 상세보기" title="내 캐릭터">👤</button>
       <button class="icon-btn" id="btnSound" aria-label="소리 켜기/끄기" title="소리">🔊</button>
       <button class="icon-btn" id="btnDexTop" aria-label="도감 열기" title="도감">
         📖<span class="badge" id="dexBadge">0</span>
@@ -1329,6 +1727,7 @@
         <button class="wx-btn" data-weather="rain"><span class="ico">🌧️</span><span>비</span></button>
         <button class="wx-btn" data-weather="fog"><span class="ico">🌫️</span><span>안개</span></button>
         <button class="wx-btn" data-weather="storm"><span class="ico">⚡</span><span>뇌우</span></button>
+        <button class="wx-btn" data-weather="snow"><span class="ico">❄️</span><span>눈</span></button>
       </div>
       <div id="bandBar" role="group" aria-label="시간대 미리보기">
         <button class="band-btn active" data-band="live"><span class="ico">⏱️</span><span>실시간</span></button>
@@ -1350,17 +1749,18 @@
     <div class="dex-sheet">
       <div class="dex-head">
         <div class="dex-head-row">
-          <div class="dex-title">강가 도감<small id="dexSpecies">200종</small></div>
+          <div class="dex-title">강가 도감<small id="dexSpecies">210종</small></div>
           <button class="close-btn" id="dexClose" aria-label="닫기">✕</button>
         </div>
         <div class="progress-wrap">
-          <div class="progress-top"><span>수집률</span><strong id="dexCount">0 / 200</strong></div>
+          <div class="progress-top"><span>수집률</span><strong id="dexCount">0 / 210</strong></div>
           <div class="progress-track"><div id="dexProgressBar"></div></div>
         </div>
         <div class="dex-stats">
           <span>총 <b id="dexTotal">0</b>마리</span>
           <span>최대 <b id="dexBest">0cm</b></span>
           <span>이번 세션 <b id="dexSession">0</b>마리</span>
+          <span>🥫 꽝 <b id="dexDuds">0</b>회</span>
         </div>
         <div class="dex-filters" id="dexFilters" role="group" aria-label="도감 필터">
           <button class="filter-chip active" data-filter="all">전체</button>
@@ -1372,6 +1772,8 @@
           <button class="filter-chip" data-filter="hx-rain">🌧️ 비 히든</button>
           <button class="filter-chip" data-filter="hx-fog">🌫️ 안개 히든</button>
           <button class="filter-chip" data-filter="hx-storm">⚡ 뇌우 히든</button>
+          <button class="filter-chip" data-filter="hx-snow">❄️ 눈 히든</button>
+          <button class="filter-chip" data-filter="new">🆕 신규</button>
           <button class="filter-chip" data-filter="missing">미수집</button>
         </div>
       </div>
@@ -1421,8 +1823,57 @@
           <div class="dex-title">🎯 미션 &amp; 업적<small id="missionCoins">0 🪙</small></div>
           <button class="close-btn" id="missionClose" aria-label="닫기">✕</button>
         </div>
+        <div class="claim-all-bar">
+          <button class="claim-all-btn idle" id="claimAllBtn">🎁 완료된 보상 일괄 수령<span class="n" id="claimAllCount">0</span></button>
+          <span class="claim-all-hint" id="claimAllHint">수령 가능한 미션·업적 보상을 한 번에 받아요</span>
+        </div>
       </div>
       <div class="dex-scroll"><div id="missionBody"></div></div>
+    </div>
+  </div>
+
+  <div id="shareModal" role="dialog" aria-modal="true" aria-label="포획 인증 카드">
+    <div class="backdrop" id="shareBackdrop"></div>
+    <div class="dex-sheet">
+      <div class="dex-head">
+        <div class="dex-head-row">
+          <div class="dex-title">📸 포획 인증 카드<small id="shareSub">날씨 히든</small></div>
+          <button class="close-btn" id="shareClose" aria-label="닫기">✕</button>
+        </div>
+      </div>
+      <div class="dex-scroll">
+        <div class="share-body">
+          <img id="sharePreview" alt="포획 인증 카드 미리보기" />
+          <div class="share-actions">
+            <button id="shareBtn">📤 공유하기</button>
+            <button id="shareSave" class="ghost">💾 이미지 저장</button>
+          </div>
+          <div class="share-hint" id="shareHint">아이폰에서는 공유 시트가 바로 열리고, 지원하지 않는 환경에서는 PNG로 저장돼요</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="charModal" role="dialog" aria-modal="true" aria-label="내 캐릭터 상세보기">
+    <div class="char-head">
+      <div class="char-title">👤 내 캐릭터<small>꾸민 모자·상의·안경·의자를 가까이서 봐요</small></div>
+      <button class="close-btn" id="charClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="char-stage" id="charStage">
+      <div class="char-zoom">
+        <button id="charZoomIn" aria-label="확대">＋</button>
+        <button id="charZoomOut" aria-label="축소">－</button>
+      </div>
+      <div class="char-hint">↔ 드래그해서 돌려 보세요 · ＋－로 더 가까이</div>
+    </div>
+    <div class="char-panel">
+      <div class="char-preview-tag" id="charPreviewTag">👀 미리보기 중 (실제 미구매)</div>
+      <div class="char-equip" id="charEquip"></div>
+      <div class="char-sum" id="charSum"></div>
+      <div class="char-actions">
+        <button class="char-btn" id="charShopBtn">👒 꾸미기 상점</button>
+        <button class="char-btn ghost" id="charSpinBtn">↔ 정면으로</button>
+      </div>
     </div>
   </div>
 
@@ -1434,11 +1885,13 @@
       <ul class="intro-list">
         <li><span class="ico">👆</span><span><b>찌가 흔들리면 탭</b> — 화면을 탭하면 조금 더 큰 개체가 걸려요</span></li>
         <li><span class="ico">🕒</span><span><b>실시간 · 4가지 시간대</b> — 아래 버튼으로 새벽·낮·노을·밤을 바로 볼 수 있어요</span></li>
-        <li><span class="ico">🌦️</span><span><b>날씨 4종 · 히든 40종</b> — 맑음·비·안개·뇌우마다 전용 히든 10종이 각 3%로 올라와요</span></li>
-        <li><span class="ico">🐟</span><span><b>강가 생물 200종 도감</b> — 물고기부터 바다거북·가오리·조개·게·문어·해파리까지</span></li>
-        <li><span class="ico">🎯</span><span><b>오늘의 미션 · 업적</b> — 목표를 채우면 코인 보상을 받아요</span></li>
+        <li><span class="ico">🌦️</span><span><b>날씨 5종 · 히든 50종</b> — 맑음·비·안개·뇌우·눈마다 전용 히든 10종이 각 3%로 올라와요</span></li>
+        <li><span class="ico">🐟</span><span><b>강가 생물 210종 도감</b> — 물고기부터 바다거북·가오리·조개·게·문어·해파리까지</span></li>
+        <li><span class="ico">🎯</span><span><b>오늘의 미션 · 업적</b> — 목표를 채우면 코인 보상을 받고, 완료된 보상은 한 번에 받을 수 있어요</span></li>
         <li><span class="ico">🪙</span><span><b>코인 · 상점 · 자판기</b> — 코인으로 낚싯대·미끼를 바꾸고 음료로 체력을 회복해요</span></li>
-        <li><span class="ico">👒</span><span><b>꾸미기 상점</b> — 모자·상의·안경·의자를 사서 강가 캐릭터를 꾸며 보세요</span></li>
+        <li><span class="ico">👒</span><span><b>꾸미기 상점</b> — 모자·상의·안경·의자를 사서 꾸미고, 사기 전에 미리보기로 임어 봐요</span></li>
+        <li><span class="ico">👤</span><span><b>내 캐릭터</b> — 상단 👤을 누르면 꾸민 내 모습을 카메라로 가까이 볼 수 있어요</span></li>
+        <li><span class="ico">🥫</span><span><b>0.05%의 꽝</b> — 아주 가끔 낚싯줄에 찌그러진 캔이 걸려요</span></li>
       </ul>
       <button id="introStart">강가로 나가기</button>
       <div class="intro-note">소리는 이 버튼을 누를 때 켜져요 · 도감은 이 브라우저에 저장됩니다</div>
@@ -1899,6 +2352,37 @@
     { id: "hailstorm-clam", name: "우박조개", en: "Hailstorm Clam", rarity: "hidden", kind: "clam", min: 12, max: 26,
       color: "#c0ccdc", body: 1.04,
       summary: "우박 소리에 껍데기를 두드리는 조개. 껍데기가 우박처럼 희다." },
+    /* ── ❄️ 눈 히든 10종 (snow 날씨 전용) ── */
+    { id: "snowflake-smelt", name: "눈송이빙어", en: "Snowflake Smelt", rarity: "hidden", kind: "fish", min: 7, max: 15,
+      color: "#eaf3fb", body: 0.96,
+      summary: "눈송이처럼 엷은 비늘을 가진 빙어. 눈이 쌓이는 소리에 물 위로 올라온다." },
+    { id: "frostfin-minnow", name: "서리지느러미피라미", en: "Frostfin Minnow", rarity: "hidden", kind: "fish", min: 6, max: 13,
+      color: "#cfe0f0", body: 0.98,
+      summary: "지느러미 끝에 서리가 앉은 잔챙이. 겨울 강물에서만 무리를 짓는다." },
+    { id: "icebell-trout", name: "얼음종송어", en: "Icebell Trout", rarity: "hidden", kind: "fish", min: 28, max: 58,
+      color: "#a8c8e2", body: 1.08,
+      summary: "물속에서 종을 흔드는 듯한 울음을 내는 송어. 눈 내리는 강에서만 만난다." },
+    { id: "snowmelt-carp", name: "눈녹은붕어", en: "Snowmelt Carp", rarity: "hidden", kind: "fish", min: 22, max: 45,
+      color: "#d8e2ea", body: 1.1,
+      summary: "눈이 녹으며 불어난 찬물을 타고 올라오는 붕어. 몸빛이 눈물처럼 맑다." },
+    { id: "icicle-eel", name: "고드름뱀장어", en: "Icicle Eel", rarity: "hidden", kind: "eel", min: 60, max: 130,
+      color: "#9dc4de", body: 1.3,
+      summary: "물속에서 길게 늘어뜨린 고드름 같은 뱀장어. 잡으면 손 끝이 시리다." },
+    { id: "frostwhisker-catfish", name: "서리수염메기", en: "Frostwhisker Catfish", rarity: "hidden", kind: "fish", min: 40, max: 85,
+      color: "#8fa6bd", body: 1.18,
+      summary: "수염 끝마다 서리가 맺힌 큰 메기. 눈 내리는 밤 강바닥을 조용히 지킨다." },
+    { id: "snowdrift-turtle", name: "눈더미거북", en: "Snowdrift Turtle", rarity: "hidden", kind: "turtle", min: 80, max: 160,
+      color: "#cdd9e4", body: 1.26,
+      summary: "등껍질에 눈더미처럼 흰 이끼가 앉은 거북. 눈 속에서도 미동 없이 견딘다." },
+    { id: "snowcrystal-jelly", name: "설화해파리", en: "Snowcrystal Jelly", rarity: "hidden", kind: "jellyfish", min: 20, max: 50,
+      color: "#dbeaf8", body: 1.06,
+      summary: "눈꽃 결정 같은 몸을 가진 해파리. 눈발 속에서는 거의 보이지 않는다." },
+    { id: "iceflake-crab", name: "빙화게", en: "Iceflake Crab", rarity: "hidden", kind: "crab", min: 6, max: 12,
+      color: "#bcd4e8", body: 1.06,
+      summary: "집게발에 얼음 결정이 붙은 작은 게. 눈 해안선을 옆으로 빨리 달린다." },
+    { id: "frostshell-clam", name: "서리조개", en: "Frostshell Clam", rarity: "hidden", kind: "clam", min: 10, max: 22,
+      color: "#dee9f4", body: 1.02,
+      summary: "껍데기 안쪽이 서리처럼 하얀 조개. 눈 녹은 물이 고인 자리에 눕아 있다." },
     { id: "olive-ridley", name: "올리브각시바다거북", en: "Olive Ridley Turtle", rarity: "uncommon", kind: "turtle", min: 55, max: 95,
       color: "#5d7a4f", body: 1.16,
       summary: "가장 작은 바다거북. 올리브빛 등껍질로 강 어귀 모래톱을 기어 다닌다." },
@@ -2199,7 +2683,7 @@
   var FISH_BY_ID = {};
   FISH.forEach(function (f) { FISH_BY_ID[f.id] = f; });
 
-  /* 날씨 전용 히든 — clear·rain·fog·storm 각 10종, 각 3%(합 30%) 확률로 걸린다.
+  /* 날씨 전용 히든 — clear·rain·fog·storm·snow 각 10종, 각 3%(합 30%) 확률로 걸린다.
      낚싯대·미끼 보정은 히든에는 적용되지 않는다. */
   var WEATHER_HIDDEN = {
     clear: ["sunbeam-chub", "glassfin-minnow", "midday-carp", "sunspot-trout", "skyblue-ayu",
@@ -2209,10 +2693,12 @@
     fog:   ["mist-ghost-carp", "fogveil-eel", "silverfog-smelt", "cloudwhisker-catfish", "foglamp-jelly",
             "mist-octopus", "mistback-turtle", "whiteshadow-ayu", "grayreef-crab", "fogshell-clam"],
     storm: ["thunder-ayu", "lightning-eel", "darkcloud-carp", "hail-trout", "stormcrown-catfish",
-            "storm-turtle", "thunder-jelly", "squall-ray", "lightning-squid", "hailstorm-clam"]
+            "storm-turtle", "thunder-jelly", "squall-ray", "lightning-squid", "hailstorm-clam"],
+    snow:  ["snowflake-smelt", "frostfin-minnow", "icebell-trout", "snowmelt-carp", "icicle-eel",
+            "frostwhisker-catfish", "snowdrift-turtle", "snowcrystal-jelly", "iceflake-crab", "frostshell-clam"]
   };
-  var HIDDEN_CHANCE_EACH = 0.03;                       // 종당 3%
-  var HIDDEN_TOTAL_CHANCE = 0.30;                      // 날씨별 10종 합계 30%
+  var HIDDEN_CHANCE_EACH = 0.01;                       // 종당 1% (2026-11-17 하향: 3% → 1%)
+  var HIDDEN_TOTAL_CHANCE = 0.10;                      // 날씨별 10종 합계 10%
   Object.keys(WEATHER_HIDDEN).forEach(function (wx) {
     WEATHER_HIDDEN[wx].forEach(function (id) {
       var f = FISH_BY_ID[id];
@@ -2227,7 +2713,8 @@
     clear: { icon: "☀️", label: "맑음", cls: "hx-clear", hint: "맑은 날에만 출현" },
     rain:  { icon: "🌧️", label: "비",   cls: "hx-rain",  hint: "비 올 때만 출현" },
     fog:   { icon: "🌫️", label: "안개", cls: "hx-fog",   hint: "안개 낄 때만 출현" },
-    storm: { icon: "⚡", label: "뇌우", cls: "hx-storm", hint: "뇌우 칠 때만 출현" }
+    storm: { icon: "⚡", label: "뇌우", cls: "hx-storm", hint: "뇌우 칠 때만 출현" },
+    snow:  { icon: "❄️", label: "눈",   cls: "hx-snow",  hint: "눈 올 때만 출현" }
   };
 
   function weatherHiddenCount(wx) {
@@ -2280,18 +2767,56 @@
     return m;
   }
 
+  /* ── 🥫 0.05% 꽝 (duds) ────────────────────────────────────────────────
+     어종 210종과 완전히 분리된 별도 결과. 도감/어종 카운트에는 절대 들어가지 않고
+     economy.duds 에만 따로 쌓인다. 모든 날씨에서 0.05% (DUD_CHANCE). */
+  var DUD_CHANCE = 0.0005;
+
+  var DUDS = [
+    { id: "old-letter", name: "누군가의 편지", emoji: "✉️", coins: 1,
+      short: "누군가 남긴 편지가 줄에 걸렸어요",
+      note: "안녕, 낯선 낚시꾼에게. 나도 오늘 이 강가에서 아무것도 못 잡았어. 그래도 물소리가 좋아서 괜찮았어. — 지나가던 누군가" },
+    { id: "crushed-can", name: "찌그러진 캔", emoji: "🥫", coins: 0,
+      short: "안에는 아무것도 없어요. 손만 시려요",
+      note: "찌그러진 캔이네요. 안에는 아무것도 없어요. 손만 시려워요." },
+    { id: "old-sneaker", name: "낡은 운동화", emoji: "👟", coins: 0,
+      short: "짝을 잃은 낡은 운동화",
+      note: "짝을 잃은 낡은 운동화. 주인은 발이 시렵겠네요." },
+    { id: "wet-sock", name: "젖은 양말", emoji: "🧦", coins: 0,
+      short: "누가 벗어 둔 젖은 양말",
+      note: "누가 벗어 둔 젖은 양말. 오늘은 낚시 운이 없나 봐요." },
+    { id: "snagged-weed", name: "물풀 한 줌", emoji: "🌿", coins: 0,
+      short: "물고기인 줄 알고 한참을 당겼어요",
+      note: "물풀 한 줌. 물고기인 줄 알고 한참을 당겼는데 이게 나왔어요." }
+  ];
+
+  function dudById(id) {
+    for (var i = 0; i < DUDS.length; i++) { if (DUDS[i].id === id) return DUDS[i]; }
+    return DUDS[0];
+  }
+
+  function rollDud() {
+    var d = DUDS[Math.floor(Math.random() * DUDS.length)] || DUDS[0];
+    return {
+      isDud: true, dudId: d.id, id: "dud:" + d.id, name: d.name,
+      emoji: d.emoji, note: d.note, short: d.short || d.note, dudCoins: d.coins,
+      rarity: "dud", kind: "dud", min: 0, max: 0
+    };
+  }
+
   function rollFish(band, rareMul) {
-    // ① 지금 날씨의 전용 히든 10종이 각 3%(합계 30%) 확률로 먼저 걸린다
+    // ① 한 번의 추첨으로 꽝 0.05% → 날씨 히든 10% → 나머지 89.95% 순서로 나눈다
+    var r = Math.random();
+    if (r < DUD_CHANCE) return rollDud();
     var hList = WEATHER_HIDDEN[weather.current];
     if (hList && hList.length) {
-      var hr = Math.random();
-      if (hr < HIDDEN_TOTAL_CHANCE) {
-        var hi = Math.min(hList.length - 1, Math.floor(hr / HIDDEN_CHANCE_EACH));
+      if (r < DUD_CHANCE + HIDDEN_TOTAL_CHANCE) {
+        var hi = Math.min(hList.length - 1, Math.floor((r - DUD_CHANCE) / HIDDEN_CHANCE_EACH));
         var hf = FISH_BY_ID[hList[hi]];
         if (hf) return hf;
       }
     }
-    // ② 나머지 70%는 그 시간대의 일반 풀에서
+    // ② 남은 확률은 그 시간대의 일반 풀에서
     var table = SPAWN[band] || SPAWN.day;
     rareMul = rareMul || 1;
     var total = 0;
@@ -2344,7 +2869,8 @@
           count: count,
           longest: longest,
           firstAt: Number(r.firstAt) || Date.now(),
-          lastAt: Number(r.lastAt) || Date.now()
+          lastAt: Number(r.lastAt) || Date.now(),
+          freshAt: Number(r.freshAt) || 0   // 새로 도감에 등록된 시각 (NEW 배지)
         };
       });
       return { records: clean };
@@ -2367,7 +2893,7 @@
       if (!parsed || typeof parsed !== "object") return;
       if (typeof parsed.sound === "boolean") settings.sound = parsed.sound;
       if (typeof parsed.auto === "boolean") settings.auto = parsed.auto;
-      if (parsed.wx === "auto" || parsed.wx === "clear" || parsed.wx === "rain" || parsed.wx === "fog" || parsed.wx === "storm") settings.wx = parsed.wx;
+      if (parsed.wx === "auto" || parsed.wx === "clear" || parsed.wx === "rain" || parsed.wx === "fog" || parsed.wx === "storm" || parsed.wx === "snow") settings.wx = parsed.wx;
     } catch (err) { /* 무시 */ }
   }
 
@@ -2408,7 +2934,8 @@
     { id: "energy", emoji: "⚡", name: "특제 에너지드링크", price: 130, hp: 100, buff: "big",     buffMs: 90000,  desc: "체력 완전 회복 · 90초간 대어 + 코인 보너스" }
   ];
 
-  var COIN_BASE = { common: 6, uncommon: 18, rare: 50, legendary: 150, hidden: 110 };
+  /* 등급별 기본 코인 — 밸런스 조정(2026-11-17): 전체를 약 52% 수준으로 낮췄다 */
+  var COIN_BASE = { common: 3, uncommon: 9, rare: 26, legendary: 78, hidden: 57 };
 
   /* =====================================================================
      2-2. 꾸미기 (모자 · 상의 · 안경 · 의자)
@@ -2423,28 +2950,36 @@
   var COSMETICS = {
     hat: [
       { id: "straw",  name: "기본 밀짚모자", price: 0,   hex: 0xd8b271, swatch: "#d8b271", desc: "강가에서 쓰던 밀짚모자. 챙이 햇빛을 막아 줘요" },
-      { id: "cap",    name: "야구 캡",       price: 260, hex: 0x4a6fa8, swatch: "#4a6fa8", desc: "푸른 야구 캡. 챙이 눈을 가려 주고 뒤가 시원해요" },
-      { id: "beret",  name: "베레모",        price: 420, hex: 0xa05a6a, swatch: "#a05a6a", desc: "동글동글 베레모. 강가에서도 감성은 놓치지 않아요" },
-      { id: "beanie", name: "털비니",        price: 380, hex: 0x5a6b7a, swatch: "#5a6b7a", desc: "보드라운 털비니. 안개 낀 새벽에 귀가 따뜻해요" },
-      { id: "fedora", name: "탐험가 페도라", price: 760, hex: 0x8a6a43, swatch: "#8a6a43", desc: "챙이 넓은 탐험가 모자. 햇살이 부드럽게 내려앉아요" }
+      { id: "cap",    name: "야구 캡",       price: 312, hex: 0x4a6fa8, swatch: "#4a6fa8", desc: "푸른 야구 캡. 챙이 눈을 가려 주고 뒤가 시원해요" },
+      { id: "beret",  name: "베레모",        price: 504, hex: 0xa05a6a, swatch: "#a05a6a", desc: "동글동글 베레모. 강가에서도 감성은 놓치지 않아요" },
+      { id: "beanie", name: "털비니",        price: 456, hex: 0x5a6b7a, swatch: "#5a6b7a", desc: "보드라운 털비니. 안개 낀 새벽에 귀가 따뜻해요" },
+      { id: "fedora", name: "탐험가 페도라", price: 912, hex: 0x8a6a43, swatch: "#8a6a43", desc: "챙이 넓은 탐험가 모자. 햇살이 부드럽게 내려앉아요" },
+      { id: "earflap", name: "겨울 귀마개 모자", price: 540, hex: 0xb8483f, swatch: "#b8483f", desc: "볼까지 따뜻하게 덮는 귀마개 모자. 눈 내리는 날 딱이에요" }
     ],
     top: [
       { id: "teal",     name: "기본 청록 재킷", price: 0,   hex: 0x3f6f83, swatch: "#3f6f83", desc: "처음부터 입고 있던 청록 재킷" },
-      { id: "anorak",   name: "주황 아노락",    price: 340, hex: 0xd97a3a, swatch: "#d97a3a", desc: "주황 아노락. 노을 진 강가에 딱 맞는 색이에요" },
-      { id: "hoody",    name: "네이비 후드",    price: 460, hex: 0x2f3f66, swatch: "#2f3f66", desc: "네이비 후드. 목 뒤로 후드가 살짝 올라와 있어요" },
-      { id: "vest",     name: "올리브 베스트",  price: 520, hex: 0x6b7343, swatch: "#6b7343", desc: "올리브 조끼. 소매가 없어 팔이 자유로워요" },
-      { id: "cardigan", name: "핑크 가디건",    price: 680, hex: 0xd69aae, swatch: "#d69aae", desc: "핑크 가디건. 앞단추가 달린 포근한 차림" }
+      { id: "anorak",   name: "주황 아노락",    price: 408, hex: 0xd97a3a, swatch: "#d97a3a", desc: "주황 아노락. 노을 진 강가에 딱 맞는 색이에요" },
+      { id: "hoody",    name: "네이비 후드",    price: 552, hex: 0x2f3f66, swatch: "#2f3f66", desc: "네이비 후드. 목 뒤로 후드가 살짝 올라와 있어요" },
+      { id: "vest",     name: "올리브 베스트",  price: 624, hex: 0x6b7343, swatch: "#6b7343", desc: "올리브 조끼. 소매가 없어 팔이 자유로워요" },
+      { id: "cardigan", name: "핑크 가디건",    price: 816, hex: 0xd69aae, swatch: "#d69aae", desc: "핑크 가디건. 앞단추가 달린 포근한 차림" },
+      { id: "puffer",   name: "겨울 패딩",      price: 980, hex: 0x2d3d5c, swatch: "#2d3d5c", desc: "가로로 누벼진 두툼한 겨울 패딩. 눈보라가 와도 따뜻해요" },
+      { id: "fishvest", name: "낚시 베스트 풀세트", price: 760, hex: 0x8a7442, swatch: "#8a7442", desc: "주머니 가득한 낚시 조끼. 루어와 소품이 줄줄이 달렸어요" },
+      { id: "hawaiian", name: "하와이안 셔츠",  price: 600, hex: 0x2f8f9a, swatch: "#2f8f9a", desc: "꽃무늬가 흩날리는 하와이안 셔츠. 겨울 강가에서도 휴가 기분" },
+      { id: "stripeknit", name: "스트라이프 니트", price: 690, hex: 0xc9dfe8, swatch: "#c9dfe8", desc: "굵은 줄무늬 니트. 목선이 둥글게 내려앉은 차분한 스타일" },
+      { id: "ranger",   name: "레인저 점퍼",    price: 850, hex: 0x6b5a3a, swatch: "#6b5a3a", desc: "어깨 견장과 큰 포켓이 있는 레인저 점퍼. 움직이기 편해요" },
+      { id: "fleece",   name: "코지 후리스",    price: 800, hex: 0xe0d0c4, swatch: "#e0d0c4", desc: "몽글몽글 양털 결이 살아 있는 코지 후리스. 새벽 강가의 포근함" }
     ],
     glasses: [
       { id: "none",       name: "안경 없음",     price: 0,   hex: 0x39465a, swatch: "#39465a", desc: "맨눈으로 강물을 봐요" },
-      { id: "round",      name: "둥근 안경",     price: 220, hex: 0xc9a24a, swatch: "#c9a24a", desc: "동그란 금테 안경. 물빛이 한결 편안해져요" },
-      { id: "sunglasses", name: "선글라스",      price: 380, hex: 0x2a2f38, swatch: "#2a2f38", desc: "검은 선글라스. 노을 반사를 막아 줘요" },
-      { id: "heart",      name: "하트 선글라스", price: 640, hex: 0xd2568a, swatch: "#d2568a", desc: "하트 모양 선글라스. 낚시도 사랑스럽게" }
+      { id: "round",      name: "둥근 안경",     price: 264, hex: 0xc9a24a, swatch: "#c9a24a", desc: "동그란 금테 안경. 물빛이 한결 편안해져요" },
+      { id: "sunglasses", name: "선글라스",      price: 456, hex: 0x2a2f38, swatch: "#2a2f38", desc: "검은 선글라스. 노을 반사를 막아 줘요" },
+      { id: "heart",      name: "하트 선글라스", price: 768, hex: 0xd2568a, swatch: "#d2568a", desc: "하트 모양 선글라스. 낚시도 사랑스럽게" },
+      { id: "goggles",    name: "스노우 고글",   price: 480, hex: 0x8fc4e0, swatch: "#8fc4e0", desc: "눈보라 속에서도 잘 보이는 넓은 고글. 머리 뒤로 밴드가 감겼어요" }
     ],
     chair: [
       { id: "camping",  name: "기본 캠핑 의자",  price: 0,    hex: 0x3e6b57, swatch: "#3e6b57", desc: "접이식 캠핑 의자. 가볍고 튼튼해요" },
-      { id: "wooden",   name: "원목 접이식 의자", price: 480,  hex: 0xa87a4a, swatch: "#a87a4a", desc: "나무 결이 살아 있는 원목 접이식 의자" },
-      { id: "recliner", name: "럭셔리 리클라이너", price: 1400, hex: 0x7a4a6a, swatch: "#7a4a6a", desc: "쿠션과 머리받침이 있는 리클라이너. 낚시가 편안해져요" }
+      { id: "wooden",   name: "원목 접이식 의자", price: 576,  hex: 0xa87a4a, swatch: "#a87a4a", desc: "나무 결이 살아 있는 원목 접이식 의자" },
+      { id: "recliner", name: "럭셔리 리클라이너", price: 1680, hex: 0x7a4a6a, swatch: "#7a4a6a", desc: "쿠션과 머리받침이 있는 리클라이너. 낚시가 편안해져요" }
     ]
   };
 
@@ -2504,7 +3039,8 @@
       cosmetics: cos.cosmetics,   // { hat, top, glasses, chair } 장착 중인 꾸미기
       ownedCos: cos.ownedCos,     // { hat: { straw: true }, ... } 보유한 꾸미기
       drinksBought: 0,            // 누적 자판기 음료 (업적용)
-      baitsEver: { worm: true }   // 한 번이라도 산 미끼 (업적용)
+      baitsEver: { worm: true },  // 한 번이라도 산 미끼 (업적용)
+      duds: { total: 0, kinds: {}, firstAt: 0 }   // 0.05% 꽝 기록 (어종 210종과 분리)
     };
   }
 
@@ -2550,6 +3086,20 @@
         if (eq && economy.ownedCos[c.id][eq]) economy.cosmetics[c.id] = eq;
       });
       economy.drinksBought = Math.max(0, Math.floor(Number(p.drinksBought) || 0));
+      economy.duds = { total: 0, kinds: {}, firstAt: 0 };
+      if (p.duds && typeof p.duds === "object") {
+        economy.duds.total = Math.max(0, Math.floor(Number(p.duds.total) || 0));
+        economy.duds.firstAt = Math.max(0, Number(p.duds.firstAt) || 0);
+        if (p.duds.kinds && typeof p.duds.kinds === "object") {
+          Object.keys(p.duds.kinds).forEach(function (id) {
+            var n = Math.floor(Number(p.duds.kinds[id]) || 0);
+            if (n > 0) {
+              var probe = dudById(id);
+              if (probe && probe.id === id) economy.duds.kinds[id] = n;
+            }
+          });
+        }
+      }
       economy.baitsEver = { worm: true };
       if (p.baitsEver && typeof p.baitsEver === "object") {
         Object.keys(p.baitsEver).forEach(function (id) {
@@ -2596,6 +3146,20 @@
   }
 
   function caughtCount() { return Object.keys(book.records).length; }
+
+  /* 새로 도감에 등록된 어종(NEW) — 등록 후 7일 동안 표시 */
+  var NEW_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+  function isFreshRecord(rec) {
+    return !!(rec && rec.freshAt && (Date.now() - rec.freshAt) < NEW_WINDOW_MS);
+  }
+  function freshSpeciesCount() {
+    var n = 0;
+    Object.keys(book.records).forEach(function (id) {
+      if (isFreshRecord(book.records[id])) n += 1;
+    });
+    return n;
+  }
+  function dudTotal() { return (economy.duds && economy.duds.total) || 0; }
 
   function totalCatches() {
     var n = 0;
@@ -2959,21 +3523,23 @@
   var moodReady = false;
 
   /* ---------------------------------------------------------------------
-     5-1. 날씨 (맑음 · 비 · 안개) — 자동 순환 + 직접 전환
+     5-1. 날씨 (맑음 · 비 · 안개 · 뇌우 · 눈) — 자동 순환 + 직접 전환
      --------------------------------------------------------------------- */
   var WEATHER_INFO = {
     clear: { label: "맑음", icon: "☀️", mood: "햇살이 수면에 맑게 내려앉았어요 · 맑음 히든 10종 출현" },
     rain:  { label: "비",   icon: "🌧️", mood: "빗줄기가 강을 두드려요 · 비 히든 10종 출현" },
     fog:   { label: "안개", icon: "🌫️", mood: "강가에 물안개가 짙게 껴 있어요 · 안개 히든 10종 출현" },
-    storm: { label: "뇌우", icon: "⚡", mood: "천둥이 강 위를 가르고 있어요 · 뇌우 히든 10종 출현" }
+    storm: { label: "뇌우", icon: "⚡", mood: "천둥이 강 위를 가르고 있어요 · 뇌우 히든 10종 출현" },
+    snow:  { label: "눈",   icon: "❄️", mood: "눈송이가 강 위로 조용히 내려앉아요 · 눈 히든 10종 출현" }
   };
 
   var weather = {
-    mode: "auto",     // auto | clear | rain | fog | storm
-    current: "clear", // clear | rain | fog | storm
+    mode: "auto",     // auto | clear | rain | fog | storm | snow
+    current: "clear", // clear | rain | fog | storm | snow
     rain: 0,          // 0~1 연출 강도
     fog: 0,
     storm: 0,         // 뇌우 강도 (0~1)
+    snow: 0,          // 눈 강도 (0~1)
     flash: 0,         // 번개 섬광 (0~1, 빠르게 감쇠)
     lightningT: 5.5,  // 다음 번개까지 남은 시간
     t: 0,
@@ -2983,12 +3549,12 @@
 
   function pickWeather() {
     var band = currentBand();
-    var w = { clear: 0.42, rain: 0.22, fog: 0.18, storm: 0.18 };
-    if (band === "dawn")  { w.clear = 0.32; w.rain = 0.18; w.fog = 0.32; w.storm = 0.18; }
-    if (band === "day")   { w.clear = 0.56; w.rain = 0.18; w.fog = 0.08; w.storm = 0.18; }
-    if (band === "sunset"){ w.clear = 0.44; w.rain = 0.20; w.fog = 0.16; w.storm = 0.20; }
-    if (band === "night") { w.clear = 0.34; w.rain = 0.22; w.fog = 0.20; w.storm = 0.24; }
-    var keys = ["clear", "rain", "fog", "storm"].filter(function (k) { return k !== weather.current; });
+    var w = { clear: 0.34, rain: 0.18, fog: 0.14, storm: 0.14, snow: 0.20 };
+    if (band === "dawn")  { w.clear = 0.26; w.rain = 0.14; w.fog = 0.28; w.storm = 0.14; w.snow = 0.18; }
+    if (band === "day")   { w.clear = 0.44; w.rain = 0.14; w.fog = 0.08; w.storm = 0.14; w.snow = 0.20; }
+    if (band === "sunset"){ w.clear = 0.34; w.rain = 0.16; w.fog = 0.12; w.storm = 0.16; w.snow = 0.22; }
+    if (band === "night") { w.clear = 0.26; w.rain = 0.18; w.fog = 0.16; w.storm = 0.18; w.snow = 0.22; }
+    var keys = ["clear", "rain", "fog", "storm", "snow"].filter(function (k) { return k !== weather.current; });
     var total = 0;
     keys.forEach(function (k) { total += w[k]; });
     var r = Math.random() * total;
@@ -3031,6 +3597,7 @@
     weather.rain = lerp(weather.rain, wet ? 1 : 0, k);
     weather.fog = lerp(weather.fog, weather.current === "fog" ? 1 : 0, k);
     weather.storm = lerp(weather.storm, weather.current === "storm" ? 1 : 0, k);
+    weather.snow = lerp(weather.snow, weather.current === "snow" ? 1 : 0, k);
 
     // 번개 — 뇌우일 때만 불규칙하게 번쩍이고, 조금 뒤에 천둥이 따라온다
     if (weather.current === "storm") {
@@ -3069,7 +3636,8 @@
 
   function isRaining() { return weather.current === "rain"; }
   function isStorm() { return weather.current === "storm"; }
-  // 비·뇌우 모두 우비를 입는다
+  function isSnowing() { return weather.current === "snow"; }
+  // 비·뇌우 모두 우비를 입는다 (눈은 우비 대상이 아니다 — 꾸민 차림 그대로 낚시)
   function isWetWeather() { return weather.current === "rain" || weather.current === "storm"; }
 
   /* =====================================================================
@@ -3331,6 +3899,7 @@
     buildRipples();
     buildFireflies();
     buildRain();
+    buildSnow();
     buildSwimmingFish();
 
     window.addEventListener("resize", onResize);
@@ -3540,6 +4109,21 @@
     var bank = new THREE.Mesh(flat, mat);
     bank.receiveShadow = false;
     scene.add(bank);
+
+    // 눈이 올 때만 강둑을 덮는 하얀 설경 레이어 (applyMood에서 opacity를 올린다)
+    snowCoverMat = new THREE.MeshStandardMaterial({
+      color: 0xecf4ff, roughness: 0.84, metalness: 0.0, flatShading: true,
+      transparent: true, opacity: 0, depthWrite: false
+    });
+    snowCoverMat.polygonOffset = true;
+    snowCoverMat.polygonOffsetFactor = -2;
+    snowCoverMat.polygonOffsetUnits = -2;
+    snowCover = new THREE.Mesh(flat.clone(), snowCoverMat);
+    snowCover.position.y = 0.014;
+    snowCover.visible = false;
+    snowCover.receiveShadow = false;
+    snowCover.renderOrder = 1;
+    scene.add(snowCover);
 
     // 물가 모래 띠는 지형 정점 색으로 표현한다 (별도 판을 덮으면 단차가 보인다)
     buildGrass();
@@ -4214,7 +4798,34 @@
     head.add(fedoraGroup);
     hats.fedora = fedoraGroup;
 
-    /* --- 안경 4종 --- */
+    // ⑥ 겨울 귀마개 모자 (예: 눈 날씨)
+    var earMat = new THREE.MeshStandardMaterial({ color: 0xb8483f, roughness: 0.95, flatShading: true });
+    var furMat2 = new THREE.MeshStandardMaterial({ color: 0xf2ece2, roughness: 1, flatShading: true });
+    var earGroup = new THREE.Group();
+    var earTop = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.6), earMat);
+    earTop.position.y = 0.05;
+    earTop.scale.y = 1.1;
+    earGroup.add(earTop);
+    var earBand = new THREE.Mesh(new THREE.CylinderGeometry(0.213, 0.213, 0.06, 14, 1, true), furMat2);
+    earBand.position.y = 0.052;
+    earGroup.add(earBand);
+    [-1, 1].forEach(function (s2) {
+      var flap = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.19, 0.13), earMat);
+      flap.position.set(0.185 * s2, -0.045, 0.005);
+      flap.rotation.z = -0.14 * s2;
+      earGroup.add(flap);
+      var fur = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), furMat2);
+      fur.position.set(0.192 * s2, -0.145, 0.005);
+      earGroup.add(fur);
+    });
+    var earPom = new THREE.Mesh(new THREE.IcosahedronGeometry(0.058, 0), furMat2);
+    earPom.position.y = 0.285;
+    earGroup.add(earPom);
+    earGroup.visible = false;
+    head.add(earGroup);
+    hats.earflap = earGroup;
+
+    /* --- 안경 5종 --- */
     var glassesSet = {};
     angler.userData.glassesSet = glassesSet;
     var metalMat = new THREE.MeshStandardMaterial({ color: 0xc9a24a, roughness: 0.42, metalness: 0.45, flatShading: true });
@@ -4290,6 +4901,44 @@
     heartG.visible = false;
     head.add(heartG);
     glassesSet.heart = heartG;
+
+    // 스노우 고글 (넓은 렌즈 + 머리를 감는 밴드)
+    var goggleG = new THREE.Group();
+    var gLensMat = new THREE.MeshStandardMaterial({
+      color: 0xbfe4f6, roughness: 0.14, metalness: 0.45,
+      transparent: true, opacity: 0.92, depthWrite: false
+    });
+    var gFrameMat = new THREE.MeshStandardMaterial({ color: 0xe8eff7, roughness: 0.55, flatShading: true });
+    var gBandMat = new THREE.MeshStandardMaterial({ color: 0x2d3a4a, roughness: 0.85, flatShading: true });
+    // 밴드는 얼굴을 가로지르지 않고 양옆·뒤통수만 감싼다
+    [-1, 1].forEach(function (s3) {
+      var strap = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.062, 0.30), gBandMat);
+      strap.position.set(0.183 * s3, 0.042, 0.02);
+      strap.rotation.y = -0.08 * s3;
+      goggleG.add(strap);
+    });
+    var goggleBack = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.06, 0.026), gBandMat);
+    goggleBack.position.set(0, 0.045, 0.178);
+    goggleG.add(goggleBack);
+    var goggleFrame = new THREE.Mesh(new THREE.BoxGeometry(0.335, 0.15, 0.035), gFrameMat);
+    goggleFrame.position.set(0, 0.035, -0.198);
+    goggleFrame.rotation.x = 0.03;
+    goggleG.add(goggleFrame);
+    var goggleLens = new THREE.Mesh(new THREE.BoxGeometry(0.305, 0.118, 0.03), gLensMat);
+    goggleLens.position.set(0, 0.035, -0.214);
+    goggleLens.rotation.x = 0.03;
+    goggleG.add(goggleLens);
+    var goggleRim = new THREE.Mesh(new THREE.BoxGeometry(0.345, 0.026, 0.03), gFrameMat);
+    goggleRim.position.set(0, 0.102, -0.196);
+    goggleG.add(goggleRim);
+    var goggleGlint = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.022, 0.012),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 }));
+    goggleGlint.position.set(-0.03, 0.082, -0.228);
+    goggleGlint.rotation.z = -0.12;
+    goggleG.add(goggleGlint);
+    goggleG.visible = false;
+    head.add(goggleG);
+    glassesSet.goggles = goggleG;
 
     // 노란 우비 후드 (비 올 때만)
     var hood = new THREE.Group();
@@ -4382,6 +5031,134 @@
     cardiGroup.visible = false;
     torsoPivot.add(cardiGroup);
     topAcc.cardigan = cardiGroup;
+
+    // 겨울 패딩 — 가로로 누벼진 퀼팅 선 + 두툼한 목깃
+    var pufferGroup = new THREE.Group();
+    var pufferSeamMat = new THREE.MeshStandardMaterial({ color: 0x26375a, roughness: 0.95, flatShading: true });
+    [0.14, 0.28, 0.42, 0.56].forEach(function (yy) {
+      var seam = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.016, 0.02), pufferSeamMat);
+      seam.position.set(0, yy, -0.243);
+      pufferGroup.add(seam);
+    });
+    var pufferZip = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.5, 0.018), pufferSeamMat);
+    pufferZip.position.set(0, 0.36, -0.250);
+    pufferGroup.add(pufferZip);
+    var pufferCollar = new THREE.Mesh(new THREE.TorusGeometry(0.175, 0.052, 6, 14), new THREE.MeshStandardMaterial({ color: 0x24314c, roughness: 0.95, flatShading: true }));
+    pufferCollar.rotation.x = Math.PI / 2;
+    pufferCollar.position.y = 0.655;
+    pufferGroup.add(pufferCollar);
+    pufferGroup.visible = false;
+    torsoPivot.add(pufferGroup);
+    topAcc.puffer = pufferGroup;
+
+    // 낚시 베스트 풀세트 — 앞 주머니 · 루어 걸이 · 어깨 스트랩
+    var fishVestGroup = new THREE.Group();
+    var fvMat2 = new THREE.MeshStandardMaterial({ color: 0x6f5c33, roughness: 0.95, flatShading: true });
+    var fvMetal = new THREE.MeshStandardMaterial({ color: 0xd8d8c8, roughness: 0.35, metalness: 0.5, flatShading: true });
+    [-1, 1].forEach(function (s2) {
+      var pocket2 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.12, 0.035), fvMat2);
+      pocket2.position.set(0.115 * s2, 0.24, -0.225);
+      pocket2.rotation.y = 0.22 * s2;
+      fishVestGroup.add(pocket2);
+      var strap = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.34, 0.03), fvMat2);
+      strap.position.set(0.15 * s2, 0.47, -0.215);
+      strap.rotation.z = 0.18 * s2;
+      fishVestGroup.add(strap);
+    });
+    [0.36, 0.43, 0.50].forEach(function (yy, i2) {
+      var lure = new THREE.Mesh(new THREE.SphereGeometry(0.026, 6, 5), i2 === 1 ? fvMetal : new THREE.MeshStandardMaterial({ color: [0xd85a3a, 0x3a8ad8, 0xd8c23a][i2], roughness: 0.5, flatShading: true }));
+      lure.position.set(-0.14, yy, -0.245);
+      fishVestGroup.add(lure);
+    });
+    var fvZip = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.46, 0.025), fvMat2);
+    fvZip.position.set(0, 0.36, -0.248);
+    fishVestGroup.add(fvZip);
+    fishVestGroup.visible = false;
+    torsoPivot.add(fishVestGroup);
+    topAcc.fishvest = fishVestGroup;
+
+    // 하와이안 셔츠 — 꽃무늬 · 열린 깃
+    var hawaiiGroup = new THREE.Group();
+    var hawaiiMat = new THREE.MeshStandardMaterial({ color: 0x1f7d88, roughness: 0.9, flatShading: true });
+    var petalMat = new THREE.MeshStandardMaterial({ color: 0xf2d06a, roughness: 0.85, flatShading: true });
+    var petalMat2 = new THREE.MeshStandardMaterial({ color: 0xe8798f, roughness: 0.85, flatShading: true });
+    var flowers = [
+      [-0.13, 0.24, -0.238], [0.15, 0.31, -0.232], [0.02, 0.46, -0.248],
+      [-0.18, 0.50, -0.228], [0.20, 0.19, -0.222], [-0.05, 0.17, -0.240]
+    ];
+    flowers.forEach(function (p2, i2) {
+      var fl = new THREE.Mesh(new THREE.IcosahedronGeometry(0.045, 0), i2 % 2 ? petalMat2 : petalMat);
+      fl.position.set(p2[0], p2[1], p2[2]);
+      fl.scale.set(1, 1, 0.55);
+      hawaiiGroup.add(fl);
+    });
+    [-1, 1].forEach(function (s2) {
+      var lapel = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.22, 0.028), hawaiiMat);
+      lapel.position.set(0.075 * s2, 0.545, -0.238);
+      lapel.rotation.z = 0.32 * s2;
+      hawaiiGroup.add(lapel);
+    });
+    hawaiiGroup.visible = false;
+    torsoPivot.add(hawaiiGroup);
+    topAcc.hawaiian = hawaiiGroup;
+
+    // 스트라이프 니트 — 굵은 가로 줄 · 둥근 목선
+    var stripeGroup = new THREE.Group();
+    var stripeMat = new THREE.MeshStandardMaterial({ color: 0xf0f4f7, roughness: 0.95, flatShading: true });
+    [0.12, 0.26, 0.40, 0.54].forEach(function (yy) {
+      var band2 = new THREE.Mesh(new THREE.CylinderGeometry(0.268 - yy * 0.055, 0.276 - yy * 0.05, 0.055, 7, 1, true), stripeMat);
+      band2.position.set(0, yy, 0);
+      stripeGroup.add(band2);
+    });
+    var knitCollar = new THREE.Mesh(new THREE.TorusGeometry(0.128, 0.036, 6, 14), stripeMat);
+    knitCollar.rotation.x = Math.PI / 2;
+    knitCollar.position.y = 0.665;
+    stripeGroup.add(knitCollar);
+    stripeGroup.visible = false;
+    torsoPivot.add(stripeGroup);
+    topAcc.stripeknit = stripeGroup;
+
+    // 레인저 점퍼 — 견장 · 큰 가슴 주머니 · 지퍼
+    var rangerGroup = new THREE.Group();
+    var rangerMat = new THREE.MeshStandardMaterial({ color: 0x54462c, roughness: 0.95, flatShading: true });
+    [-1, 1].forEach(function (s2) {
+      var ep = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.028, 0.05), rangerMat);
+      ep.position.set(0.2 * s2, 0.60, 0.02);
+      ep.rotation.z = 0.12 * s2;
+      rangerGroup.add(ep);
+      var pet = new THREE.Mesh(new THREE.BoxGeometry(0.155, 0.135, 0.035), rangerMat);
+      pet.position.set(0.115 * s2, 0.30, -0.228);
+      rangerGroup.add(pet);
+      var flap2 = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.035, 0.042), rangerMat);
+      flap2.position.set(0.115 * s2, 0.355, -0.230);
+      rangerGroup.add(flap2);
+    });
+    var rangerZip = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.5, 0.028), new THREE.MeshStandardMaterial({ color: 0x9a8a62, roughness: 0.4, metalness: 0.4 }));
+    rangerZip.position.set(0, 0.35, -0.252);
+    rangerGroup.add(rangerZip);
+    rangerGroup.visible = false;
+    torsoPivot.add(rangerGroup);
+    topAcc.ranger = rangerGroup;
+
+    // 코지 후리스 — 복슬 목깃 · 지퍼 · 앞 주머니
+    var fleeceGroup = new THREE.Group();
+    var fleeceMat = new THREE.MeshStandardMaterial({ color: 0xf0e6da, roughness: 1, flatShading: true });
+    var fleeceCollar = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.052, 6, 14), fleeceMat);
+    fleeceCollar.rotation.x = Math.PI / 2;
+    fleeceCollar.position.y = 0.66;
+    fleeceGroup.add(fleeceCollar);
+    [-1, 1].forEach(function (s2) {
+      var hp = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.075, 0.03), new THREE.MeshStandardMaterial({ color: 0xdccabb, roughness: 1, flatShading: true }));
+      hp.position.set(0.135 * s2, 0.20, -0.228);
+      hp.rotation.y = 0.2 * s2;
+      fleeceGroup.add(hp);
+    });
+    var fleeceZip = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.48, 0.026), new THREE.MeshStandardMaterial({ color: 0xc8b6a4, roughness: 0.6, flatShading: true }));
+    fleeceZip.position.set(0, 0.34, -0.252);
+    fleeceGroup.add(fleeceZip);
+    fleeceGroup.visible = false;
+    torsoPivot.add(fleeceGroup);
+    topAcc.fleece = fleeceGroup;
 
     // 왼팔 — 허벅지에 얹은 자세
     var leftShoulderPivot = new THREE.Group();
@@ -4499,6 +5276,7 @@
   /* ---------- 낚시꾼 모션: 앉기 · 우비/파라솔 · 입질 · 졸음 ---------- */
   function heavyFish(fish) {
     if (!fish) return false;
+    if (fish.isDud) return false;
     if (fish.kind === "turtle") return true;   // 거북·자라·바다거북은 모두 묵직하게 당긴다
     return fish.rarity === "rare" || fish.rarity === "legendary" ||
       fish.rarity === "hidden" || fish.max >= 80;
@@ -4542,7 +5320,7 @@
       });
     }
     if (u.armL && u.armR) {
-      var armMatNow = (dress && u.topId === "vest") ? u.skinMat : u.jacketMat;
+      var armMatNow = (dress && SLEEVELESS_TOPS[u.topId]) ? u.skinMat : u.jacketMat;
       if (u.armL.material !== armMatNow) {
         u.armL.material = armMatNow;
         u.armR.material = armMatNow;
@@ -4858,6 +5636,65 @@
     if (rainRippleMesh.instanceColor) rainRippleMesh.instanceColor.needsUpdate = true;
   }
 
+  /* ---------- ❄️ 눈: 3D 눈송이 파티클 + 강둑 설경 레이어 ---------- */
+  var snowMesh = null, snowFlakes = [], snowDummy = null;
+  var snowCover = null, snowCoverMat = null;
+  var SNOW_N = 720;
+
+  function buildSnow() {
+    var geo = new THREE.IcosahedronGeometry(0.05, 0);
+    var mat = new THREE.MeshStandardMaterial({
+      color: 0xf4f9ff, roughness: 0.5, metalness: 0.0,
+      emissive: 0x8fb8dd, emissiveIntensity: 0.45, flatShading: true,
+      transparent: true, opacity: 0, depthWrite: false
+    });
+    snowMesh = new THREE.InstancedMesh(geo, mat, SNOW_N);
+    snowMesh.frustumCulled = false;
+    snowMesh.visible = false;
+    snowMesh.renderOrder = 4;
+    snowDummy = new THREE.Object3D();
+    for (var i = 0; i < SNOW_N; i++) {
+      snowFlakes.push({
+        x: rand(-30, 30), y: rand(0, 24), z: rand(-48, 14),
+        sp: rand(0.55, 1.45), sw: rand(0.35, 1.5), ph: rand(0, 6.28), s: rand(0.45, 1.2)
+      });
+      snowDummy.position.set(0, -60, 0);
+      snowDummy.scale.setScalar(0.001);
+      snowDummy.updateMatrix();
+      snowMesh.setMatrixAt(i, snowDummy.matrix);
+    }
+    scene.add(snowMesh);
+  }
+
+  function updateSnow(dt) {
+    if (!snowMesh) return;
+    var k = clamp(weather.snow || 0, 0, 1);
+    var on = k > 0.02;
+    snowMesh.visible = on;
+    if (!on) { snowMesh.material.opacity = 0; return; }
+    snowMesh.material.opacity = 0.9 * k;
+    var t = sceneTime;
+    for (var i = 0; i < snowFlakes.length; i++) {
+      var f = snowFlakes[i];
+      f.y -= f.sp * dt;
+      f.x += Math.sin(t * 0.8 + f.ph) * f.sw * dt * 0.95 + 0.2 * dt;
+      f.z += Math.cos(t * 0.52 + f.ph) * f.sw * dt * 0.4;
+      if (f.y < -0.2) {
+        f.y = rand(16, 24);
+        f.x = rand(-30, 30);
+        f.z = rand(-48, 14);
+      }
+      if (f.x > 30) f.x = -30;
+      if (f.z > 14) f.z = -48;
+      snowDummy.position.set(f.x, f.y, f.z);
+      snowDummy.rotation.set(f.ph + t * 0.4, f.ph * 0.6 + t * 0.3, f.ph * 0.2);
+      snowDummy.scale.setScalar(f.s * (0.55 + 0.45 * k));
+      snowDummy.updateMatrix();
+      snowMesh.setMatrixAt(i, snowDummy.matrix);
+    }
+    snowMesh.instanceMatrix.needsUpdate = true;
+  }
+
   /* =====================================================================
      8. 분위기 적용
      ===================================================================== */
@@ -4870,6 +5707,7 @@
     var rainK = weather ? clamp(weather.rain, 0, 1) : 0;
     var fogK = weather ? clamp(weather.fog, 0, 1) : 0;
     var stormK = weather ? clamp(weather.storm || 0, 0, 1) : 0;
+    var snowK = weather ? clamp(weather.snow || 0, 0, 1) : 0;
     var flashK = weather ? clamp(weather.flash || 0, 0, 1) : 0;
     var nightF = clamp(m.starOpacity, 0, 1);
 
@@ -4887,6 +5725,12 @@
       wHor = mix3(wHor, mix3([0.15, 0.17, 0.23], [0.04, 0.05, 0.08], nightF), stormK * 0.86);
       wFogColor = mix3(wFogColor, mix3([0.13, 0.15, 0.21], [0.05, 0.06, 0.10], nightF), stormK * 0.9);
     }
+    // 눈: 하늘·안개를 차분한 겨울 회백색으로
+    if (snowK > 0.002) {
+      wTop = mix3(wTop, mix3([0.28, 0.41, 0.60], [0.07, 0.12, 0.21], nightF), snowK * 0.88);
+      wHor = mix3(wHor, mix3([0.76, 0.84, 0.93], [0.15, 0.21, 0.31], nightF), snowK * 0.9);
+      wFogColor = mix3(wFogColor, mix3([0.74, 0.81, 0.90], [0.14, 0.20, 0.29], nightF), snowK * 0.86);
+    }
     // 번개 섬광 — 하늘과 지면이 순간적으로 밝아진다
     if (flashK > 0.002) {
       var fl = flashK * 0.55;
@@ -4903,9 +5747,9 @@
       wFogColor = mix3(wFogColor, fogBody, fogK * 0.9);
     }
 
-    var sunO = m.sunOpacity * (1 - 0.72 * rainK) * (1 - 0.62 * fogK) * (1 - 0.4 * stormK);
-    var moonO = m.moonOpacity * (1 - 0.55 * rainK) * (1 - 0.35 * fogK) * (1 - 0.45 * stormK);
-    var starO = m.starOpacity * (1 - 0.9 * rainK) * (1 - 0.55 * fogK) * (1 - 0.75 * stormK);
+    var sunO = m.sunOpacity * (1 - 0.72 * rainK) * (1 - 0.62 * fogK) * (1 - 0.4 * stormK) * (1 - 0.42 * snowK);
+    var moonO = m.moonOpacity * (1 - 0.55 * rainK) * (1 - 0.35 * fogK) * (1 - 0.45 * stormK) * (1 - 0.26 * snowK);
+    var starO = m.starOpacity * (1 - 0.9 * rainK) * (1 - 0.55 * fogK) * (1 - 0.75 * stormK) * (1 - 0.82 * snowK);
 
     // 하늘
     skyMat.uniforms.uTop.value.setRGB(wTop[0], wTop[1], wTop[2]);
@@ -4942,9 +5786,20 @@
       fNear = lerp(fNear, fNear * 0.72, stormK);
       fFar = lerp(fFar, fFar * 0.62, stormK);
     }
+    if (snowK > 0.002) {
+      fNear = lerp(fNear, fNear * 0.86, snowK);
+      fFar = lerp(fFar, fFar * 0.74, snowK);
+    }
     scene.fog.color.setRGB(wFogColor[0], wFogColor[1], wFogColor[2]);
     scene.fog.near = fNear;
     scene.fog.far = fFar;
+
+    // 강둑 설경 레이어 — 눈이 올 때만 하얗게 덮인다
+    if (snowCover && snowCoverMat) {
+      var coverOp = 0.9 * snowK;
+      snowCover.visible = coverOp > 0.02;
+      snowCoverMat.opacity = coverOp;
+    }
 
     // 조명
     var sunPower = m.sunIntensity / 1100;
@@ -4955,10 +5810,11 @@
       (1 - 0.4 * rainK) * (1 - 0.26 * fogK) * (1 - 0.22 * stormK) * (1 + 2.6 * flashK);
 
     var amb = mix3(m.ambient, [0.48, 0.54, 0.62], rainK * 0.4);
+    if (snowK > 0.002) amb = mix3(amb, [0.68, 0.74, 0.85], snowK * 0.6);
     hemiLight.color.setRGB(amb[0], amb[1], amb[2]);
     hemiLight.groundColor.setRGB(0.14 + amb[0] * 0.12, 0.18 + amb[1] * 0.15, 0.11);
     hemiLight.intensity = (0.14 + 0.42 * (m.ambientIntensity / 460)) * (1 - 0.16 * rainK) *
-      (1 - 0.18 * stormK) * (1 + 1.5 * flashK);
+      (1 - 0.18 * stormK) * (1 + 1.5 * flashK) * (1 + 0.2 * snowK);
 
     fillLight.color.setRGB(
       clamp(amb[0] * 1.05, 0, 1),
@@ -4969,6 +5825,9 @@
 
     // 물
     var waterDeep = rainK > 0.002 ? mix3(m.water, [m.water[0] * 0.62, m.water[1] * 0.66, m.water[2] * 0.7], rainK) : m.water;
+    if (snowK > 0.002) {
+      waterDeep = mix3(waterDeep, [waterDeep[0] * 0.82 + 0.07, waterDeep[1] * 0.86 + 0.09, waterDeep[2] * 0.9 + 0.12], snowK);
+    }
     waterUniforms.uDeep.value.setRGB(waterDeep[0], waterDeep[1], waterDeep[2]);
     waterUniforms.uShallow.value.setRGB(
       clamp(waterDeep[0] * 1.5 + wHor[0] * 0.16, 0, 1),
@@ -5037,17 +5896,18 @@
     }
 
     // 반딧불이 (밤 · 비가 오지 않을 때만) / 구름 / 안개
-    fireflies.material.opacity = clamp((starO - 0.32) / 0.6, 0, 1) * 0.95 * (1 - 0.92 * rainK);
+    fireflies.material.opacity = clamp((starO - 0.32) / 0.6, 0, 1) * 0.95 * (1 - 0.92 * rainK) * (1 - 0.85 * snowK);
     cloudGroup.children.forEach(function (c) {
       c.material.opacity = 0.10 + 0.30 * (1 - nightF) + 0.34 * rainK + 0.18 * stormK;
       var cg = mix3([0.55 + wHor[0] * 0.45, 0.58 + wHor[1] * 0.45, 0.62 + wHor[2] * 0.45],
         [0.34, 0.37, 0.42], rainK * 0.55);
       cg = mix3(cg, [0.20, 0.22, 0.29], stormK * 0.8);
       cg = mix3(cg, [0.72, 0.77, 0.90], flashK * 0.55);
+      cg = mix3(cg, [0.84, 0.88, 0.95], snowK * 0.45);
       c.material.color.setRGB(clamp(cg[0], 0, 1), clamp(cg[1], 0, 1), clamp(cg[2], 0, 1));
     });
     mistGroup.children.forEach(function (sp) {
-      sp.material.opacity = clamp(0.34 * (m.fogMist || 0) + 0.46 * fogK + 0.16 * rainK, 0, 0.85);
+      sp.material.opacity = clamp(0.34 * (m.fogMist || 0) + 0.46 * fogK + 0.16 * rainK + 0.07 * snowK, 0, 0.85);
       sp.material.color.setRGB(
         clamp(0.6 + wHor[0] * 0.4, 0, 1),
         clamp(0.66 + wHor[1] * 0.4, 0, 1),
@@ -5159,11 +6019,15 @@
         closeDex();
         closeShop();
         closeDrink();
+        closeMissions();
+        closeCharView();
+        closeShareCard();
       }
     });
   }
 
   function updateCamera(dt) {
+    if (charView.open && angler) { updateCharCamera(dt); return; }
     cam.yaw += (cam.yawTarget - cam.yaw) * Math.min(1, dt * 6);
     cam.pitch += (cam.pitchTarget - cam.pitch) * Math.min(1, dt * 6);
     cam.dist += (cam.distTarget - cam.dist) * Math.min(1, dt * 6);
@@ -5255,6 +6119,7 @@
 
   function handleTap(clientX, clientY) {
     if (!state.started) return;
+    if (charView.open) return;
     if (el.dexModal.classList.contains("open")) return;
     if (el.shopModal.classList.contains("open")) return;
     if (el.drinkModal.classList.contains("open")) return;
@@ -5381,6 +6246,11 @@
     // 입질 때 미리 뽑아 둔 어종이 있으면 그것을 올린다 (없으면 지금 뽑는다)
     var fish = state.biteFish || rollFish(currentBand(), currentRareMul());
     state.biteFish = null;
+    // 0.05% 꽝 — 어종 도감(210종)과 완전히 분리된 결과로 처리한다
+    if (fish && fish.isDud) {
+      landDud(fish, manual);
+      return;
+    }
     state.biteHeavy = heavyFish(fish);
     var bonus = (manual ? 1.12 : 1.0) * bigBonus;
     var len = Math.min(fish.max, Math.round(rollLength(fish) * bonus * 10) / 10);
@@ -5397,14 +6267,14 @@
       rec.lastAt = now;
     } else {
       isBest = true;
-      book.records[fish.id] = { count: 1, longest: len, firstAt: now, lastAt: now };
+      book.records[fish.id] = { count: 1, longest: len, firstAt: now, lastAt: now, freshAt: now };
     }
     saveBook();
     updateDexBadge();
 
     // 코인 획득 (등급 × 크기 비례)
     var sizeK = clamp((len - fish.min) / Math.max(1, fish.max - fish.min), 0, 1);
-    var earned = Math.max(1, Math.round(
+    var earned = Math.max(2, Math.round(
       COIN_BASE[fish.rarity] * (0.7 + 1.1 * sizeK) * bait.coinMul * (bigBuff ? 1.25 : 1)
     ));
     economy.coins += earned;
@@ -5413,7 +6283,7 @@
     // 오늘의 미션 진행 (낚시 횟수 · 코인 · 밤/비 어종)
     missionAdd("catch", 1);
     missionAdd("coin", earned);
-    if (currentBand() === "night" || isWetWeather()) missionAdd("special", 1);
+    if (currentBand() === "night" || isWetWeather() || isSnowing()) missionAdd("special", 1);
 
     // 장착 미끼 소모 (다 쓰면 일반 떡밥으로)
     if (economy.baits[economy.bait] > 0) {
@@ -5444,6 +6314,65 @@
     if (manual) flashNotice("완벽한 타이밍! 조금 더 큰 개체가 올라왔어요");
   }
 
+  /* ---------- 0.05% 꽝 처리 ---------- */
+  function landDud(dud, manual) {
+    if (!economy.duds) economy.duds = { total: 0, kinds: {}, firstAt: 0 };
+    economy.duds.total += 1;
+    economy.duds.kinds[dud.dudId] = (economy.duds.kinds[dud.dudId] || 0) + 1;
+    if (!economy.duds.firstAt) economy.duds.firstAt = Date.now();
+    var gain = dud.dudCoins || 0;
+    if (gain > 0) {
+      economy.coins += gain;
+      economy.totalEarned += gain;
+    }
+    spendHP(manual ? 4 : 2);
+    saveEconomy();
+    updateHUD();
+    if (el.coinPill && gain > 0) {
+      el.coinPill.classList.remove("pulse");
+      void el.coinPill.offsetWidth;
+      el.coinPill.classList.add("pulse");
+    }
+
+    var first = economy.duds.total === 1;
+    state.lastCatch = { fish: dud, len: 0, isNew: false, isBest: false, manual: !!manual, coins: gain, dud: true };
+    setPhase("caught");
+    el.biteBanner.classList.remove("on");
+    spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 1.6, 1.2, 0.4);
+    soundDud();
+    showDudToast(dud, first);
+    updateMissionBadge();
+    renderMissionsIfOpen();
+    if (first) flashNotice("🥫 0.05%의 기적 · 꽝을 처음 건졌어요! 업적이 열렸어요");
+    return true;
+  }
+
+  function soundDud() {
+    if (typeof Sound === "undefined" || !Sound.enabled) return;
+    try {
+      Sound.miss();
+      setTimeout(function () { Sound.canDrop(); }, 260);
+    } catch (err) { /* 무시 */ }
+  }
+
+  function showDudToast(dud, first) {
+    el.toast.style.setProperty("--fish", "#a9b8c8");
+    el.toast.classList.add("dud");
+    el.toast.innerHTML =
+      '<div class="toast-fish dud-ico">' + dud.emoji + '</div>' +
+      '<div class="toast-body">' +
+        '<div class="toast-name">' + dud.name + ' <span style="color:#a9b8c8;font-weight:800">꽝</span></div>' +
+        '<div class="toast-meta dud-note">' + (dud.short || dud.note) + '</div>' +
+      '</div>' +
+      (dud.dudCoins > 0 ? '<div class="toast-coin">+' + dud.dudCoins + ' 🪙</div>' : '');
+    el.toast.classList.add("show");
+    flashNotice("🥫 꽝! " + dud.name + "을(를) 건졌어요...");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      el.toast.classList.remove("show", "dud");
+    }, 5200);
+  }
+
   /* ---------- 토스트 ---------- */
   var toastTimer = null;
 
@@ -5456,13 +6385,23 @@
     el.toast.innerHTML =
       '<div class="toast-fish">' + fishSVG(f) + '</div>' +
       '<div class="toast-body">' +
-        '<div class="toast-name">' + f.name + ' <span style="color:' + rar.color + ';font-weight:800">' + result.len.toFixed(1) + 'cm</span></div>' +
+        '<div class="toast-name">' +
+          '<span class="name-ico" style="color:' + (f.color || "#9fc0d4") + '">' + fishSVG(f) + '</span>' +
+          f.name + ' <span style="color:' + rar.color + ';font-weight:800">' + result.len.toFixed(1) + 'cm</span>' +
+          (result.isNew ? '<span class="new-tag">NEW</span>' : '') +
+        '</div>' +
         '<div class="toast-meta">' + '★'.repeat(rar.stars) + ' ' + rar.label + ' · ' +
-          (f.rarity === "hidden" ? "🌧️" : BANDS[currentBand()].name + (isRaining() ? " · 🌧️" : "")) + '</div>' +
+          (f.rarity === "hidden" && f.hiddenWx && HIDDEN_WX_INFO[f.hiddenWx]
+            ? HIDDEN_WX_INFO[f.hiddenWx].icon + ' ' + HIDDEN_WX_INFO[f.hiddenWx].label + ' 히든'
+            : BANDS[currentBand()].name + (isRaining() ? " · 🌧️" : (isSnowing() ? " · ❄️" : ""))) + '</div>' +
       '</div>' +
-      '<div class="toast-badge">' + badge + '</div>' +
-      '<div class="toast-coin">+' + result.coins + ' 🪙</div>';
+      '<div class="toast-badge' + (result.isNew ? " new" : "") + '">' + badge + '</div>' +
+      '<div class="toast-coin">+' + result.coins + ' 🪙</div>' +
+      (f.rarity === "hidden" && f.hiddenWx
+        ? '<button class="toast-share" data-share="' + f.id + '">📸 공유</button>'
+        : '');
 
+    el.toast.classList.remove("dud");
     el.toast.classList.add("show");
     if (el.coinPill) {
       el.coinPill.classList.remove("pulse");
@@ -5470,9 +6409,10 @@
       el.coinPill.classList.add("pulse");
     }
     if (toastTimer) clearTimeout(toastTimer);
+    var toastLife = (f.rarity === "hidden" && f.hiddenWx) ? 6500 : 3400;
     toastTimer = setTimeout(function () {
       el.toast.classList.remove("show");
-    }, 3400);
+    }, toastLife);
   }
 
   var noticeTimer = null;
@@ -5570,9 +6510,364 @@
     }
   };
 
-  function fishSVG(f) {
-    var shape = FISH_SHAPES[f.kind] || FISH_SHAPES.fish;
-    return '<svg viewBox="0 0 72 36" aria-hidden="true" focusable="false">' + shape() + '</svg>';
+  /* ---------------------------------------------------------------------
+     어종별 디테일 SVG 일러스트 (낚시 성공 팝업 · 도감 · 공유 카드)
+     — 실루엣(FISH_SHAPES)은 미수집 카드용으로 남기고, 수집된 어종은
+       등-배 명암 그라데이션 · 지느러미 결 · 비늘/줄무늬 패턴 · 눈 하이라이트로
+       종류별 특성을 살려 그린다. defs id는 매번 새로 만들어 겹치지 않게 한다.
+     --------------------------------------------------------------------- */
+  var ART_SEQ = 0;
+  var ART_PATTERNS = ["none", "stripes", "spots", "lateral", "speckles"];
+
+  function artShade(hex, k) {
+    var c = hexToRgb(hex);
+    var target = k < 0 ? 0 : 255;
+    var p = Math.min(1, Math.abs(k));
+    function f(v) { return Math.round(v + (target - v) * p); }
+    return "rgb(" + f(c.r) + "," + f(c.g) + "," + f(c.b) + ")";
+  }
+
+  function artLum(hex) {
+    var c = hexToRgb(hex);
+    return (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) / 255;
+  }
+
+  function speciesPattern(f) {
+    if (f.pattern) return f.pattern;
+    var k = f.kind || "fish";
+    // 종류별 기본 패턴 — 지느러미 모양·몸 구조에 어울리는 무늬
+    if (k === "ray") return "spots";
+    if (k === "eel") return "lateral";
+    if (k === "shrimp") return "stripes";
+    if (k === "crab") return "speckles";
+    if (k === "squid" || k === "octopus" || k === "jellyfish") return "spots";
+    if (k === "clam" || k === "snail" || k === "turtle") return "none";
+    var h = 7;
+    var id = String(f.id || f.name || "x");
+    for (var i = 0; i < id.length; i++) h = (h * 33 + id.charCodeAt(i)) % 100003;
+    return ART_PATTERNS[h % ART_PATTERNS.length];
+  }
+
+  function artPattern(pat, color) {
+    var i, s = "";
+    if (pat === "stripes") {
+      for (i = 0; i < 7; i++) {
+        s += '<rect x="' + (17 + i * 5.4).toFixed(1) + '" y="0" width="1.7" height="36" fill="' + color + '" opacity="0.3"/>';
+      }
+      return s;
+    }
+    if (pat === "spots") {
+      var spots = [[20, 12], [26.5, 20], [33, 10.5], [39, 22], [46, 14], [30, 26.5], [44, 27.5], [24, 28], [48, 20]];
+      return spots.map(function (p) {
+        return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.55" fill="' + color + '" opacity="0.32"/>';
+      }).join("");
+    }
+    if (pat === "lateral") {
+      return '<path d="M13 17.6 C24 15.4 38 15.7 52 18" stroke="' + color + '" stroke-width="1.6" fill="none" opacity="0.36" stroke-linecap="round"/>' +
+        '<path d="M13 17.6 C24 15.4 38 15.7 52 18" stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.22" stroke-linecap="round"/>';
+    }
+    if (pat === "speckles") {
+      for (i = 0; i < 26; i++) {
+        var px = 11 + (i * 7.3) % 46;
+        var py = 6 + (i * 11.7) % 24;
+        s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="' + (0.55 + (i % 3) * 0.2).toFixed(2) + '" fill="' + color + '" opacity="0.34"/>';
+      }
+      return s;
+    }
+    return "";
+  }
+
+  function artScales(color) {
+    var s = "";
+    for (var r = 0; r < 5; r++) {
+      for (var c = 0; c < 9; c++) {
+        var x = 12 + c * 5.1 + (r % 2 ? 2.5 : 0);
+        var y = 9 + r * 4.4;
+        s += '<path d="M' + x.toFixed(1) + ' ' + y.toFixed(1) + ' q2.6 2.4 0 4.6" stroke="' + color +
+          '" stroke-width="0.45" fill="none" opacity="0.26"/>';
+      }
+    }
+    return s;
+  }
+
+  function artEye(cx, cy, r, line) {
+    return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="#f8fbff" stroke="' + line + '" stroke-width="0.32"/>' +
+      '<circle cx="' + (cx - 0.35) + '" cy="' + (cy + 0.2) + '" r="' + (r * 0.56).toFixed(2) + '" fill="#131c28"/>' +
+      '<circle cx="' + (cx - r * 0.42) + '" cy="' + (cy - r * 0.4) + '" r="' + (r * 0.22).toFixed(2) + '" fill="#ffffff"/>' +
+      '<circle cx="' + (cx + r * 0.22) + '" cy="' + (cy + r * 0.3) + '" r="' + (r * 0.11).toFixed(2) + '" fill="#ffffff" opacity="0.7"/>';
+  }
+
+  function artClip(kind) {
+    switch (kind) {
+      case "turtle":
+        return '<path d="M18 11 C23 5 31 3 38 5 C46 7 52 12 53 18 C52 24 46 29 38 31 C31 33 23 31 18 25 C16 21 16 15 18 11 Z"/>';
+      case "clam":
+        return '<path d="M8 25 C10 12 22 4 36 4 C50 4 62 12 64 25 C50 30 22 30 8 25 Z"/>';
+      case "crab":
+        return '<ellipse cx="36" cy="20" rx="15" ry="9.6"/>';
+      case "jellyfish":
+        return '<path d="M12 20 C12 9.6 23 3 36 3 C49 3 60 9.6 60 20 C50 24.4 22 24.4 12 20 Z"/>';
+      case "squid":
+        return '<path d="M50 17 C50 10 44 5 36 5 C28 5 22 10 22 17 C22 24 28 28 36 28 C44 28 50 24 50 17 Z"/>';
+      case "octopus":
+        return '<ellipse cx="38" cy="13" rx="15" ry="10.5"/>';
+      case "shrimp":
+        return '<path d="M17 25 C19 13 37 6 49 11 C57 14 59 20 54 24 C43 31 25 31 17 25 Z"/>';
+      case "snail":
+        return '<circle cx="28" cy="17" r="13.5"/>';
+      case "ray":
+        return '<path d="M10 18.5 C22 8.5 48 7.5 62 16 C58 22 46 26 34 26.5 C24 26 15 23.5 10 18.5 Z"/>';
+      default:
+        return '<path d="M6 18 C6 18 14 5.6 30 5.6 C45 5.6 53 12 55 18 C53 24 45 30.4 30 30.4 C14 30.4 6 18 6 18 Z"/>';
+    }
+  }
+
+  function artBody(kind, o) {
+    var g = o.gBody, gf = o.gFin, gh = o.gHi, clip = o.clip, line = o.line, patCol = o.patCol, pat = o.pat;
+    var body, fins, face, extras;
+
+    if (kind === "turtle") {
+      body = '<path d="M18 11 C23 5 31 3 38 5 C46 7 52 12 53 18 C52 24 46 29 38 31 C31 33 23 31 18 25 C16 21 16 15 18 11 Z" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.85"/>';
+      // 등껍질 육각 무늬
+      var hex = "";
+      var hexes = [[26, 12], [34, 10.5], [42, 13], [24, 19], [32, 18], [40, 20], [47, 22], [28, 26], [36, 26], [44, 26.5]];
+      hexes.forEach(function (p) {
+        hex += '<path d="M' + p[0] + ' ' + (p[1] - 3.1) + ' l2.7 1.6 v3.2 l-2.7 1.6 l-2.7 -1.6 v-3.2 z" fill="' +
+          (o.lum > 0.74 ? "none" : artShade(o.base, -0.1)) + '" stroke="' + line + '" stroke-width="0.6" opacity="0.7"/>';
+      });
+      fins =
+        '<path d="M6 12 C10 9 15 9 18 12 C15 15 10 15 6 12 Z" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.3"/>' +
+        '<path d="M9 25 C13 28 18 28 21 24 C18 21 13 21 9 25 Z" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.3"/>' +
+        '<path d="M9.5 12.4 L15 12.6 M11.4 24.2 L15.6 23.2" stroke="' + line + '" stroke-width="0.35" opacity="0.45"/>' +
+        '<path d="M53 13 C57 10 62 9 67 11 C62 15 58 16 54 17 Z" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.3"/>' +
+        '<path d="M12 11.5 l3.4 1.4 M11 24.4 l3.6 -1.2" stroke="' + line + '" stroke-width="0.4" opacity="0.45"/>';
+      face =
+        '<circle cx="60.4" cy="12.6" r="1.5" fill="#f8fbff"/><circle cx="60.2" cy="12.8" r="0.85" fill="#131c28"/>' +
+        '<circle cx="59.8" cy="12.3" r="0.32" fill="#ffffff"/>' +
+        '<path d="M55.6 11.4 C57 10.6 58.4 10.8 59.2 11.6" stroke="' + line + '" stroke-width="0.35" fill="none" opacity="0.5"/>';
+      extras = '<g clip-path="url(#' + clip + ')">' + hex +
+        '<ellipse cx="33" cy="9" rx="14" ry="4" fill="url(#' + gh + ')"/>' +
+        '<path d="M20 26 C28 31 46 31 52 24" stroke="#ffffff" stroke-width="1.1" fill="none" opacity="0.22"/></g>';
+      return body + extras + fins + face;
+    }
+
+    if (kind === "jellyfish") {
+      body = '<path d="M12 20 C12 9.6 23 3 36 3 C49 3 60 9.6 60 20 C50 24.4 22 24.4 12 20 Z" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.45" opacity="0.92"/>';
+      fins =
+        '<path d="M20 22.5 C19 27 21 30 20 34 M28 23.5 C27 28 29 31 28 34.5 M36 23.5 C35 29 37 31.5 36 35 M44 23.5 C43 28 45 31 44 34.5 M52 22.5 C51 27 53 30 52 33.5" stroke="' +
+        artShade(o.base, 0.3) + '" stroke-width="1.7" fill="none" stroke-linecap="round" opacity="0.8"/>' +
+        '<path d="M23 22 C22 27 24 30 23 33 M31 23 C30 28 32 31 31 34 M39 23 C38 28 40 31 39 34 M47 22.5 C46 27 48 30 47 33" stroke="#ffffff" stroke-width="0.5" fill="none" stroke-linecap="round" opacity="0.35"/>';
+      face =
+        '<ellipse cx="29" cy="15" rx="2.4" ry="2.8" fill="#1b2432" opacity="0.55"/>' +
+        '<ellipse cx="43" cy="15" rx="2.4" ry="2.8" fill="#1b2432" opacity="0.55"/>' +
+        '<circle cx="28.4" cy="14.2" r="0.7" fill="#ffffff" opacity="0.8"/>' +
+        '<circle cx="42.4" cy="14.2" r="0.7" fill="#ffffff" opacity="0.8"/>';
+      extras = '<g clip-path="url(#' + clip + ')">' +
+        '<path d="M22 12.5 C25 8.5 30.5 6.2 36 6.2" stroke="#ffffff" stroke-width="2.1" fill="none" stroke-linecap="round" opacity="0.45"/>' +
+        '<ellipse cx="36" cy="19" rx="16" ry="4.4" fill="url(#' + gh + ')"/>' +
+        '<ellipse cx="36" cy="13" rx="6" ry="3.4" fill="#ffffff" opacity="0.16"/>' +
+        '</g>';
+      return body + extras + fins + face;
+    }
+
+    if (kind === "squid") {
+      body = '<path d="M50 17 C50 10 44 5 36 5 C28 5 22 10 22 17 C22 24 28 28 36 28 C44 28 50 24 50 17 Z" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.5"/>';
+      fins =
+        '<path d="M22 12 L8 6 L14 15 Z M22 22 L8 28 L14 19 Z" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.3"/>' +
+        '<path d="M50 15 C57 14 63 17 64 22 M50 19 C56 20 60 24 60 29 M50 22 C54 26 54 31 50 33" stroke="' + artShade(o.base, 0.25) + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+        '<g fill="' + artShade(o.base, -0.4) + '" opacity="0.55">' +
+          '<circle cx="56" cy="15.6" r="0.6"/><circle cx="59" cy="16.8" r="0.6"/><circle cx="61.4" cy="18.6" r="0.6"/>' +
+          '<circle cx="55" cy="21" r="0.6"/><circle cx="57.4" cy="23.2" r="0.6"/><circle cx="58.6" cy="26" r="0.6"/>' +
+        '</g>';
+      face = artEye(44, 15.4, 2.6, line) +
+        '<path d="M47 22 C44 24 40 24.6 37 24" stroke="' + line + '" stroke-width="0.4" fill="none" opacity="0.35"/>';
+      extras = '<g clip-path="url(#' + clip + ')">' +
+        '<ellipse cx="32" cy="9.5" rx="10" ry="3.4" fill="url(#' + gh + ')"/>' +
+        artPattern(pat === "none" ? "spots" : pat, o.patCol) +
+        '<path d="M26 24 C32 27 40 27 46 23" stroke="#ffffff" stroke-width="0.9" fill="none" opacity="0.2"/>' +
+        '</g>';
+      return body + extras + fins + face;
+    }
+
+    if (kind === "octopus") {
+      body = '<ellipse cx="38" cy="13" rx="15" ry="10.5" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.5"/>';
+      fins =
+        '<path d="M27 22 C23 30 17 32 13 29 M33 24 C31 32 27 35 23 34 M41 24 C41 32 37 35 33 34 M49 23 C51 31 49 34 45 34 M55 20 C60 27 63 29 67 28" stroke="url(#' + gf + ')" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+        '<g fill="' + artShade(o.base, -0.35) + '" opacity="0.5">' +
+          '<circle cx="26" cy="26.5" r="0.55"/><circle cx="24.4" cy="29.6" r="0.55"/>' +
+          '<circle cx="32.4" cy="28" r="0.55"/><circle cx="31" cy="31.4" r="0.55"/>' +
+          '<circle cx="40.4" cy="28" r="0.55"/><circle cx="39.4" cy="31.6" r="0.55"/>' +
+          '<circle cx="48.4" cy="27" r="0.55"/><circle cx="47" cy="30.4" r="0.55"/>' +
+        '</g>';
+      face = artEye(31.5, 12, 3, line) + artEye(44.5, 12, 3, line);
+      extras = '<g clip-path="url(#' + clip + ')">' +
+        '<ellipse cx="33" cy="7" rx="10" ry="3.2" fill="url(#' + gh + ')"/>' +
+        artPattern(pat === "none" ? "spots" : pat, o.patCol) +
+        '<path d="M24 19 C32 23 44 23 52 18" stroke="#ffffff" stroke-width="0.9" fill="none" opacity="0.18"/>' +
+        '</g>';
+      return body + extras + fins + face;
+    }
+
+    if (kind === "crab") {
+      body = '<ellipse cx="36" cy="20" rx="15" ry="9.6" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.55"/>';
+      fins =
+        '<path d="M23 16 L13 9 M49 16 L59 9" stroke="url(#' + gf + ')" stroke-width="3.1" stroke-linecap="round" fill="none"/>' +
+        '<circle cx="10" cy="8" r="4.6" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.4"/>' +
+        '<circle cx="62" cy="8" r="4.6" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.4"/>' +
+        '<path d="M9 6 L5.5 3 M12.6 5 L11 1.6 M63 6 L66.5 3 M59.4 5 L61 1.6" stroke="' + line + '" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/>' +
+        '<path d="M12.6 10.6 q2 1.8 0 3.4 M59.4 10.6 q-2 1.8 0 3.4" stroke="' + line + '" stroke-width="0.5" fill="none" opacity="0.5"/>' +
+        '<path d="M23 25 L11 31 M30 27 L23 33 M49 25 L61 31 M42 27 L49 33" stroke="url(#' + gf + ')" stroke-width="2.3" stroke-linecap="round" fill="none"/>' +
+        '<path d="M23 25 l2 -1.4 M30 27 l0.6 -2 M49 25 l-2 -1.4 M42 27 l-0.6 -2" stroke="' + line + '" stroke-width="0.45" opacity="0.5"/>';
+      face = artEye(30.5, 16.2, 2.5, line) + artEye(41.5, 16.2, 2.5, line) +
+        '<path d="M31 25 C34 26.6 38 26.6 41 25" stroke="' + line + '" stroke-width="0.6" fill="none" opacity="0.4"/>';
+      extras = '<g clip-path="url(#' + clip + ')">' +
+        '<ellipse cx="32" cy="12.5" rx="12" ry="3" fill="url(#' + gh + ')"/>' +
+        artPattern(pat === "none" ? "speckles" : pat, o.patCol) +
+        '</g>';
+      return body + extras + fins + face;
+    }
+
+    if (kind === "clam") {
+      body = '<path d="M8 25 C10 12 22 4 36 4 C50 4 62 12 64 25 C50 30 22 30 8 25 Z" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.55"/>';
+      fins = '<path d="M9 25 C22 31 50 31 63 25" stroke="' + artShade(o.base, 0.45) + '" stroke-width="1.6" fill="none"/>';
+      face = '';
+      var ribs = "";
+      for (var ri = 0; ri < 7; ri++) {
+        var ang = -0.9 + ri * 0.3;
+        var x2 = 36 + Math.sin(ang) * 27;
+        var y2 = 25 - Math.cos(ang) * 21;
+        ribs += '<path d="M36 25 L' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '" stroke="' + artShade(o.base, -0.4) + '" stroke-width="0.6" opacity="0.45"/>';
+      }
+      extras = '<g clip-path="url(#' + clip + ')">' + ribs +
+        '<path d="M14 21 C22 13 30 9 36 8.4" stroke="#ffffff" stroke-width="1.6" fill="none" opacity="0.35" stroke-linecap="round"/>' +
+        '<ellipse cx="30" cy="15" rx="12" ry="6" fill="url(#' + gh + ')"/>' +
+        '<path d="M20 24 C28 27.5 46 27.5 54 23.6" stroke="#ffffff" stroke-width="0.8" fill="none" opacity="0.22"/>' +
+        '</g>' +
+        '<ellipse cx="36" cy="5.6" rx="4.4" ry="1.8" fill="' + artShade(o.base, -0.3) + '" opacity="0.55"/>';
+      return body + extras + fins;
+    }
+
+    if (kind === "snail") {
+      body = '<circle cx="28" cy="17" r="13.5" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.55"/>';
+      fins = '<path d="M30 30 L64 31 L58 23 L34 22 Z" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.35" opacity="0.9"/>' +
+        '<path d="M36 23.4 C44 24 52 24.4 60 24.6" stroke="' + line + '" stroke-width="0.45" fill="none" opacity="0.4"/>' +
+        '<path d="M38 8 L46 3 M38 10 L48 7" stroke="' + artShade(o.base, 0.3) + '" stroke-width="1.7" stroke-linecap="round" opacity="0.85"/>' +
+        '<circle cx="46.4" cy="2.6" r="1.1" fill="' + artShade(o.base, 0.35) + '"/>' +
+        '<circle cx="48.4" cy="6.6" r="1.1" fill="' + artShade(o.base, 0.35) + '"/>';
+      face = '';
+      extras = '<g clip-path="url(#' + clip + ')">' +
+        '<path d="M28 17 a4.2 4.2 0 1 1 4.2 4.2 a8.4 8.4 0 1 0 8.4 8.4 a12.6 12.6 0 1 1 -12.6 -12.6" stroke="' + artShade(o.base, -0.4) + '" stroke-width="1.7" fill="none" stroke-linecap="round" opacity="0.62"/>' +
+        '<ellipse cx="23" cy="11" rx="6" ry="4" fill="url(#' + gh + ')"/>' +
+        '</g>';
+      return body + extras + fins + face;
+    }
+
+    if (kind === "shrimp") {
+      body = '<path d="M17 25 C19 13 37 6 49 11 C57 14 59 20 54 24 C43 31 25 31 17 25 Z" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.5"/>';
+      fins = '<path d="M18 25 L6 31 L10 23 Z" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.3"/>' +
+        '<path d="M51 11 C59 6 65 2 70 4 M51 8 C57 2 63 0 67 1" stroke="' + artShade(o.base, 0.35) + '" stroke-width="1.5" fill="none" stroke-linecap="round"/>' +
+        '<path d="M28 28 L26 33 M37 29 L36 34 M45 28 L45 33" stroke="' + artShade(o.base, 0.2) + '" stroke-width="1.6" stroke-linecap="round"/>' +
+        '<path d="M31 10 C33 16 33 22 31 26 M38 9 C40 15 40 21 38 26 M45 10 C47 15 47 21 45 25" stroke="' + line + '" stroke-width="0.45" fill="none" opacity="0.35"/>';
+      face = artEye(49.4, 12.6, 2.2, line);
+      extras = '<g clip-path="url(#' + clip + ')">' +
+        '<ellipse cx="38" cy="11" rx="13" ry="3.4" fill="url(#' + gh + ')"/>' +
+        artPattern(pat === "none" ? "stripes" : pat, o.patCol) +
+        '</g>';
+      return body + extras + fins + face;
+    }
+
+    if (kind === "ray") {
+      body = '<path d="M10 18.5 C22 8.5 48 7.5 62 16 C58 22 46 26 34 26.5 C24 26 15 23.5 10 18.5 Z" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.5"/>';
+      fins = '<path d="M10 18.5 C6 22 4 27 3 31" stroke="' + artShade(o.base, -0.1) + '" stroke-width="1.4" fill="none" stroke-linecap="round"/>' +
+        '<path d="M20 9.4 C26 6.4 40 6 50 9.6" stroke="' + line + '" stroke-width="0.45" fill="none" opacity="0.4"/>';
+      face = artEye(52, 14.6, 1.9, line) + artEye(57, 16.6, 1.7, line) +
+        '<path d="M45 21 l1.4 2 M48.4 21.4 l1.2 1.9 M51.8 21.6 l1 1.7" stroke="' + line + '" stroke-width="0.45" opacity="0.45"/>';
+      extras = '<g clip-path="url(#' + clip + ')">' +
+        artPattern(pat === "none" ? "spots" : pat, o.patCol) +
+        '<ellipse cx="30" cy="13" rx="16" ry="4" fill="url(#' + gh + ')"/>' +
+        '<path d="M16 22 C26 26 44 26 56 21" stroke="#ffffff" stroke-width="1" fill="none" opacity="0.2"/>' +
+        '</g>';
+      return body + extras + fins + face;
+    }
+
+    if (kind === "eel") {
+      body = '<path d="M4 23 C12 10 22 29 32 21 C40 15 47 25 56 18" stroke="url(#' + g + ')" stroke-width="7.4" stroke-linecap="round" fill="none"/>';
+      fins = '<path d="M8 19.4 C14 15 20 20 26 18.6 M28 22.6 C34 20 40 25 46 22.4" stroke="' + line + '" stroke-width="0.45" fill="none" opacity="0.35"/>' +
+        '<path d="M55 18 L70 10 L66 18 L70 26 Z" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.3"/>' +
+        '<path d="M6 18 C10 16 14 17 16 19" stroke="#ffffff" stroke-width="1.1" fill="none" opacity="0.28"/>';
+      face = '<circle cx="9.4" cy="20" r="2.2" fill="#f8fbff"/><circle cx="9.2" cy="20.2" r="1.25" fill="#131c28"/>' +
+        '<circle cx="8.6" cy="19.4" r="0.45" fill="#ffffff"/>';
+      extras = '<g opacity="0.9">' + artPattern(pat === "none" ? "lateral" : pat, o.patCol) + '</g>';
+      return body + fins + face + extras;
+    }
+
+    /* 물고기 · 기본 */
+    body = '<path d="M6 18 C6 18 14 5.6 30 5.6 C45 5.6 53 12 55 18 C53 24 45 30.4 30 30.4 C14 30.4 6 18 6 18 Z" fill="url(#' + g + ')" stroke="' + line + '" stroke-width="0.55"/>';
+    fins = '<path d="M54 18 L70 8 L66 18 L70 28 Z" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.3"/>' +
+      '<path d="M58.4 13.4 L66 9.2 M58.4 18 L67.6 18 M58.4 22.6 L66 26.8" stroke="' + line + '" stroke-width="0.45" opacity="0.45"/>' +
+      '<path d="M27 6.6 C29.4 2.7 37.4 1.9 41.4 5.4" fill="url(#' + gf + ')" stroke="' + line + '" stroke-width="0.4" opacity="0.9"/>' +
+      '<path d="M29.6 5.4 L31 2.6 M33.6 4.6 L34.4 2.2 M37.6 4.8 L38.6 2.8" stroke="' + line + '" stroke-width="0.35" opacity="0.4"/>' +
+      '<path d="M28.5 21 C31 25 37 27 42 26 C38 22.5 33 20.6 28.5 21 Z" fill="url(#' + gf + ')" opacity="0.88"/>';
+    face = artEye(17.4, 14.4, 3.1, line) +
+      '<path d="M23.4 9.6 C21 14 21 22 23.4 26.4" stroke="' + line + '" stroke-width="0.55" fill="none" opacity="0.32"/>' +
+      '<path d="M8.4 16.4 C10 15.6 11.6 15.8 12.6 16.8" stroke="' + line + '" stroke-width="0.45" fill="none" opacity="0.5"/>';
+    extras = '<g clip-path="url(#' + clip + ')">' +
+      artScales(artShade(o.base, 0.55)) +
+      artPattern(pat, o.patCol) +
+      '<ellipse cx="28" cy="9" rx="15" ry="4.2" fill="url(#' + gh + ')"/>' +
+      '<ellipse cx="30" cy="26.4" rx="20" ry="4.6" fill="#ffffff" opacity="0.14"/>' +
+      '</g>';
+    return body + extras + fins + face;
+  }
+
+  function fishArt(f) {
+    var uid = "a" + (++ART_SEQ);
+    var base = f.color || "#9fc0d4";
+    var kind = f.kind || "fish";
+    var lum = artLum(base);
+    // 밝은 어종(눈 히든 등)은 더 깊게 눌러야 등-배 명암이 보인다
+    var darkK = lum > 0.74 ? -0.62 : (lum > 0.58 ? -0.48 : -0.36);
+    var lineK = Math.max(darkK - 0.14, -0.76);
+    var o = {
+      base: base,
+      darkK: darkK,
+      lum: lum,
+      line: artShade(base, lineK),
+      patCol: artShade(base, lum > 0.7 ? -0.42 : 0.66),
+      pat: speciesPattern(f),
+      gBody: "b" + uid,
+      gFin: "n" + uid,
+      gHi: "h" + uid,
+      clip: "c" + uid
+    };
+    var defs =
+      '<defs>' +
+        '<linearGradient id="' + o.gBody + '" x1="0.18" y1="0" x2="0.42" y2="1">' +
+          '<stop offset="0" stop-color="' + artShade(base, lum > 0.74 ? 0.24 : 0.4) + '"/>' +
+          '<stop offset="0.46" stop-color="' + base + '"/>' +
+          '<stop offset="1" stop-color="' + artShade(base, o.darkK) + '"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="' + o.gFin + '" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0" stop-color="' + artShade(base, 0.52) + '"/>' +
+          '<stop offset="1" stop-color="' + artShade(base, -0.12) + '"/>' +
+        '</linearGradient>' +
+        '<radialGradient id="' + o.gHi + '" cx="0.34" cy="0.28" r="0.8">' +
+          '<stop offset="0" stop-color="#ffffff" stop-opacity="' + (lum > 0.74 ? "0.28" : "0.5") + '"/>' +
+          '<stop offset="0.55" stop-color="#ffffff" stop-opacity="0.1"/>' +
+          '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/>' +
+        '</radialGradient>' +
+        '<clipPath id="' + o.clip + '">' + artClip(kind) + '</clipPath>' +
+      '</defs>';
+    return '<svg viewBox="0 0 72 36" aria-hidden="true" focusable="false">' + defs + artBody(kind, o) + '</svg>';
+  }
+
+  function fishSVG(f, opts) {
+    opts = opts || {};
+    if (opts.silhouette || !f || !f.color) {
+      var shape = FISH_SHAPES[f && f.kind] || FISH_SHAPES.fish;
+      return '<svg viewBox="0 0 72 36" aria-hidden="true" focusable="false">' + shape() + '</svg>';
+    }
+    return fishArt(f);
   }
 
   /* ---------- 도감 ---------- */
@@ -5586,6 +6881,7 @@
 
   function fishMatchesFilter(f, filter) {
     if (filter === "all") return true;
+    if (filter === "new") return isFreshRecord(book.records[f.id]);
     if (filter === "missing") return !book.records[f.id];
     if (filter.indexOf("hx-") === 0) return f.hiddenWx === filter.slice(3);
     if (filter === "rain") return f.rarity === "hidden";     // 예전 필터 이름 호환
@@ -5601,10 +6897,11 @@
       ? '<span class="hx ' + hx.cls + '">' + hx.icon + ' ' + hx.label + '</span>'
       : bandsOf(f.id).map(function (b) { return "<span>" + BANDS[b].name.charAt(0) + "</span>"; }).join("");
 
-    return '<div class="dex-card ' + (got ? "got" : "locked") + ' dex-' + (f.kind || "fish") + '" ' +
+    return '<div class="dex-card ' + (got ? "got" : "locked") + (got && isFreshRecord(rec) ? " is-new" : "") + ' dex-' + (f.kind || "fish") + '" ' +
       'style="--fish:' + (got ? f.color : "#223044") + ';--rar:' + rar.color + '">' +
-        '<div class="dex-fish">' + fishSVG(f) + '</div>' +
-        '<div class="dex-name"><span class="rarity-dot"></span>' + (got ? f.name : "???") + '</div>' +
+        '<div class="dex-fish">' + fishSVG(f, { silhouette: !got }) + '</div>' +
+        '<div class="dex-name"><span class="rarity-dot"></span>' + (got ? f.name : "???") +
+          (got && isFreshRecord(rec) ? '<span class="new-badge">NEW</span>' : '') + '</div>' +
         '<div class="dex-meta">' +
           (got
             ? ('<b class="best">' + rec.longest.toFixed(1) + 'cm</b> · ' + rec.count + '마리')
@@ -5615,6 +6912,7 @@
         '<div class="dex-foot">' +
           '<span class="dex-rarity" title="' + rar.label + '">' + '★'.repeat(rar.stars) + '☆'.repeat(4 - rar.stars) + '</span>' +
           '<span class="dex-bands">' + bands + '</span>' +
+          (got && hx ? '<button class="dex-share" data-share="' + f.id + '" aria-label="이미지 공유" title="이미지 공유">📸</button>' : '') +
         '</div>' +
       '</div>';
   }
@@ -5627,15 +6925,17 @@
     el.dexTotal.textContent = String(totalCatches());
     el.dexBest.textContent = bestLength() > 0 ? bestLength().toFixed(1) + "cm" : "0cm";
     el.dexSession.textContent = String(state.session);
+    if (el.dexDuds) el.dexDuds.textContent = String(dudTotal());
     if (el.dexSpecies) el.dexSpecies.textContent = FISH.length + "종";
 
     // 필터 칩 숫자 갱신
     var chipCounts = {
-      all: FISH.length, dawn: 0, day: 0, sunset: 0, night: 0, missing: 0,
-      "hx-clear": 0, "hx-rain": 0, "hx-fog": 0, "hx-storm": 0
+      all: FISH.length, dawn: 0, day: 0, sunset: 0, night: 0, missing: 0, new: 0,
+      "hx-clear": 0, "hx-rain": 0, "hx-fog": 0, "hx-storm": 0, "hx-snow": 0
     };
     FISH.forEach(function (f) {
       if (!book.records[f.id]) chipCounts.missing += 1;
+      else if (isFreshRecord(book.records[f.id])) chipCounts.new += 1;
       if (f.hiddenWx && chipCounts["hx-" + f.hiddenWx] !== undefined) chipCounts["hx-" + f.hiddenWx] += 1;
       bandsOf(f.id).forEach(function (b) { chipCounts[b] += 1; });
     });
@@ -5742,30 +7042,94 @@
     rodMesh.scale.set(thick, 1, thick);
   }
 
+  /* ---------- 꾸미기 미리보기 (구매 전 임시 착용) ----------
+     cosPreview는 저장되지 않는다. 상점을 닫거나 새로고침하면 사라지고,
+     장착 상태(economy.cosmetics)는 그대로 남는다. */
+  var cosPreview = null;
+  var SLEEVELESS_TOPS = { vest: 1, fishvest: 1 };
+
+  function effectiveCos(cat) {
+    if (cosPreview && cosPreview.cat === cat) return cosPreview.id;
+    return economy.cosmetics[cat];
+  }
+
+  function cosmeticCatLabel(cat) {
+    for (var i = 0; i < COSMETIC_CATS.length; i++) {
+      if (COSMETIC_CATS[i].id === cat) return COSMETIC_CATS[i].label;
+    }
+    return cat;
+  }
+
+  function previewSummary() {
+    if (!cosPreview) return "";
+    var it = cosmeticItem(cosPreview.cat, cosPreview.id);
+    return cosmeticCatLabel(cosPreview.cat) + " · " + (it ? it.name : cosPreview.id);
+  }
+
+  function updatePreviewChip() {
+    var on = !!cosPreview;
+    var chip = $("#cosPreviewChip");
+    if (chip) chip.classList.toggle("on", on);
+    var tag = $("#charPreviewTag");
+    if (tag) {
+      tag.classList.toggle("on", on);
+      tag.textContent = on ? ("👀 미리보기 중 (실제 미구매) · " + previewSummary()) : "👀 미리보기 중 (실제 미구매)";
+    }
+  }
+
+  function startPreview(cat, id, silent) {
+    var item = cosmeticItem(cat, id);
+    if (!item) return false;
+    if (economy.ownedCos[cat] && economy.ownedCos[cat][id]) return equipCosmetic(cat, id, silent);
+    cosPreview = { cat: cat, id: id };
+    applyCosmetics();
+    renderShop();
+    renderCharPanel();
+    updatePreviewChip();
+    if (!silent) {
+      flashNotice("미리보기 중 · " + item.name + " (실제 구매 아님)");
+      Sound.resume();
+      Sound.canDrop();
+    }
+    return true;
+  }
+
+  function clearPreview(silent) {
+    if (!cosPreview) return false;
+    var it = cosmeticItem(cosPreview.cat, cosPreview.id);
+    cosPreview = null;
+    applyCosmetics();
+    renderCharPanel();
+    updatePreviewChip();
+    renderShop();
+    if (!silent) flashNotice((it ? it.name : "미리보기") + " 벗고 원래 차림으로 돌아갔어요");
+    return true;
+  }
+
   /* ---------- 꾸미기 반영 (3D 캐릭터 · 의자) ---------- */
   function applyCosmetics() {
     if (!angler) return;
     var u = angler.userData;
-    var topId = economy.cosmetics.top;
+    var topId = effectiveCos("top");
     var topItem = cosmeticItem("top", topId) || COSMETICS.top[0];
     u.topId = topId;
     if (u.jacketClear) u.jacketClear.setHex(topItem.hex);
     if (u.jacketMat) u.jacketMat.color.copy(u.jacketClear);
 
-    var hatId = economy.cosmetics.hat;
+    var hatId = effectiveCos("hat");
     u.hatId = hatId;
     if (u.hats) {
       Object.keys(u.hats).forEach(function (id) { u.hats[id].visible = id === hatId; });
       u.hat = u.hats[hatId] || u.hats.straw;
     }
 
-    var glassId = economy.cosmetics.glasses;
+    var glassId = effectiveCos("glasses");
     u.glassId = glassId;
     if (u.glassesSet) {
       Object.keys(u.glassesSet).forEach(function (id) { u.glassesSet[id].visible = id === glassId; });
     }
 
-    var chairId = economy.cosmetics.chair;
+    var chairId = effectiveCos("chair");
     u.chairId = chairId;
     if (u.chairs) {
       Object.keys(u.chairs).forEach(function (id) { u.chairs[id].visible = id === chairId; });
@@ -5774,9 +7138,9 @@
     if (u.topAcc) {
       Object.keys(u.topAcc).forEach(function (id) { u.topAcc[id].visible = id === topId; });
     }
-    // 조끼는 소매가 없다 — 팔을 맨살로
+    // 소매가 없는 상의는 팔을 맨살로
     if (u.armL && u.armR) {
-      var armMat = topId === "vest" ? u.skinMat : u.jacketMat;
+      var armMat = SLEEVELESS_TOPS[topId] ? u.skinMat : u.jacketMat;
       u.armL.material = armMat;
       u.armR.material = armMat;
     }
@@ -5794,10 +7158,13 @@
     economy.coins -= item.price;
     economy.ownedCos[cat][id] = true;
     economy.cosmetics[cat] = id;
+    if (cosPreview && cosPreview.cat === cat) cosPreview = null;   // 미리보던 것을 그대로 구매
     applyCosmetics();
     saveEconomy();
     updateHUD();
     renderShop();
+    renderCharPanel();
+    updatePreviewChip();
     Sound.coin();
     flashNotice(item.name + " 구매! 바로 장착했어요");
     return true;
@@ -5807,9 +7174,12 @@
     var item = cosmeticItem(cat, id);
     if (!item || !(economy.ownedCos[cat] && economy.ownedCos[cat][id])) return false;
     economy.cosmetics[cat] = id;
+    if (cosPreview) cosPreview = null;
     applyCosmetics();
     saveEconomy();
     renderShop();
+    renderCharPanel();
+    updatePreviewChip();
     if (!silent) flashNotice(item.name + (id === "none" ? " 착용" : " 장착! 강가 캐릭터에 바로 반영됐어요"));
     return true;
   }
@@ -5819,9 +7189,12 @@
     var item = cosmeticItem(cat, def);
     if (!item) return false;
     economy.cosmetics[cat] = def;
+    if (cosPreview) cosPreview = null;
     applyCosmetics();
     saveEconomy();
     renderShop();
+    renderCharPanel();
+    updatePreviewChip();
     flashNotice("기본 " + (cat === "glasses" ? "안경 없음" : item.name) + "으로 돌아갔어요");
     return true;
   }
@@ -5830,21 +7203,26 @@
 
   function cosmeticRowHTML(cat, item) {
     var owned = !!(economy.ownedCos[cat] && economy.ownedCos[cat][item.id]);
-    var equipped = economy.cosmetics[cat] === item.id;
+    var equipped = effectiveCos(cat) === item.id;
+    var previewing = !!(cosPreview && cosPreview.cat === cat && cosPreview.id === item.id);
     var btn;
+    var col = "";
     if (equipped) {
-      btn = item.price === 0
+      btn = (item.price === 0 && !previewing)
         ? '<button class="buy-btn owned" disabled>기본</button>'
         : '<button class="buy-btn equip" data-act="unequipCos" data-cat="' + cat + '">해제</button>';
     } else if (owned) {
       btn = '<button class="buy-btn equip" data-act="equipCos" data-cat="' + cat + '" data-id="' + item.id + '">장착</button>';
     } else {
       btn = '<button class="buy-btn' + (economy.coins < item.price ? " poor" : "") + '" data-act="buyCos" data-cat="' + cat + '" data-id="' + item.id + '">' + item.price.toLocaleString() + ' 🪙</button>';
+      col = '<button class="buy-btn small preview" data-act="previewCos" data-cat="' + cat + '" data-id="' + item.id + '">' + (previewing ? "미리보기 중" : "👀 미리보기") + '</button>';
     }
-    return '<div class="shop-row' + (equipped ? " equipped" : "") + '">' +
+    var tag = previewing ? '<span class="pv-tag">미리보기 중 (실제 미구매)</span>' : (equipped ? '<small>' + (item.price === 0 ? "기본" : "장착됨") + '</small>' : "");
+    var btns = col ? '<div class="btn-col">' + col + btn + '</div>' : btn;
+    return '<div class="shop-row' + (equipped ? " equipped" : "") + (previewing ? " previewing" : "") + '">' +
       '<span class="rod-dot" style="background:' + item.swatch + '"></span>' +
-      '<div class="shop-info"><div class="shop-name">' + item.name + (equipped ? '<small>장착됨</small>' : "") + '</div>' +
-      '<div class="shop-desc">' + item.desc + '</div></div>' + btn + '</div>';
+      '<div class="shop-info"><div class="shop-name">' + item.name + tag + '</div>' +
+      '<div class="shop-desc">' + item.desc + '</div></div>' + btns + '</div>';
   }
 
   function renderShopTabs() {
@@ -5854,8 +7232,21 @@
     });
   }
 
+  function renderPreviewBar() {
+    if (!cosPreview) return "";
+    var it = cosmeticItem(cosPreview.cat, cosPreview.id);
+    return '<div class="preview-bar">' +
+      '<div class="preview-bar-top"><span>👀 미리보기 중 (실제 미구매) · <b>' + (it ? it.name : "") + '</b></span></div>' +
+      '<div class="preview-bar-btns">' +
+        '<button class="buy-btn small equip" data-act="previewOff">원래대로</button>' +
+        '<button class="buy-btn small" data-act="previewBuy" data-cat="' + cosPreview.cat + '" data-id="' + cosPreview.id + '">바로 구매 ' + (it ? it.price.toLocaleString() : "0") + ' 🪙</button>' +
+        '<button class="buy-btn small preview" data-act="previewChar">👤 내 캐릭터로 보기</button>' +
+      '</div></div>';
+  }
+
   function renderCustomizeTab() {
     var parts = [];
+    if (cosPreview) parts.push(renderPreviewBar());
     COSMETIC_CATS.forEach(function (c) {
       parts.push('<div class="shop-section">' + c.label +
         '<span class="mission-reset">' + ownedCosmeticCount(c.id) + ' / ' + COSMETICS[c.id].length + ' 보유</span></div>');
@@ -5863,7 +7254,7 @@
         parts.push(cosmeticRowHTML(c.id, item));
       });
     });
-    parts.push('<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 구매하면 바로 장착되고, 비·뇌우에는 노란 우비가 우선이에요. 날씨가 돌아오면 입고 있던 차림으로 자동 복귀해요</div>');
+    parts.push('<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 구매하면 바로 장착되고, 비·뇌우에는 노란 우비가 우선이에요. 눈이 올 때는 꾸민 차림 그대로 낚시해요. 사기 전에는 <b>👀 미리보기</b>로 임어 볼 수 있어요</div>');
     return parts.join("");
   }
 
@@ -5924,12 +7315,16 @@
       '<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 체력이 0이 되어도 낚시는 계속돼요. 대신 지쳐서 입질이 늦어지고 희귀 어종이 잘 안 걸려요</div>';
   }
 
-  function openShop() {
+  function openShop(tab) {
+    if (tab) shopTab = tab;
     renderShop();
     el.shopModal.classList.add("open");
   }
-
-  function closeShop() { el.shopModal.classList.remove("open"); }
+  function closeShop(keepPreview) {
+    el.shopModal.classList.remove("open");
+    // 상점을 닫으면 미구매 미리보기는 원래 장착 상태로 돌아간다
+    if (keepPreview !== true && cosPreview) clearPreview(true);
+  }
 
   function openDrink() {
     renderDrinks();
@@ -6011,7 +7406,7 @@
 
   var DAILY_DEFS = [
     { id: "catch12",  name: "오늘 12마리 낚기",  desc: "오늘 하루 12마리를 낚아 올려요", field: "catch",   goal: 12,  reward: 150 },
-    { id: "special1", name: "비·뇌우·밤 어종 1종", desc: "비·뇌우가 오거나 밤에 한 마리만 낚아도 돼요", field: "special", goal: 1,  reward: 180 },
+    { id: "special1", name: "비·뇌우·눈·밤 어종 1종", desc: "비·뇌우·눈이 오거나 밤에 한 마리만 낚아도 돼요", field: "special", goal: 1,  reward: 180 },
     { id: "drink1",   name: "자판기 음료 1잔",   desc: "강가 자판기에서 음료를 한 잔 마셔요", field: "drink",   goal: 1,   reward: 80 },
     { id: "coin250",  name: "코인 250 모으기",   desc: "오늘 낚시로 코인 250을 모아요", field: "coin",    goal: 250, reward: 120 }
   ];
@@ -6125,7 +7520,13 @@
     { id: "hiddenClear5", name: "맑음 히든 5종",      desc: "맑은 날에만 나오는 생물 5종 모으기", goal: 5, reward: 900, value: function () { return weatherHiddenCount("clear"); } },
     { id: "hiddenFog5",   name: "안개 히든 5종",      desc: "안개 낄 때만 나오는 생물 5종 모으기", goal: 5, reward: 900, value: function () { return weatherHiddenCount("fog"); } },
     { id: "hiddenStorm5", name: "뇌우 히든 5종",      desc: "뇌우 칠 때만 나오는 생물 5종 모으기", goal: 5, reward: 1200, value: function () { return weatherHiddenCount("storm"); } },
-    { id: "hiddenAll12",  name: "날씨 히든 12종",     desc: "네 날씨 히든을 합쳐 12종 모으기", goal: 12, reward: 3000, value: function () { return allHiddenCount(); } },
+    { id: "hiddenAll12",  name: "날씨 히든 12종",     desc: "다섯 날씨 히든을 합쳐 12종 모으기", goal: 12, reward: 3000, value: function () { return allHiddenCount(); } },
+    { id: "hiddenSnow5",  name: "눈 히든 5종",        desc: "눈 올 때만 나오는 생물 5종 모으기", goal: 5, reward: 1200, value: function () { return weatherHiddenCount("snow"); } },
+    { id: "hiddenSnow10", name: "눈 히든 콤플리트",   desc: "눈 히든 10종을 모두 모으기", goal: 10, reward: 2600, value: function () { return weatherHiddenCount("snow"); } },
+
+    /* ── 꽝 (0.05%) ── */
+    { id: "dud1", name: "0.05%의 기적",          desc: "확률 0.05%의 꽝을 처음 건지기", goal: 1, reward: 600,  value: function () { return dudTotal(); } },
+    { id: "dud5", name: "꽝 수집가",              desc: "꽝을 모두 5번 건지기", goal: 5, reward: 2400, value: function () { return dudTotal(); } },
 
     /* ── 종류별 컬렉터 ── */
     { id: "sea10",    name: "해파리·오징어·문어 10종", desc: "심해 손님 10종 모으기", goal: 10, reward: 600, value: seaKindCount },
@@ -6147,6 +7548,18 @@
     { id: "baitAll",  name: "미끼 컬렉션",            desc: "일반 떡밥을 뺀 미끼 9종을 모두 사 보기", goal: 9, reward: 1200, value: baitKindsBought },
     { id: "drink10",  name: "자판기 단골",            desc: "강가 자판기에서 음료 10잔 마시기", goal: 10, reward: 300, value: function () { return economy.drinksBought || 0; } }
   ];
+
+  /* ── 보상 밸런스 (2026-11-17 지성진 님 요청) ─────────────────
+     꾸미기 가격은 20% 올리고 보상은 너무 쉬웠다. 일일 미션·누적 업적 코인을
+     0.5배(올림 반올림, 최소 2코인)로 낮춘다. 목표(goal)는 그대로 둔다. */
+  var REWARD_SCALE = 0.5;
+  function scaleRewards(list) {
+    list.forEach(function (d) {
+      d.reward = Math.max(2, Math.round(d.reward * REWARD_SCALE));
+    });
+  }
+  scaleRewards(DAILY_DEFS);
+  scaleRewards(ACH_DEFS);
 
   function todayKey() {
     var d = new Date();
@@ -6210,6 +7623,7 @@
     var n = claimableCount();
     if (el.missionDot) el.missionDot.classList.toggle("on", n > 0);
     if (el.missionBtn) el.missionBtn.classList.toggle("has-reward", n > 0);
+    updateClaimAllBar();
   }
 
   function missionAdd(field, amount) {
@@ -6294,6 +7708,7 @@
       '<div class="shop-section">오늘의 미션<span class="mission-reset">매일 자정에 새로 열려요</span></div>' + dh +
       '<div class="shop-section">업적<span class="mission-reset">누적 기록 · 한 번만 받을 수 있어요</span></div>' + ah +
       '<div class="shop-hint">받은 코인은 <b>🏪 상점</b>의 <b>장비</b>·<b>꾸미기</b> 탭에서 낚싯대·미끼·모자·상의·안경·의자로 바꿀 수 있어요</div>';
+    updateClaimAllBar();
   }
 
   function renderMissionsIfOpen() { if (missionOpen) renderMissions(); }
@@ -6308,6 +7723,555 @@
   function closeMissions() {
     el.missionModal.classList.remove("open");
     missionOpen = false;
+  }
+
+  /* ---------- 완료된 보상 일괄 수령 ---------- */
+  function claimAllRewards() {
+    checkDayRollover();
+    var daily = 0, ach = 0, coins = 0;
+    DAILY_DEFS.forEach(function (d) {
+      if (!missions.claimed[d.id] && dailyDone(d)) {
+        missions.claimed[d.id] = true;
+        coins += d.reward;
+        daily += 1;
+      }
+    });
+    ACH_DEFS.forEach(function (a) {
+      if (!missions.ach[a.id] && achDone(a)) {
+        missions.ach[a.id] = true;
+        coins += a.reward;
+        ach += 1;
+      }
+    });
+    var total = daily + ach;
+    if (!total) {
+      flashNotice("지금 받을 보상이 없어요 · 미션을 조금 더 채워 보세요");
+      Sound.miss();
+      renderMissions();
+      return { daily: 0, ach: 0, count: 0, coins: 0 };
+    }
+    economy.coins += coins;
+    economy.totalEarned += coins;
+    saveEconomy();
+    saveMissions();
+    updateHUD();
+    if (el.coinPill) {
+      el.coinPill.classList.remove("pulse");
+      void el.coinPill.offsetWidth;
+      el.coinPill.classList.add("pulse");
+    }
+    Sound.coin();
+    flashNotice("🎁 미션 " + daily + "개 · 업적 " + ach + "개 · 총 " + total + "개 완료 보상 +" + coins.toLocaleString() + " 🪙 수령!");
+    renderMissions();
+    updateMissionBadge();
+    return { daily: daily, ach: ach, count: total, coins: coins };
+  }
+
+  function updateClaimAllBar() {
+    var btn = $("#claimAllBtn");
+    var n = $("#claimAllCount");
+    var hint = $("#claimAllHint");
+    var c = claimableCount();
+    if (n) n.textContent = String(c);
+    if (btn) btn.classList.toggle("idle", c === 0);
+    if (hint) hint.textContent = c > 0
+      ? "완료된 미션·업적 " + c + "개를 한 번에 받을 수 있어요"
+      : "받을 수 있는 보상이 아직 없어요";
+  }
+
+  /* =====================================================================
+     11-1-2. 📸 히든 어종 포획 인증 카드 (Canvas → PNG 공유/저장)
+     ===================================================================== */
+  var CARD_W = 1080, CARD_H = 1350;
+  var CARD_FONT = '"Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", -apple-system, sans-serif';
+  var CARD_PALETTE = {
+    clear: { a: "#13203a", b: "#7a5a26", ink: "#fff6e2", sub: "#ffe0a8", accent: "#ffd07a", label: "☀️ 맑음 히든" },
+    rain:  { a: "#0f1a27", b: "#2b4a6b", ink: "#eef6ff", sub: "#bfe0ff", accent: "#8fd0ff", label: "🌧️ 비 히든" },
+    fog:   { a: "#222a34", b: "#56646f", ink: "#ffffff", sub: "#e2ebf4", accent: "#cfdcea", label: "🌫️ 안개 히든" },
+    storm: { a: "#100e1e", b: "#3a2f68", ink: "#f2efff", sub: "#cfc8ff", accent: "#b0a4ff", label: "⚡ 뇌우 히든" },
+    snow:  { a: "#182636", b: "#55789c", ink: "#ffffff", sub: "#d6ecff", accent: "#a8d8ff", label: "❄️ 눈 히든" }
+  };
+
+  var shareCanvas = null;
+  var shareFishId = null;
+
+  function hexToRgb(hex) {
+    var h = String(hex || "#ffffff").replace("#", "");
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    var n = parseInt(h, 16);
+    if (!isFinite(n)) return { r: 255, g: 255, b: 255 };
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+
+  function lighten(hex, t) {
+    var c = hexToRgb(hex);
+    var f = function (v) { return Math.round(v + (255 - v) * t); };
+    return "rgb(" + f(c.r) + "," + f(c.g) + "," + f(c.b) + ")";
+  }
+
+  function cardRoundRect(g, x, y, w, h, r) {
+    var rr = Math.min(r, w / 2, h / 2);
+    g.beginPath();
+    g.moveTo(x + rr, y);
+    g.lineTo(x + w - rr, y);
+    g.quadraticCurveTo(x + w, y, x + w, y + rr);
+    g.lineTo(x + w, y + h - rr);
+    g.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+    g.lineTo(x + rr, y + h);
+    g.quadraticCurveTo(x, y + h, x, y + h - rr);
+    g.lineTo(x, y + rr);
+    g.quadraticCurveTo(x, y, x + rr, y);
+    g.closePath();
+  }
+
+  function cardDate(ts) {
+    var d = ts ? new Date(ts) : new Date();
+    return d.getFullYear() + "." + pad2(d.getMonth() + 1) + "." + pad2(d.getDate());
+  }
+
+  /* 카드 그리기 — 완성된 canvas를 done(canvas)로 돌려준다 */
+  function buildCatchCard(fish, rec, done) {
+    var cv = document.createElement("canvas");
+    cv.width = CARD_W;
+    cv.height = CARD_H;
+    var g = cv.getContext("2d");
+    if (!g) { done(null); return; }
+    var wx = fish.hiddenWx || weather.current;
+    var pal = CARD_PALETTE[wx] || CARD_PALETTE.clear;
+    var W = CARD_W, H = CARD_H;
+    var recs = rec || { longest: fish.min, count: 1, firstAt: Date.now(), lastAt: Date.now() };
+
+    function paint(hasIcon) {
+      g.textAlign = "left";
+      g.textBaseline = "alphabetic";
+      g.globalAlpha = 1;
+
+      // 제목
+      g.fillStyle = pal.ink;
+      g.font = "800 34px " + CARD_FONT;
+      g.fillText("강가 낚시", 64, 108);
+      g.globalAlpha = 0.72;
+      g.font = "700 22px " + CARD_FONT;
+      g.fillText("RIVER FISHING · 날씨 히든 도감", 64, 146);
+      g.globalAlpha = 1;
+
+      // 날씨 배지
+      g.font = "800 26px " + CARD_FONT;
+      var badgeTxt = pal.label;
+      var bw = g.measureText(badgeTxt).width + 62;
+      g.fillStyle = "rgba(6, 12, 20, 0.32)";
+      cardRoundRect(g, W - 64 - bw, 68, bw, 62, 31);
+      g.fill();
+      g.strokeStyle = "rgba(255, 255, 255, 0.32)";
+      g.lineWidth = 2;
+      cardRoundRect(g, W - 64 - bw, 68, bw, 62, 31);
+      g.stroke();
+      g.fillStyle = pal.ink;
+      g.fillText(badgeTxt, W - 64 - bw + 31, 110);
+
+      // 실루엣 스포트라이트
+      var cx = W / 2, cy = 470, rad = 250;
+      var spot = g.createRadialGradient(cx, cy, 20, cx, cy, rad);
+      spot.addColorStop(0, "rgba(255,255,255,0.22)");
+      spot.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = spot;
+      g.beginPath();
+      g.arc(cx, cy, rad, 0, Math.PI * 2);
+      g.fill();
+
+      if (hasCardImg) {
+        var iw = 660, ih = 330;
+        g.drawImage(cardImg, cx - iw / 2, cy - ih / 2, iw, ih);
+      }
+
+      // 이름
+      g.textAlign = "center";
+      g.fillStyle = pal.ink;
+      g.font = "800 82px " + CARD_FONT;
+      g.fillText(fish.name, cx, 830);
+      g.globalAlpha = 0.72;
+      g.font = "600 30px " + CARD_FONT;
+      g.fillText(fish.en || "", cx, 880);
+      g.globalAlpha = 1;
+
+      // 배지 · 등급
+      g.font = "800 28px " + CARD_FONT;
+      var line = "★".repeat(4) + "  날씨 히든 · " + pal.label.replace(/^\S+\s/, "");
+      g.fillStyle = pal.accent;
+      g.fillText(line, cx, 930);
+
+      // 구분선
+      g.strokeStyle = "rgba(255,255,255,0.24)";
+      g.lineWidth = 2;
+      g.beginPath();
+      g.moveTo(150, 968);
+      g.lineTo(W - 150, 968);
+      g.stroke();
+
+      // 스탯 3칸
+      var stats = [
+        ["최대 크기", (recs.longest || 0).toFixed(1) + " cm"],
+        ["포획 횟수", (recs.count || 1) + " 마리"],
+        ["첫 포획", cardDate(recs.firstAt)]
+      ];
+      var boxW = (W - 200) / 3;
+      stats.forEach(function (s, i) {
+        var x = 100 + boxW * i;
+        g.textAlign = "center";
+        g.globalAlpha = 0.62;
+        g.fillStyle = pal.ink;
+        g.font = "700 24px " + CARD_FONT;
+        g.fillText(s[0], x + boxW / 2, 1030);
+        g.globalAlpha = 1;
+        g.font = "800 40px " + CARD_FONT;
+        g.fillText(s[1], x + boxW / 2, 1082);
+      });
+
+      // 꼬리 문구 + 주소
+      g.textAlign = "center";
+      g.globalAlpha = 0.8;
+      g.fillStyle = pal.sub;
+      g.font = "700 26px " + CARD_FONT;
+      g.fillText("이 날씨에만 만날 수 있는 히든 생물", cx, 1180);
+      g.globalAlpha = 0.55;
+      g.font = "600 24px " + CARD_FONT;
+      g.fillText("sungjin513-dev.github.io/river-fishing", cx, 1268);
+      g.globalAlpha = 1;
+
+      // 테두리
+      g.strokeStyle = "rgba(255,255,255,0.22)";
+      g.lineWidth = 6;
+      cardRoundRect(g, 24, 24, W - 48, H - 48, 40);
+      g.stroke();
+
+      done(cv);
+    }
+
+    var cardImg = null;
+    var hasCardImg = false;
+
+    // 배경
+    var grd = g.createLinearGradient(0, 0, W * 0.45, H);
+    grd.addColorStop(0, pal.a);
+    grd.addColorStop(0.62, pal.b);
+    grd.addColorStop(1, pal.b);
+    g.fillStyle = grd;
+    g.fillRect(0, 0, W, H);
+
+    // 배경 입자 (비·눈 느낌)
+    var i, px, py, pr;
+    for (i = 0; i < 120; i++) {
+      px = Math.random() * W;
+      py = Math.random() * H;
+      pr = 1.5 + Math.random() * 5;
+      g.globalAlpha = 0.04 + Math.random() * 0.14;
+      g.fillStyle = "#ffffff";
+      g.beginPath();
+      g.arc(px, py, pr, 0, Math.PI * 2);
+      g.fill();
+    }
+    // 아래쪽 어두운 그라데이션
+    g.globalAlpha = 1;
+    var shade = g.createLinearGradient(0, H * 0.42, 0, H);
+    shade.addColorStop(0, "rgba(4,8,14,0)");
+    shade.addColorStop(1, "rgba(4,8,14,0.78)");
+    g.fillStyle = shade;
+    g.fillRect(0, H * 0.42, W, H * 0.58);
+    g.globalAlpha = 1;
+
+    // 어종 일러스트 SVG → 이미지 (data URL 이미지로 그릴 때는 xmlns가 있어야 파싱된다)
+    var svg = fishSVG(fish);
+    if (svg.indexOf("xmlns") === -1) {
+      svg = svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    var img = new Image();
+    img.onload = function () {
+      cardImg = img;
+      hasCardImg = true;
+      paint(true);
+    };
+    img.onerror = function () { paint(false); };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  function cardFileName(fish) {
+    return "river-fishing-" + fish.id + "-" + cardDate().replace(/\./g, "") + ".png";
+  }
+
+  function canvasToBlob(cv, cb) {
+    try {
+      if (cv.toBlob) {
+        cv.toBlob(function (b) { cb(b); }, "image/png");
+        return;
+      }
+    } catch (err) { /* 아래로 */ }
+    try {
+      var dataUrl = cv.toDataURL("image/png");
+      var bin = atob(dataUrl.split(",")[1]);
+      var arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      cb(new Blob([arr], { type: "image/png" }));
+    } catch (e) {
+      cb(null);
+    }
+  }
+
+  function downloadCard(cv, fish) {
+    if (!cv) return false;
+    try {
+      var a = document.createElement("a");
+      a.href = cv.toDataURL("image/png");
+      a.download = cardFileName(fish);
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        if (a.parentNode) a.parentNode.removeChild(a);
+      }, 1500);
+      window.__rfShareResult = "download";
+      setShareHint("💾 PNG 파일로 저장했어요 · 사진 앱이나 채팅에 붙여 넣어 보세요");
+      flashNotice("📸 인증 카드 이미지를 저장했어요");
+      return true;
+    } catch (err) {
+      window.__rfShareResult = "error";
+      setShareHint("이미지를 저장하지 못했어요 · 화면을 길게 눌러 저장해 보세요");
+      return false;
+    }
+  }
+
+  function setShareHint(text) {
+    var h = $("#shareHint");
+    if (h) h.textContent = text;
+  }
+
+  function shareCatchCard() {
+    if (!shareCanvas || !shareFishId) return false;
+    var fish = FISH_BY_ID[shareFishId];
+    if (!fish) return false;
+    var wx = HIDDEN_WX_INFO[fish.hiddenWx] || { icon: "✨", label: "히든" };
+    var title = fish.name + " 획득 인증 · 강가 낚시";
+    var text = "강가 낚시에서 " + wx.icon + " " + wx.label + " 히든 " + fish.name + "을(를) 만났어요!";
+    window.__rfShareResult = "pending";
+    canvasToBlob(shareCanvas, function (blob) {
+      var file = null;
+      try {
+        if (blob) file = new File([blob], cardFileName(fish), { type: "image/png" });
+      } catch (e) { file = null; }
+      var canFiles = false;
+      try {
+        canFiles = !!(file && navigator.canShare && navigator.share && navigator.canShare({ files: [file] }));
+      } catch (e2) { canFiles = false; }
+      if (canFiles) {
+        navigator.share({ files: [file], title: title, text: text }).then(function () {
+          window.__rfShareResult = "shared";
+          setShareHint("📤 공유 시트로 보냈어요");
+        }).catch(function (err) {
+          if (err && err.name === "AbortError") {
+            window.__rfShareResult = "aborted";
+            return;
+          }
+          downloadCard(shareCanvas, fish);
+        });
+        return;
+      }
+      downloadCard(shareCanvas, fish);
+    });
+    return true;
+  }
+
+  function openShareCard(fishId) {
+    var fish = FISH_BY_ID[fishId];
+    if (!fish) return false;
+    var rec = book.records[fishId];
+    if (!rec) {
+      flashNotice("아직 도감에 없는 생물이에요");
+      return false;
+    }
+    shareFishId = fishId;
+    buildCatchCard(fish, rec, function (cv) {
+      if (!cv) {
+        flashNotice("카드를 만들지 못했어요");
+        return;
+      }
+      shareCanvas = cv;
+      var img = $("#sharePreview");
+      try {
+        if (img) img.src = cv.toDataURL("image/png");
+      } catch (err) { /* 무시 */ }
+      var sub = $("#shareSub");
+      if (sub) {
+        var wx = HIDDEN_WX_INFO[fish.hiddenWx] || { label: "히든" };
+        sub.textContent = wx.label + " · " + fish.name;
+      }
+      setShareHint("아이폰에서는 공유 시트가 바로 열리고, 지원하지 않는 환경에서는 PNG로 저장돼요");
+      var m = $("#shareModal");
+      if (m) m.classList.add("open");
+      flashNotice("📸 인증 카드가 완성됐어요 · 공유하거나 저장해 보세요");
+    });
+    return true;
+  }
+
+  function closeShareCard() {
+    var m = $("#shareModal");
+    if (m) m.classList.remove("open");
+  }
+
+  /* =====================================================================
+     11-2. 👤 내 캐릭터 상세보기 (카메라 근접 · 회전)
+     ===================================================================== */
+  var CHAR_FRONT_YAW = Math.PI + 0.22;   // 앉은 캐릭터의 정면(눈이 보이는 쪽)
+
+  var charView = {
+    open: false,
+    yaw: CHAR_FRONT_YAW, yawCur: CHAR_FRONT_YAW,
+    pitch: 0.10, pitchCur: 0.10,
+    dist: 2.95, distCur: 2.95,
+    saved: null,
+    drag: false, lastX: 0, lastY: 0
+  };
+
+  function charTargetY() {
+    return (angler ? angler.position.y : 0.88) + 1.02;
+  }
+
+  function renderCharPanel() {
+    var box = $("#charEquip");
+    if (!box) return;
+    box.innerHTML = COSMETIC_CATS.map(function (c) {
+      var id = effectiveCos(c.id);
+      var it = cosmeticItem(c.id, id) || COSMETICS[c.id][0];
+      return '<div class="char-slot"><span class="k">' + c.label + '</span>' +
+        '<span class="v" title="' + it.name + '">' + it.name + '</span></div>';
+    }).join("");
+    var sum = $("#charSum");
+    if (sum) {
+      var ownedAll = 0, totalAll = 0;
+      COSMETIC_CATS.forEach(function (c) {
+        ownedAll += ownedCosmeticCount(c.id);
+        totalAll += COSMETICS[c.id].length;
+      });
+      var w = WEATHER_INFO[weather.current] || WEATHER_INFO.clear;
+      var pv = cosPreview ? ' · <b>미리보기 중 (실제 미구매)</b>' : "";
+      sum.innerHTML = '지금 <b>' + w.icon + ' ' + w.label + '</b> 날씨 · 보유 꾸미기 <b>' + ownedAll + ' / ' + totalAll + '</b>' + pv;
+    }
+    updatePreviewChip();
+  }
+
+  function openCharView() {
+    if (!angler) return false;
+    closeDex();
+    closeShop(true);
+    closeDrink();
+    closeMissions();
+    if (!charView.open) {
+      charView.saved = {
+        yaw: cam.yaw, pitch: cam.pitch, dist: cam.dist,
+        yawTarget: cam.yawTarget, pitchTarget: cam.pitchTarget, distTarget: cam.distTarget,
+        tx: cam.target.x, ty: cam.target.y, tz: cam.target.z
+      };
+    }
+    charView.open = true;
+    charView.drag = false;
+    charView.yaw = charView.yawCur = CHAR_FRONT_YAW;
+    charView.pitch = charView.pitchCur = 0.10;
+    charView.dist = charView.distCur = 2.7;
+    document.body.classList.add("char-view");
+    var m = $("#charModal");
+    if (m) m.classList.add("open");
+    renderCharPanel();
+    Sound.resume();
+    flashNotice("꾸민 차림을 가까이서 보고 있어요 · 드래그로 돌려 보세요");
+    return true;
+  }
+
+  function closeCharView() {
+    if (!charView.open) return false;
+    charView.open = false;
+    charView.drag = false;
+    document.body.classList.remove("char-view");
+    var m = $("#charModal");
+    if (m) m.classList.remove("open");
+    var s = charView.saved;
+    if (s) {
+      cam.yaw = cam.yawTarget = s.yaw;
+      cam.pitch = cam.pitchTarget = s.pitch;
+      cam.dist = cam.distTarget = s.dist;
+      cam.target.x = s.tx;
+      cam.target.y = s.ty;
+      cam.target.z = s.tz;
+    }
+    charView.saved = null;
+    return true;
+  }
+
+  function rotateCharBy(dx, dy) {
+    charView.yaw -= dx * 0.011;
+    charView.pitch = clamp(charView.pitch - dy * 0.0035, -0.12, 0.5);
+  }
+
+  function setupCharViewControls() {
+    var stage = $("#charStage");
+    if (stage) {
+      stage.addEventListener("pointerdown", function (e) {
+        charView.drag = true;
+        charView.lastX = e.clientX;
+        charView.lastY = e.clientY;
+      }, { passive: true });
+      stage.addEventListener("pointermove", function (e) {
+        if (!charView.drag) return;
+        var dx = e.clientX - charView.lastX;
+        var dy = e.clientY - charView.lastY;
+        charView.lastX = e.clientX;
+        charView.lastY = e.clientY;
+        rotateCharBy(dx, dy);
+      }, { passive: true });
+      var stop = function () { charView.drag = false; };
+      stage.addEventListener("pointerup", stop, { passive: true });
+      stage.addEventListener("pointercancel", stop, { passive: true });
+      stage.addEventListener("pointerleave", stop, { passive: true });
+      stage.addEventListener("wheel", function (e) {
+        e.preventDefault();
+        charView.dist = clamp(charView.dist + e.deltaY * 0.0012, 1.7, 4.6);
+      }, { passive: false });
+    }
+    var zi = $("#charZoomIn");
+    var zo = $("#charZoomOut");
+    if (zi) zi.addEventListener("click", function (e) { e.stopPropagation(); charView.dist = clamp(charView.dist - 0.35, 1.7, 4.6); });
+    if (zo) zo.addEventListener("click", function (e) { e.stopPropagation(); charView.dist = clamp(charView.dist + 0.35, 1.7, 4.6); });
+    var spin = $("#charSpinBtn");
+    if (spin) spin.addEventListener("click", function (e) {
+      e.stopPropagation();
+      charView.yaw = CHAR_FRONT_YAW;
+      charView.pitch = 0.10;
+      charView.dist = 2.7;
+    });
+    var shopBtn = $("#charShopBtn");
+    if (shopBtn) shopBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      closeCharView();
+      openShop("look");
+    });
+    var closeBtn = $("#charClose");
+    if (closeBtn) closeBtn.addEventListener("click", function (e) { e.stopPropagation(); closeCharView(); });
+    var btnChar = $("#btnChar");
+    if (btnChar) btnChar.addEventListener("click", function (e) { e.stopPropagation(); openCharView(); });
+  }
+
+  function updateCharCamera(dt) {
+    var k = Math.min(1, dt * 7);
+    charView.yawCur += (charView.yaw - charView.yawCur) * k;
+    charView.pitchCur += (charView.pitch - charView.pitchCur) * k;
+    charView.distCur += (charView.dist - charView.distCur) * k;
+    var ax = angler.position.x;
+    var az = angler.position.z;
+    var ty = charTargetY();
+    var cd = Math.cos(charView.pitchCur) * charView.distCur;
+    camera.position.set(
+      ax + Math.sin(charView.yawCur) * cd,
+      ty + Math.sin(charView.pitchCur) * charView.distCur,
+      az + Math.cos(charView.yawCur) * cd
+    );
+    camera.lookAt(ax, ty - 0.07, az);
   }
 
   /* =====================================================================
@@ -6387,6 +8351,7 @@
 
     // 비 (빗줄기 · 수면 잔물결)
     updateRain(dt);
+    updateSnow(dt);
 
     // 반딧불이
     if (fireflies.material.opacity > 0.01) {
@@ -6762,6 +8727,7 @@
     el.dexReset = $("#dexReset");
     el.dexBadge = $("#dexBadge");
     el.dexSpecies = $("#dexSpecies");
+    el.dexDuds = $("#dexDuds");
     el.dexFilters = $("#dexFilters");
     el.shopModal = $("#shopModal");
     el.shopBody = $("#shopBody");
@@ -6816,6 +8782,11 @@
       if (!btn || btn.disabled) return;
       claimMission(btn.getAttribute("data-claim"));
     });
+    var claimAllBtn = $("#claimAllBtn");
+    if (claimAllBtn) claimAllBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      claimAllRewards();
+    });
 
     // 날씨 전환
     var wxBar = $("#weatherBar");
@@ -6831,6 +8802,8 @@
         });
       });
     }
+
+    setupCharViewControls();
 
     if (el.shopTabs) {
       el.shopTabs.addEventListener("click", function (e) {
@@ -6857,6 +8830,10 @@
       else if (act === "buyCos") buyCosmetic(cat, id);
       else if (act === "equipCos") equipCosmetic(cat, id);
       else if (act === "unequipCos") unequipCosmetic(cat);
+      else if (act === "previewCos") startPreview(cat, id);
+      else if (act === "previewOff") clearPreview();
+      else if (act === "previewBuy") buyCosmetic(cat, id);
+      else if (act === "previewChar") { closeShop(true); openCharView(); }
     });
     el.drinkBody.addEventListener("click", function (e) {
       var btn = e.target.closest ? e.target.closest("[data-act]") : null;
@@ -6875,6 +8852,31 @@
         });
       });
     }
+
+    // 히든 카드 이미지 공유 (도감 · 결과 토스트)
+    if (el.dexGrid) el.dexGrid.addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-share]") : null;
+      if (!b) return;
+      e.stopPropagation();
+      openShareCard(b.getAttribute("data-share"));
+    });
+    if (el.toast) el.toast.addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-share]") : null;
+      if (!b) return;
+      e.stopPropagation();
+      openShareCard(b.getAttribute("data-share"));
+    });
+    var shareBtn = $("#shareBtn");
+    if (shareBtn) shareBtn.addEventListener("click", function (e) { e.stopPropagation(); shareCatchCard(); });
+    var shareSave = $("#shareSave");
+    if (shareSave) shareSave.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (shareCanvas && shareFishId) downloadCard(shareCanvas, FISH_BY_ID[shareFishId]);
+    });
+    var shareCloseBtn = $("#shareClose");
+    if (shareCloseBtn) shareCloseBtn.addEventListener("click", closeShareCard);
+    var shareBackdrop = $("#shareBackdrop");
+    if (shareBackdrop) shareBackdrop.addEventListener("click", closeShareCard);
 
     el.dexReset.addEventListener("click", function () {
       if (!el.dexReset.classList.contains("confirm")) {
@@ -6991,6 +8993,7 @@
       chip.classList.toggle("rain", weather.current === "rain");
       chip.classList.toggle("fog", weather.current === "fog");
       chip.classList.toggle("storm", weather.current === "storm");
+      chip.classList.toggle("snow", weather.current === "snow");
     }
     var moodEl = $("#moodLine");
     if (moodEl) {
@@ -7128,6 +9131,7 @@
     weather.mode = settings.wx || "auto";
     weather.current = weather.mode === "auto" ? "clear" : weather.mode;
     weather.rain = (weather.current === "rain" || weather.current === "storm") ? 1 : 0;
+    weather.snow = weather.current === "snow" ? 1 : 0;
     weather.fog = weather.current === "fog" ? 1 : 0;
     weather.storm = weather.current === "storm" ? 1 : 0;
     weather.soundRain = weather.rain;
@@ -7255,11 +9259,16 @@
         rain: Math.round(weather.rain * 1000) / 1000,
         fog: Math.round(weather.fog * 1000) / 1000,
         storm: Math.round((weather.storm || 0) * 1000) / 1000,
+        snow: Math.round((weather.snow || 0) * 1000) / 1000,
         flash: Math.round((weather.flash || 0) * 1000) / 1000,
         label: WEATHER_INFO[weather.current].label,
         hiddenCount: (WEATHER_HIDDEN[weather.current] || []).length,
         hiddenWx: FISH.filter(function (f) { return !!f.hiddenWx; }).reduce(function (o, f) { o[f.hiddenWx] = (o[f.hiddenWx] || 0) + 1; return o; }, {}),
         rainVisible: !!(rainMesh && rainMesh.visible),
+        snowVisible: !!(snowMesh && snowMesh.visible),
+        snowOpacity: snowMesh ? Math.round(snowMesh.material.opacity * 1000) / 1000 : 0,
+        snowCover: snowCoverMat ? Math.round(snowCoverMat.opacity * 1000) / 1000 : 0,
+        snowFlakes: snowFlakes.length,
         fireflies: fireflies ? Math.round(fireflies.material.opacity * 100) / 100 : 0,
         fogNear: Math.round(scene && scene.fog ? scene.fog.near * 10 : 0) / 10,
         fogFar: Math.round(scene && scene.fog ? scene.fog.far * 10 : 0) / 10
@@ -7316,7 +9325,7 @@
     seedBook: function (ids) {
       (ids || []).forEach(function (id) {
         if (!FISH_BY_ID[id]) return;
-        book.records[id] = { count: 1, longest: FISH_BY_ID[id].min, firstAt: Date.now(), lastAt: Date.now() };
+        book.records[id] = { count: 1, longest: FISH_BY_ID[id].min, firstAt: Date.now(), lastAt: Date.now(), freshAt: Date.now() };
       });
       saveBook(); updateDexBadge(); updateHUD(); renderDex();
     },
@@ -7379,7 +9388,162 @@
     },
     openMissions: function () { openMissions(); },
     openDex: function () { openDex(); },
-    dexFilter: function (f) { dexFilter = f; renderDex(); }
+    dexFilter: function (f) { dexFilter = f; renderDex(); },
+    /* ── 2026-11-17 추가 기능 검증용 훅 ── */
+    snowState: function () {
+      return {
+        current: weather.current,
+        snow: Math.round((weather.snow || 0) * 1000) / 1000,
+        visible: !!(snowMesh && snowMesh.visible),
+        opacity: snowMesh ? Math.round(snowMesh.material.opacity * 1000) / 1000 : 0,
+        coverOpacity: snowCoverMat ? Math.round(snowCoverMat.opacity * 1000) / 1000 : 0,
+        coverVisible: !!(snowCover && snowCover.visible),
+        flakes: snowFlakes.length,
+        sample: snowFlakes.slice(0, 3).map(function (f) {
+          return { x: Math.round(f.x * 100) / 100, y: Math.round(f.y * 100) / 100 };
+        }),
+        hidden: (WEATHER_HIDDEN.snow || []).slice(0),
+        info: WEATHER_INFO.snow
+      };
+    },
+    rewardTable: function () {
+      return {
+        coinBase: JSON.parse(JSON.stringify(COIN_BASE)),
+        daily: DAILY_DEFS.map(function (d) { return { id: d.id, goal: d.goal, reward: d.reward }; }),
+        ach: ACH_DEFS.map(function (a) { return { id: a.id, reward: a.reward }; })
+      };
+    },
+    claimAll: function () { return claimAllRewards(); },
+    claimAllState: function () {
+      var b = $("#claimAllBtn");
+      var n = $("#claimAllCount");
+      return {
+        claimable: claimableCount(),
+        count: n ? n.textContent : null,
+        idle: b ? b.classList.contains("idle") : null,
+        hint: $("#claimAllHint") ? $("#claimAllHint").textContent : null,
+        visible: b ? !!(b.offsetWidth || b.offsetHeight || b.getClientRects().length) : false
+      };
+    },
+    openCharView: function () { return openCharView(); },
+    closeCharView: function () { return closeCharView(); },
+    charView: function () {
+      if (!camera) return null;
+      var r3 = function (v) { return Math.round(v * 1000) / 1000; };
+      return {
+        open: charView.open,
+        yaw: r3(charView.yaw),
+        pitch: r3(charView.pitch),
+        dist: r3(charView.dist),
+        modalOpen: $("#charModal") ? $("#charModal").classList.contains("open") : null,
+        bodyClass: document.body.classList.contains("char-view"),
+        camera: { x: r3(camera.position.x), y: r3(camera.position.y), z: r3(camera.position.z) },
+        charWorld: angler ? { x: r3(angler.position.x), y: r3(angler.position.y), z: r3(angler.position.z) } : null,
+        equipped: JSON.parse(JSON.stringify(economy.cosmetics)),
+        effective: {
+          hat: effectiveCos("hat"), top: effectiveCos("top"),
+          glasses: effectiveCos("glasses"), chair: effectiveCos("chair")
+        },
+        preview: cosPreview ? { cat: cosPreview.cat, id: cosPreview.id } : null,
+        slots: Array.prototype.map.call(document.querySelectorAll("#charEquip .char-slot"), function (n) {
+          return n.textContent;
+        }),
+        sum: $("#charSum") ? $("#charSum").textContent : null,
+        previewTagOn: $("#charPreviewTag") ? $("#charPreviewTag").classList.contains("on") : null,
+        hudChipOn: $("#cosPreviewChip") ? $("#cosPreviewChip").classList.contains("on") : null
+      };
+    },
+    dragChar: function (dx, dy) { rotateCharBy(dx, dy || 0); return charView.yaw; },
+    previewCos: function (cat, id) { return startPreview(cat, id, true); },
+    previewOff: function () { return clearPreview(true); },
+    previewChar: function () { closeShop(true); return openCharView(); },
+    closeShopKeepPreview: function () { closeShop(true); return true; },
+    shopClose: function () { closeShop(); return !!cosPreview; },
+    shopRows: function () {
+      return Array.prototype.map.call(document.querySelectorAll("#shopBody .shop-row"), function (row) {
+        var name = row.querySelector(".shop-name");
+        return {
+          text: name ? name.textContent : "",
+          cls: row.className,
+          buttons: Array.prototype.map.call(row.querySelectorAll("[data-act]"), function (b) {
+            return b.getAttribute("data-act") + ":" + b.textContent.trim();
+          })
+        };
+      });
+    },
+    shopPreviewBar: function () {
+      var bar = document.querySelector("#shopBody .preview-bar");
+      return bar ? bar.textContent : null;
+    },
+    fresh: function () {
+      var list = [];
+      Object.keys(book.records).forEach(function (id) {
+        if (isFreshRecord(book.records[id])) list.push({ id: id, name: FISH_BY_ID[id] ? FISH_BY_ID[id].name : id });
+      });
+      return { windowDays: 7, count: list.length, list: list, chip: $("#dexFilters") ? Array.prototype.some.call(document.querySelectorAll("#dexFilters .filter-chip"), function (c) { return c.getAttribute("data-filter") === "new"; }) : false };
+    },
+    duds: function () {
+      return {
+        chance: DUD_CHANCE,
+        pool: DUDS.map(function (d) { return { id: d.id, name: d.name, emoji: d.emoji, coins: d.coins, note: d.note }; }),
+        total: dudTotal(),
+        kinds: JSON.parse(JSON.stringify((economy.duds && economy.duds.kinds) || {})),
+        firstAt: (economy.duds && economy.duds.firstAt) || 0,
+        dexCount: $("#dexDuds") ? $("#dexDuds").textContent : null,
+        toastHtml: el.toast ? el.toast.innerHTML : null,
+        toastShown: el.toast ? el.toast.classList.contains("show") : null
+      };
+    },
+    forceDud: function (dudId) {
+      var d = dudId ? dudById(dudId) : DUDS[Math.floor(Math.random() * DUDS.length)];
+      if (d && d.id !== dudId && dudId) d = DUDS[0];
+      var dud = {
+        isDud: true, dudId: d.id, id: "dud:" + d.id, name: d.name,
+        emoji: d.emoji, note: d.note, short: d.short || d.note, dudCoins: d.coins,
+        rarity: "dud", kind: "dud", min: 0, max: 0
+      };
+      settings.auto = false;
+      state.biteFish = dud;
+      state.biteHeavy = false;
+      state.biteWindow = 9999;
+      state.biteElapsed = 0;
+      state.pendingStrike = false;
+      setPhase("biting");
+      return dud.dudId;
+    },
+    rollDudSample: function () { var d = rollDud(); return d.dudId; },
+    hiddenInfo: function () {
+      return {
+        each: HIDDEN_CHANCE_EACH,
+        total: HIDDEN_TOTAL_CHANCE,
+        dud: DUD_CHANCE,
+        general: Math.round((1 - HIDDEN_TOTAL_CHANCE - DUD_CHANCE) * 100000) / 100000,
+        perWeather: Object.keys(WEATHER_HIDDEN).map(function (wx) {
+          return { wx: wx, ids: WEATHER_HIDDEN[wx].slice(0), count: WEATHER_HIDDEN[wx].length };
+        })
+      };
+    },
+    shareCard: function (fishId) { return openShareCard(fishId); },
+    shareNow: function () { return shareCatchCard(); },
+    shareState: function () {
+      var img = $("#sharePreview");
+      var cv = shareCanvas;
+      var dataUrlLen = 0;
+      try { dataUrlLen = cv ? cv.toDataURL("image/png").length : 0; } catch (err) { dataUrlLen = -1; }
+      return {
+        open: $("#shareModal") ? $("#shareModal").classList.contains("open") : null,
+        fishId: shareFishId,
+        canvas: cv ? { w: cv.width, h: cv.height } : null,
+        dataUrlLength: dataUrlLen,
+        imgNatural: img ? { w: img.naturalWidth, h: img.naturalHeight, srcLen: (img.src || "").length } : null,
+        hint: $("#shareHint") ? $("#shareHint").textContent : null,
+        result: window.__rfShareResult || null,
+        dexShareButtons: document.querySelectorAll("#dexGrid [data-share]").length
+      };
+    },
+    storageKeys: function () {
+      return { book: BOOK_KEY, economy: "riverFishingWeb.economy.v1", mission: MISSION_KEY };
+    }
   };
 })();
 </script>
