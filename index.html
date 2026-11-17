@@ -1642,7 +1642,8 @@
   }
 
   /* ── 📸 포획 인증 카드 공유 ─────────────────── */
-  #toast.show { pointer-events: auto; }
+  /* 잡은 물고기 토스트는 HUD 버튼을 가로막지 않는다 (공유 버튼만 터치 허용) */
+  #toast.show { pointer-events: none; }
   #toast .toast-share {
     position: absolute;
     top: -11px;
@@ -1659,6 +1660,7 @@
     cursor: pointer;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
     white-space: nowrap;
+    pointer-events: auto;
   }
   #toast .toast-share:active { transform: scale(0.95); }
   #toast.dud { border-color: rgba(200, 210, 224, 0.32); max-width: 92vw; }
@@ -9936,6 +9938,154 @@
       e.stopPropagation();
       claimAllRewards();
     });
+
+    // ── 내 캐릭터 상세보기(👤)와 그 안의 ＋/－/↔/꾸미기 상점/✕ ──
+    setupCharViewControls();
+
+    // ── 상점 탭 전환 (🎣 장비 / 👒 꾸미기) ──
+    if (el.shopTabs) {
+      el.shopTabs.addEventListener("click", function (e) {
+        var b = e.target.closest ? e.target.closest(".shop-tab") : null;
+        if (!b) return;
+        e.stopPropagation();
+        shopTab = b.getAttribute("data-tab") || "gear";
+        renderShop();
+        var scroller = el.shopModal.querySelector(".dex-scroll");
+        if (scroller) scroller.scrollTop = 0;
+      });
+    }
+
+    // ── 상점 구매·장착·미리보기 버튼 ──
+    if (el.shopBody) {
+      el.shopBody.addEventListener("click", function (e) {
+        var btn = e.target.closest ? e.target.closest("[data-act]") : null;
+        if (!btn || btn.disabled) return;
+        e.stopPropagation();
+        var act = btn.getAttribute("data-act");
+        var id = btn.getAttribute("data-id");
+        var cat = btn.getAttribute("data-cat");
+        if (act === "buyRod") buyRod(id);
+        else if (act === "equipRod") equipRod(id);
+        else if (act === "buyBait") buyBait(id);
+        else if (act === "equipBait") equipBait(id);
+        else if (act === "buyCos") buyCosmetic(cat, id);
+        else if (act === "equipCos") equipCosmetic(cat, id);
+        else if (act === "unequipCos") unequipCosmetic(cat);
+        else if (act === "previewCos") startPreview(cat, id);
+        else if (act === "previewOff") clearPreview();
+        else if (act === "previewBuy") buyCosmetic(cat, id);
+        else if (act === "previewChar") { closeShop(true); openCharView(); }
+      });
+    }
+
+    // ── 자판기 음료 구매 ──
+    if (el.drinkBody) {
+      el.drinkBody.addEventListener("click", function (e) {
+        var btn = e.target.closest ? e.target.closest("[data-act]") : null;
+        if (!btn || btn.disabled) return;
+        e.stopPropagation();
+        if (btn.getAttribute("data-act") === "buyDrink") buyDrink(btn.getAttribute("data-id"));
+      });
+    }
+
+    // ── 도감 시간대·날씨 히든 필터 칩 ──
+    if (el.dexFilters) {
+      el.dexFilters.addEventListener("click", function (e) {
+        var chip = e.target.closest ? e.target.closest(".filter-chip") : null;
+        if (!chip) return;
+        e.stopPropagation();
+        dexFilter = chip.getAttribute("data-filter") || "all";
+        renderDex();
+        var scroller = el.dexModal.querySelector(".dex-scroll");
+        if (scroller) scroller.scrollTop = 0;
+      });
+    }
+
+    // ── 히든 어종 인증 카드 공유 (도감 카드 · 결과 토스트 · 공유 모달) ──
+    function bindShareTrigger(node) {
+      if (!node) return;
+      node.addEventListener("click", function (e) {
+        var b = e.target.closest ? e.target.closest("[data-share]") : null;
+        if (!b) return;
+        e.stopPropagation();
+        openShareCard(b.getAttribute("data-share"));
+      });
+    }
+    bindShareTrigger(el.dexGrid);
+    bindShareTrigger(el.toast);
+    var shareBtn = $("#shareBtn");
+    if (shareBtn) shareBtn.addEventListener("click", function (e) { e.stopPropagation(); shareCatchCard(); });
+    var shareSave = $("#shareSave");
+    if (shareSave) shareSave.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (shareCanvas && shareFishId) downloadCard(shareCanvas, FISH_BY_ID[shareFishId]);
+    });
+    var shareCloseBtn = $("#shareClose");
+    if (shareCloseBtn) shareCloseBtn.addEventListener("click", function (e) { e.stopPropagation(); closeShareCard(); });
+    var shareBackdrop = $("#shareBackdrop");
+    if (shareBackdrop) shareBackdrop.addEventListener("click", closeShareCard);
+
+    // ── 도감 초기화 (두 번 탭 확인) ──
+    if (el.dexReset) {
+      el.dexReset.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (!el.dexReset.classList.contains("confirm")) {
+          el.dexReset.classList.add("confirm");
+          el.dexReset.textContent = "정말 초기화할까요? 다시 탭";
+          if (dexResetTimer) clearTimeout(dexResetTimer);
+          dexResetTimer = setTimeout(resetDexResetButton, 3200);
+          return;
+        }
+        book = { records: {} };
+        saveBook();
+        state.session = 0;
+        updateDexBadge();
+        resetDexResetButton();
+        renderDex();
+        flashNotice("도감을 초기화했어요");
+      });
+    }
+
+    // ── 자동/수동 낚시 토글 (🤖) ──
+    var btnAuto = $("#btnAuto");
+    var autoLabel = $("#autoLabel");
+    function applyAuto() {
+      if (!btnAuto) return;
+      btnAuto.classList.toggle("off", !settings.auto);
+      var ico = btnAuto.querySelector(".ico");
+      if (ico) ico.textContent = settings.auto ? "🤖" : "✋";
+      if (autoLabel) autoLabel.textContent = settings.auto ? "자동 낚시" : "수동 낚시";
+    }
+    if (btnAuto) {
+      btnAuto.addEventListener("click", function (e) {
+        e.stopPropagation();
+        settings.auto = !settings.auto;
+        saveSettings();
+        applyAuto();
+        flashNotice(settings.auto ? "자동 낚시를 켰어요. 입질 때 탭하면 보너스!" : "수동 낚시예요. 입질 때 직접 탭해 주세요");
+        if (typeof Sound !== "undefined") Sound.resume();
+      });
+      applyAuto();
+    }
+
+    // ── 소리 켜기/끄기 (🔊) ──
+    var btnSound = $("#btnSound");
+    function applySound() {
+      if (!btnSound) return;
+      btnSound.textContent = settings.sound ? "🔊" : "🔇";
+      btnSound.classList.toggle("off", !settings.sound);
+      if (typeof Sound !== "undefined") Sound.setEnabled(settings.sound);
+    }
+    if (btnSound) {
+      btnSound.addEventListener("click", function (e) {
+        e.stopPropagation();
+        settings.sound = !settings.sound;
+        saveSettings();
+        if (settings.sound && typeof Sound !== "undefined") Sound.resume();
+        applySound();
+      });
+      applySound();
+    }
 
     // 인트로
     var intro = $("#intro");
