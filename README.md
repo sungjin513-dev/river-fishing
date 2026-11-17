@@ -31,9 +31,9 @@
 | --- | --- |
 | ![미션](screenshots/river-fishing-preview-missions.jpg) | ![도감](screenshots/river-fishing-preview-dex.jpg) |
 
-| 날씨 히든 도감 | |
+| 날씨 히든 도감 | 강가 자판기 |
 | --- | --- |
-| ![날씨 히든](screenshots/river-fishing-preview-dex-weather.jpg) | |
+| ![날씨 히든](screenshots/river-fishing-preview-dex-weather.jpg) | ![자판기](screenshots/river-fishing-preview-vending.jpg) |
 
 ---
 
