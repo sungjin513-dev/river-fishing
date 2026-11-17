@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="로우폴리 3D 강가에서 즐기는 잔잔한 낚시. 시간대마다 빛과 물고기가 바뀝니다.">
+<meta name="description" content="로우폴리 3D 강가에서 즐기는 잔잔한 낚시. 시간대와 날씨에 따라 빛과 100종의 생물이 바뀝니다.">
 <title>강가 낚시 · River Fishing</title>
 <style>
   :root {
@@ -150,12 +150,39 @@
   .chip.on { opacity: 1; transform: scale(1); }
 
   .top-actions {
-    display: grid;
-    grid-template-columns: repeat(2, 42px);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-content: flex-start;
     gap: 8px;
+    width: 142px;
+    flex: 0 0 auto;
     pointer-events: auto;
-    justify-content: end;
   }
+  .icon-btn .noti-dot {
+    display: none;
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #ffe0a0;
+    box-shadow: 0 0 0 2px rgba(8, 13, 23, 0.9), 0 0 12px rgba(255, 210, 130, 1);
+  }
+  .icon-btn .noti-dot.on { display: block; animation: dotPulse 1.6s ease-in-out infinite; }
+  .icon-btn.has-reward { border-color: rgba(255, 208, 122, 0.45); }
+
+  .wx-chip {
+    font-size: 12px;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .wx-chip.rain { background: rgba(110, 165, 255, 0.22); border-color: rgba(140, 190, 255, 0.5); }
+  .wx-chip.fog { background: rgba(200, 210, 225, 0.18); border-color: rgba(210, 220, 235, 0.36); }
 
   .icon-btn {
     width: 42px;
@@ -334,7 +361,7 @@
     top: calc(var(--safe-top) + 74px);
     transform: translate(-50%, -16px);
     min-width: 214px;
-    max-width: 88vw;
+    max-width: 94vw;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -352,7 +379,7 @@
   }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
   #toast .toast-fish {
-    width: 54px;
+    width: 46px;
     height: 34px;
     color: var(--fish, #9fc0d4);
     flex: 0 0 auto;
@@ -361,7 +388,7 @@
   #toast .toast-fish svg { width: 100%; height: 100%; display: block; }
   #toast .toast-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   #toast .toast-name {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
     letter-spacing: -0.01em;
     white-space: nowrap;
@@ -370,9 +397,9 @@
   }
   #toast .toast-meta { font-size: 12px; color: var(--muted); }
   #toast .toast-badge {
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
-    padding: 3px 8px;
+    padding: 2px 6px;
     border-radius: 999px;
     background: var(--accent-soft);
     color: var(--accent);
@@ -380,9 +407,9 @@
     white-space: nowrap;
   }
   #toast .toast-coin {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 900;
-    padding: 4px 9px;
+    padding: 3px 7px;
     border-radius: 999px;
     background: rgba(255, 208, 122, 0.92);
     color: #241703;
@@ -461,11 +488,52 @@
     box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
   }
 
+  #timePanel {
+    width: 100%;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 5px 6px 3px;
+  }
+
+  #weatherBar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 0 0 5px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .wx-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #aebdd2;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 4px 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .wx-btn .ico { font-size: 12px; }
+  .wx-btn:active { transform: scale(0.96); }
+  .wx-btn.active {
+    background: rgba(140, 180, 255, 0.18);
+    color: #eaf2ff;
+    box-shadow: inset 0 0 0 1px rgba(150, 190, 255, 0.3);
+  }
+
   #bandBar {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 4px;
-    padding: 6px;
+    padding: 0;
     width: 100%;
     max-width: 620px;
     margin: 0 auto;
@@ -539,6 +607,9 @@
     background: linear-gradient(180deg, #ffe6ae, #ffc45c);
     border-color: #fff0c9;
     color: #221604;
+    font-size: 12px;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
     box-shadow: 0 0 26px rgba(255, 196, 92, 0.75), 0 10px 26px rgba(0, 0, 0, 0.3);
     animation: hotPulse 0.8s ease-in-out infinite;
   }
@@ -547,8 +618,8 @@
     50% { transform: scale(1.035); }
   }
 
-  /* ── 하단 시트 모달 (도감 · 상점 · 자판기) ───── */
-  #dexModal, #shopModal, #drinkModal {
+  /* ── 하단 시트 모달 (도감 · 상점 · 자판기 · 미션) ───── */
+  #dexModal, #shopModal, #drinkModal, #missionModal {
     position: absolute;
     inset: 0;
     z-index: 20;
@@ -559,8 +630,8 @@
     pointer-events: none;
     transition: opacity 0.25s ease;
   }
-  #dexModal.open, #shopModal.open, #drinkModal.open { opacity: 1; pointer-events: auto; }
-  #dexModal .backdrop {
+  #dexModal.open, #shopModal.open, #drinkModal.open, #missionModal.open { opacity: 1; pointer-events: auto; }
+  #dexModal .backdrop, #shopModal .backdrop, #drinkModal .backdrop, #missionModal .backdrop {
     position: absolute;
     inset: 0;
     background: rgba(3, 6, 12, 0.62);
@@ -583,7 +654,7 @@
     transition: transform 0.32s cubic-bezier(0.2, 1, 0.35, 1);
     padding-bottom: calc(var(--safe-bottom) + 10px);
   }
-  #dexModal.open .dex-sheet, #shopModal.open .dex-sheet, #drinkModal.open .dex-sheet { transform: translateY(0); }
+  #dexModal.open .dex-sheet, #shopModal.open .dex-sheet, #drinkModal.open .dex-sheet, #missionModal.open .dex-sheet { transform: translateY(0); }
 
   .dex-head {
     padding: 16px 18px 12px;
@@ -647,12 +718,10 @@
   /* 도감 필터 칩 */
   .dex-filters {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    margin: 0 -18px;
-    padding: 2px 18px 0;
+    row-gap: 5px;
+    padding: 2px 0 0;
   }
   .dex-filters::-webkit-scrollbar { display: none; }
   .filter-chip {
@@ -662,10 +731,10 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.05);
     color: #b9c8db;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: -0.01em;
-    padding: 6px 11px;
+    padding: 5px 10px;
     border-radius: 99px;
     cursor: pointer;
     transition: background 0.18s, color 0.18s, border-color 0.18s;
@@ -816,6 +885,85 @@
     color: #b9c8db;
   }
   .dex-card.locked .dex-bands span { background: rgba(255, 255, 255, 0.05); color: #7d8da3; }
+  .dex-bands span.rain {
+    width: auto;
+    padding: 2px 6px;
+    background: rgba(110, 165, 255, 0.2);
+    color: #a9cdff;
+    border: 1px solid rgba(140, 190, 255, 0.35);
+  }
+  .dex-card.locked .dex-meta .rain-hint { color: #8fb8ee; font-weight: 700; }
+  .dex-card.jellyfish .dex-fish svg { transform: scale(0.94); transform-origin: center; }
+
+  /* ── 미션 · 업적 ───────────────────────────── */
+  .mission-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 11px 12px;
+    margin-bottom: 8px;
+  }
+  .mission-row.done { border-color: rgba(255, 208, 122, 0.34); background: rgba(255, 208, 122, 0.07); }
+  .mission-info { flex: 1 1 auto; min-width: 0; }
+  .mission-name {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .mission-reward { font-size: 10.5px; font-weight: 800; color: #ffd07a; }
+  .mission-desc { font-size: 10.8px; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+  .mission-bar {
+    height: 5px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.09);
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .mission-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #8fd0ff, #ffd07a);
+    transition: width 0.35s ease;
+  }
+  .mission-row.done .mission-bar span { background: linear-gradient(90deg, #ffe6ae, #ffc45c); }
+  .claim-btn {
+    appearance: none;
+    font-family: inherit;
+    border: 0;
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 800;
+    padding: 8px 11px;
+    border-radius: 11px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .claim-btn.ready {
+    background: linear-gradient(180deg, #ffe6ae, #ffc45c);
+    color: #221604;
+    box-shadow: 0 6px 14px rgba(255, 180, 70, 0.25);
+    animation: claimGlow 1.8s ease-in-out infinite;
+  }
+  @keyframes claimGlow {
+    0%, 100% { box-shadow: 0 6px 14px rgba(255, 180, 70, 0.22); }
+    50% { box-shadow: 0 6px 20px rgba(255, 190, 80, 0.55); }
+  }
+  .claim-btn.claimed { background: rgba(255, 255, 255, 0.07); color: #8d9bb0; }
+  .claim-wait {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #8d9bb0;
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+  }
+  .mission-reset { font-size: 9.5px; letter-spacing: 0; text-transform: none; color: #5f6d80; font-weight: 600; margin-left: 6px; }
 
   .dex-actions {
     display: flex;
@@ -1077,6 +1225,7 @@
           <div class="time-title">
             <span id="bandName">새벽</span>
             <span id="clockText">06:24</span>
+            <span class="wx-chip" id="wxChip" title="날씨">☀️</span>
             <span class="chip" id="previewChip">미리보기</span>
           </div>
           <div class="time-mood" id="moodLine">물안개가 강 위를 천천히 떠다녀요</div>
@@ -1098,6 +1247,9 @@
       </button>
       <button class="icon-btn" id="btnShop" aria-label="낚시 상점 열기" title="상점">🏪</button>
       <button class="icon-btn" id="btnVending" aria-label="자판기 열기" title="자판기">🥤</button>
+      <button class="icon-btn" id="btnMission" aria-label="오늘의 미션과 업적" title="미션">
+        🎯<span class="noti-dot" id="missionDot"></span>
+      </button>
     </div>
   </header>
 
@@ -1113,12 +1265,20 @@
   <footer class="hud-bottom">
     <div id="notice"></div>
     <div id="statusPill"><span class="dot"></span><span id="statusText">찌를 던질 준비를 하고 있어요</span></div>
-    <div class="panel" id="bandBar" role="group" aria-label="시간대 미리보기">
-      <button class="band-btn active" data-band="live"><span class="ico">⏱️</span><span>실시간</span></button>
-      <button class="band-btn" data-band="dawn"><span class="ico">🌄</span><span>새벽</span></button>
-      <button class="band-btn" data-band="day"><span class="ico">☀️</span><span>낮</span></button>
-      <button class="band-btn" data-band="sunset"><span class="ico">🌇</span><span>노을</span></button>
-      <button class="band-btn" data-band="night"><span class="ico">🌙</span><span>밤</span></button>
+    <div class="panel" id="timePanel">
+      <div id="weatherBar" role="group" aria-label="날씨 전환">
+        <button class="wx-btn active" data-weather="auto"><span class="ico">🔄</span><span>자동</span></button>
+        <button class="wx-btn" data-weather="clear"><span class="ico">☀️</span><span>맑음</span></button>
+        <button class="wx-btn" data-weather="rain"><span class="ico">🌧️</span><span>비</span></button>
+        <button class="wx-btn" data-weather="fog"><span class="ico">🌫️</span><span>안개</span></button>
+      </div>
+      <div id="bandBar" role="group" aria-label="시간대 미리보기">
+        <button class="band-btn active" data-band="live"><span class="ico">⏱️</span><span>실시간</span></button>
+        <button class="band-btn" data-band="dawn"><span class="ico">🌄</span><span>새벽</span></button>
+        <button class="band-btn" data-band="day"><span class="ico">☀️</span><span>낮</span></button>
+        <button class="band-btn" data-band="sunset"><span class="ico">🌇</span><span>노을</span></button>
+        <button class="band-btn" data-band="night"><span class="ico">🌙</span><span>밤</span></button>
+      </div>
     </div>
     <div id="actionRow">
       <button class="action-btn" id="btnStrike"><span class="ico">🎣</span><span id="strikeLabel">낚아채기</span></button>
@@ -1132,11 +1292,11 @@
     <div class="dex-sheet">
       <div class="dex-head">
         <div class="dex-head-row">
-          <div class="dex-title">강가 도감<small id="dexSpecies">56종</small></div>
+          <div class="dex-title">강가 도감<small id="dexSpecies">100종</small></div>
           <button class="close-btn" id="dexClose" aria-label="닫기">✕</button>
         </div>
         <div class="progress-wrap">
-          <div class="progress-top"><span>수집률</span><strong id="dexCount">0 / 10</strong></div>
+          <div class="progress-top"><span>수집률</span><strong id="dexCount">0 / 100</strong></div>
           <div class="progress-track"><div id="dexProgressBar"></div></div>
         </div>
         <div class="dex-stats">
@@ -1150,6 +1310,7 @@
           <button class="filter-chip" data-filter="day">☀️ 낮</button>
           <button class="filter-chip" data-filter="sunset">🌇 노을</button>
           <button class="filter-chip" data-filter="night">🌙 밤</button>
+          <button class="filter-chip" data-filter="rain">🌧️ 비 히든</button>
           <button class="filter-chip" data-filter="missing">미수집</button>
         </div>
       </div>
@@ -1187,6 +1348,19 @@
     </div>
   </div>
 
+  <div id="missionModal" role="dialog" aria-modal="true" aria-label="오늘의 미션과 업적">
+    <div class="backdrop" id="missionBackdrop"></div>
+    <div class="dex-sheet">
+      <div class="dex-head">
+        <div class="dex-head-row">
+          <div class="dex-title">🎯 미션 &amp; 업적<small id="missionCoins">0 🪙</small></div>
+          <button class="close-btn" id="missionClose" aria-label="닫기">✕</button>
+        </div>
+      </div>
+      <div class="dex-scroll"><div id="missionBody"></div></div>
+    </div>
+  </div>
+
   <div id="intro">
     <div class="intro-inner">
       <div class="intro-kicker">Low-poly River</div>
@@ -1195,8 +1369,10 @@
       <ul class="intro-list">
         <li><span class="ico">👆</span><span><b>찌가 흔들리면 탭</b> — 화면을 탭하면 조금 더 큰 개체가 걸려요</span></li>
         <li><span class="ico">🕒</span><span><b>실시간 · 4가지 시간대</b> — 아래 버튼으로 새벽·낮·노을·밤을 바로 볼 수 있어요</span></li>
-        <li><span class="ico">🐟</span><span><b>물속 생물 56종 도감</b> — 물고기부터 조개·게·문어까지</span></li>
-        <li><span class="ico">🪙</span><span><b>코인 · 상점 · 자판기</b> — 낚을 때마다 코인이 쌓이고, 낚싯대·미끼를 바꾸고 음료로 체력을 회복해요</span></li>
+        <li><span class="ico">🌦️</span><span><b>날씨 · 비 히든 5종</b> — 비가 오면 각 5% 확률의 비 전용 생물이 올라와요</span></li>
+        <li><span class="ico">🐟</span><span><b>강가 생물 100종 도감</b> — 물고기부터 조개·게·문어·해파리까지</span></li>
+        <li><span class="ico">🎯</span><span><b>오늘의 미션 · 업적</b> — 목표를 채우면 코인 보상을 받아요</span></li>
+        <li><span class="ico">🪙</span><span><b>코인 · 상점 · 자판기</b> — 코인으로 낚싯대와 미끼 10종을 바꾸고 음료로 체력을 회복해요</span></li>
       </ul>
       <button id="introStart">강가로 나가기</button>
       <div class="intro-note">소리는 이 버튼을 누를 때 켜져요 · 도감은 이 브라우저에 저장됩니다</div>
@@ -1233,6 +1409,10 @@
   var easeOut = function (t) { return 1 - Math.pow(1 - t, 3); };
   var easeInOut = function (t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; };
   var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
+  var mix3 = function (a, b, t) {
+    t = clamp(t, 0, 1);
+    return [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+  };
 
   /* =====================================================================
      1. 어종 데이터 · 확률표 (iOS FishCatalog.swift 와 동일)
@@ -1241,7 +1421,8 @@
     common:    { label: "흔함",      stars: 1, color: "#a8c2d6" },
     uncommon:  { label: "조금 희귀", stars: 2, color: "#8fdcb8" },
     rare:      { label: "희귀",      stars: 3, color: "#8fb4ff" },
-    legendary: { label: "전설",      stars: 4, color: "#ffd07a" }
+    legendary: { label: "전설",      stars: 4, color: "#ffd07a" },
+    hidden:    { label: "비 히든",   stars: 4, color: "#8fd0ff" }
   };
 
   var FISH = [
@@ -1296,6 +1477,33 @@
     { id: "minmul-saeu", name: "민물새우", en: "River Shrimp", rarity: "common", kind: "shrimp", min: 3, max: 7,
       color: "#b6a98d", body: 0.80,
       summary: "돌 틈에서 더듬이만 내밀고 기다리는 청소부. 밤이 되면 활발해진다." },
+    { id: "wae-molgae", name: "왜몰개", en: "Wae Molgae", rarity: "common", kind: "fish", min: 5, max: 10,
+      color: "#b9c0a8", body: 0.94,
+      summary: "몸이 가늘고 눈이 큰 잔챙이. 얕은 물가를 무리 지어 오간다." },
+    { id: "cham-molgae", name: "참몰개", en: "Korean Gudgeon", rarity: "common", kind: "fish", min: 7, max: 14,
+      color: "#b0b59a", body: 0.96,
+      summary: "입가에 수염이 두 쌍 달린 작은 물고기. 모래 위를 조용히 훑는다." },
+    { id: "jul-molgae", name: "줄몰개", en: "Striped Gudgeon", rarity: "common", kind: "fish", min: 6, max: 12,
+      color: "#a8b096", body: 0.95,
+      summary: "옆구리에 검은 줄이 하나. 물풀 사이에서는 잘 눈에 띄지 않는다." },
+    { id: "cham-galkyeoni", name: "참갈겨니", en: "Korean Dark Chub", rarity: "common", kind: "fish", min: 8, max: 18,
+      color: "#97a676", body: 1.0,
+      summary: "갈겨니보다 몸이 통통하고 빛이 곱다. 여울의 빠른 물을 좋아한다." },
+    { id: "mul-dalpaengi", name: "물달팽이", en: "Pond Snail", rarity: "common", kind: "snail", min: 1, max: 3,
+      color: "#6d6a4e", body: 0.78,
+      summary: "물풀잎에 붙어 느릿느릿 움직이는 작은 달팽이." },
+    { id: "non-godung", name: "논고둥", en: "Rice Paddy Snail", rarity: "common", kind: "snail", min: 3, max: 6,
+      color: "#6a6248", body: 0.86,
+      summary: "뚜껑을 닫고 겨울을 나는 논의 오랜 주민. 손에 올리면 미지근하다." },
+    { id: "jinggeomi", name: "징거미새우", en: "River Prawn", rarity: "common", kind: "shrimp", min: 5, max: 10,
+      color: "#a89a80", body: 0.84,
+      summary: "집게발이 긴 민물새우. 밤이면 돌 틈에서 나와 더듬이를 세운다." },
+    { id: "bang-ge", name: "방게", en: "Mudflat Crab", rarity: "common", kind: "crab", min: 4, max: 8,
+      color: "#8a7a52", body: 0.92,
+      summary: "물가 갯벌을 옆으로 빠르게 가로지르는 작은 게." },
+    { id: "minmul-damchi", name: "민물담치", en: "Freshwater Mussel", rarity: "common", kind: "clam", min: 8, max: 16,
+      color: "#6b6047", body: 0.95,
+      summary: "민물에 사는 드문 조개. 껍데기가 검붉고 단단하다." },
     { id: "common-carp", name: "잉어", en: "Common Carp", rarity: "uncommon", kind: "fish", min: 35, max: 85,
       color: "#d2913f", body: 1.12,
       summary: "등지느러미를 수면 위로 내밀며 유유히 헤엄친다. 한 번 걸리면 팔이 아프다." },
@@ -1344,6 +1552,39 @@
     { id: "softshell", name: "자라", en: "Softshell Turtle", rarity: "uncommon", kind: "turtle", min: 20, max: 40,
       color: "#6e7a5f", body: 1.16,
       summary: "물속을 유유히 떠다니는 늙은 등껍질. 바늘을 물고도 미동이 없다." },
+    { id: "jung-gogi", name: "중고기", en: "Korean Bitterling", rarity: "uncommon", kind: "fish", min: 8, max: 16,
+      color: "#a89a80", body: 0.98,
+      summary: "몸 가운데 검은 세로줄이 지나가는 물고기. 흐르는 물을 좋아한다." },
+    { id: "cham-junggogi", name: "참중고기", en: "Cham Junggogi", rarity: "uncommon", kind: "fish", min: 8, max: 15,
+      color: "#b3a288", body: 0.98,
+      summary: "중고기보다 몸빛이 밝고 배가 둥글다. 노을 무렵 입질이 온다." },
+    { id: "baega-sari", name: "배가사리", en: "Baega Sari", rarity: "uncommon", kind: "fish", min: 8, max: 14,
+      color: "#b5a884", body: 0.97,
+      summary: "등지느러미가 유난히 길게 뻗은 모래바닥의 주민." },
+    { id: "beodeul-gaji", name: "버들가지", en: "Willow Minnow", rarity: "uncommon", kind: "fish", min: 6, max: 11,
+      color: "#93a578", body: 0.94,
+      summary: "버들가지처럼 가느다란 몸으로 찬물을 가른다." },
+    { id: "saeko-mikkuri", name: "새코미꾸리", en: "Saeko Loach", rarity: "uncommon", kind: "eel", min: 6, max: 12,
+      color: "#8b7f62", body: 0.9,
+      summary: "코가 뾰족한 미꾸리. 자갈 틈에서만 겨우 모습을 보인다." },
+    { id: "wang-jonggae", name: "왕종개", en: "Royal Loach", rarity: "uncommon", kind: "fish", min: 10, max: 18,
+      color: "#9b8a66", body: 0.98,
+      summary: "종개 중에서도 큰 몸집. 밤에 모래를 뒤지며 다닌다." },
+    { id: "nun-dongjagae", name: "눈동자개", en: "Bigeye Bagrid", rarity: "uncommon", kind: "fish", min: 15, max: 28,
+      color: "#6f6553", body: 1.08,
+      summary: "눈이 크고 수염이 긴 동자개. 밤 강바닥을 조용히 활보한다." },
+    { id: "tung-gari", name: "퉁가리", en: "Tunggari", rarity: "uncommon", kind: "fish", min: 10, max: 18,
+      color: "#7c6a52", body: 1.0,
+      summary: "가시를 세우고 돌 밑에 숨는 작은 메기. 만지면 따갑다." },
+    { id: "kkochi-dongjagae", name: "꼬치동자개", en: "Skewer Catfish", rarity: "uncommon", kind: "fish", min: 6, max: 11,
+      color: "#a29572", body: 0.92,
+      summary: "꼬치처럼 가느다란 동자개. 서식지가 드물어 만나기 어렵다." },
+    { id: "gireum-jonggae", name: "기름종개", en: "Oily Loach", rarity: "uncommon", kind: "fish", min: 6, max: 11,
+      color: "#8f8163", body: 0.94,
+      summary: "몸이 미끄럽고 무늬가 고운 종개. 낮에는 모래 속에 숨는다." },
+    { id: "peol-jogae", name: "펄조개", en: "Pearl Mussel", rarity: "uncommon", kind: "clam", min: 10, max: 18,
+      color: "#6f6a58", body: 0.98,
+      summary: "펄 속에 깊이 박혀 사는 조개. 캐내면 물이 뿜어져 나온다." },
     { id: "mandarin-fish", name: "쏘가리", en: "Mandarin Fish", rarity: "rare", kind: "fish", min: 18, max: 38,
       color: "#dfa63f", body: 1.02,
       summary: "새벽과 노을의 경계에서만 모습을 드러내는 강의 사냥꾼." },
@@ -1389,6 +1630,39 @@
     { id: "agi-muneo", name: "아기문어", en: "Baby Octopus", rarity: "rare", kind: "octopus", min: 8, max: 15,
       color: "#c78a86", body: 1.00,
       summary: "돌 틈에서 여덟 팔을 말고 있던 깜짝 손님. 만지면 물을 뿜고 도망간다." },
+    { id: "daenong-gaengi", name: "대농갱이", en: "Ussuri Catfish", rarity: "rare", kind: "fish", min: 20, max: 40,
+      color: "#6a6250", body: 1.1,
+      summary: "수염이 여덟 개인 야행성 메기과. 낮에는 돌 밑에서 잠잠하다." },
+    { id: "jaga-sari", name: "자가사리", en: "Jaga Sari", rarity: "rare", kind: "fish", min: 12, max: 22,
+      color: "#74644c", body: 1.02,
+      summary: "작지만 제법 사나운 메기. 밤에 영역을 지키며 돌아다닌다." },
+    { id: "mi-yugi", name: "미유기", en: "Miyugi", rarity: "rare", kind: "fish", min: 25, max: 55,
+      color: "#5f6152", body: 1.14,
+      summary: "길고 검은 몸으로 밤물을 가르는 메기. 입질이 묵직하다." },
+    { id: "cham-jjukkumi", name: "참쭈꾸미", en: "Cham Bobtail", rarity: "rare", kind: "squid", min: 15, max: 25,
+      color: "#b46a5e", body: 1.0,
+      summary: "몸에 둥근 고리 무늬가 있는 쭈꾸미. 노을 진 물가에 올라온다." },
+    { id: "dol-jjukkumi", name: "돌쭈꾸미", en: "Stone Bobtail", rarity: "rare", kind: "squid", min: 12, max: 20,
+      color: "#9a6a55", body: 0.98,
+      summary: "돌 틈에 몸을 말고 숨어 있다가 새벽에 나온다." },
+    { id: "gap-o-jingeo", name: "갑오징어", en: "Cuttlefish", rarity: "rare", kind: "squid", min: 20, max: 40,
+      color: "#c0a88a", body: 1.06,
+      summary: "등에 단단한 뼈를 지닌 오징어. 노을빛 아래에서 살색으로 물든다." },
+    { id: "hanchi", name: "한치", en: "Spear Squid", rarity: "rare", kind: "squid", min: 25, max: 45,
+      color: "#d6cdbd", body: 1.08,
+      summary: "창처럼 길쭉한 몸. 밤 강 어귀를 빠르게 지나간다." },
+    { id: "muneo", name: "문어", en: "Common Octopus", rarity: "rare", kind: "octopus", min: 30, max: 70,
+      color: "#9c6a66", body: 1.12,
+      summary: "돌 틈에서 여덟 팔을 뻗어 먹이를 더듬는 영리한 사냥꾼." },
+    { id: "boreumdal-mulhaepari", name: "보름달물해파리", en: "Moon Jelly", rarity: "rare", kind: "jellyfish", min: 15, max: 35,
+      color: "#cfe6ee", body: 1.0,
+      summary: "달처럼 둥글고 투명한 해파리. 밤 강물 위를 천천히 떠다닌다." },
+    { id: "yuryeong-haepari", name: "유령해파리", en: "Ghost Jelly", rarity: "rare", kind: "jellyfish", min: 20, max: 45,
+      color: "#c9d8ea", body: 1.04,
+      summary: "새벽 물안개 속에서 형체만 희미하게 보이는 해파리." },
+    { id: "hwasal-ojingeo", name: "화살오징어", en: "Arrow Squid", rarity: "rare", kind: "squid", min: 18, max: 32,
+      color: "#cfd6d8", body: 1.02,
+      summary: "화살처럼 곧게 헤엄치는 오징어. 밤에만 지느러미를 펼친다." },
     { id: "starlight-trout", name: "별빛송어", en: "Starlight Trout", rarity: "legendary", kind: "fish", min: 32, max: 58,
       color: "#93a9ff", body: 1.08,
       summary: "별이 물에 비치는 밤에만 오른다. 비늘에 별자리가 새겨져 있다고 전해진다." },
@@ -1412,53 +1686,123 @@
       summary: "깊은 물 아래에서 여덟 팔로 수면을 두드린다는 전설의 문어. 소문만 무성하다." },
     { id: "byeolbit-jjukkumi", name: "별빛쭈꾸미", en: "Starlight Bobtail", rarity: "legendary", kind: "squid", min: 25, max: 45,
       color: "#8fc7e6", body: 1.05,
-      summary: "노을이 지고 별이 뜨는 사이에만 물 위로 떠오르는 쭈꾸미. 몸에 별가루가 붙어 있다." }
+      summary: "노을이 지고 별이 뜨는 사이에만 물 위로 떠오르는 쭈꾸미. 몸에 별가루가 붙어 있다." },
+    { id: "banbit-ojingeo", name: "반딧불오징어", en: "Firefly Squid", rarity: "legendary", kind: "squid", min: 10, max: 18,
+      color: "#8fd0ff", body: 0.92,
+      summary: "몸에서 푸른 빛을 내뿜는 오징어. 밤 강을 별처럼 밝힌다." },
+    { id: "mujigae-bit-haepari", name: "무지개빗해파리", en: "Rainbow Comb Jelly", rarity: "legendary", kind: "jellyfish", min: 10, max: 20,
+      color: "#b9a6ff", body: 0.9,
+      summary: "몸을 가로지르는 빗살이 무지개로 반짝이는 해파리." },
+    { id: "nomura-haepari", name: "노무라입깃해파리", en: "Nomura's Jellyfish", rarity: "legendary", kind: "jellyfish", min: 80, max: 150,
+      color: "#e2b6a8", body: 1.3,
+      summary: "사람만 한 크기의 거대 해파리. 노을 무렵 강 어귀를 메운다." },
+    { id: "eunhasu-haepari", name: "은하수해파리", en: "Galaxy Jelly", rarity: "legendary", kind: "jellyfish", min: 30, max: 60,
+      color: "#8fa8ff", body: 1.08,
+      summary: "별이 쏟아지는 밤에만 은하처럼 빛나는 전설의 해파리." },
+    { id: "dalbit-muneo", name: "달빛문어", en: "Moonlit Octopus", rarity: "legendary", kind: "octopus", min: 45, max: 90,
+      color: "#b0a0e0", body: 1.16,
+      summary: "달빛이 수면에 내려앉을 때만 모습을 드러내는 문어." },
+    { id: "eunbit-cheolgap", name: "은빛철갑상어", en: "Silver Sturgeon", rarity: "legendary", kind: "fish", min: 120, max: 200,
+      color: "#cfd9e4", body: 1.32,
+      summary: "강을 거슬러 오르는 은빛 갑옷. 한 번 걸리면 줄이 비명을 지른다." },
+    { id: "cheonnyeon-jara", name: "천년자라", en: "Thousand-Year Turtle", rarity: "legendary", kind: "turtle", min: 80, max: 160,
+      color: "#5f6b52", body: 1.26,
+      summary: "강바닥을 지키는 늙은 자라. 등껍질에 세월의 결이 새겨져 있다." },
+    { id: "simyeon-ojingeo", name: "심연의오징어", en: "Abyss Squid", rarity: "legendary", kind: "squid", min: 60, max: 120,
+      color: "#7a6fd0", body: 1.22,
+      summary: "가장 깊은 곳에서만 잡히는 거대한 오징어. 눈이 은빛으로 빛난다." },
+    { id: "raindrop-trout", name: "빗방울송어", en: "Raindrop Trout", rarity: "hidden", kind: "fish", min: 22, max: 44,
+      color: "#9fd6e0", body: 1.02,
+      summary: "빗방울이 수면을 두드릴 때만 올라오는 송어. 비늘에 물방울이 맺혀 있다." },
+    { id: "rainbow-umbrella-fish", name: "무지개우산고기", en: "Rainbow Umbrella Fish", rarity: "hidden", kind: "fish", min: 12, max: 24,
+      color: "#a9e3d0", body: 0.98,
+      summary: "비 오는 날 우산처럼 지느러미를 펼치는 물고기. 등에 무지개가 걸린다." },
+    { id: "downpour-catfish", name: "장대비메기", en: "Downpour Catfish", rarity: "hidden", kind: "fish", min: 45, max: 95,
+      color: "#6d7f96", body: 1.18,
+      summary: "장대비가 쏟아질 때 강바닥에서 올라오는 커다란 메기." },
+    { id: "storm-eel", name: "폭우뱀장어", en: "Storm Eel", rarity: "hidden", kind: "eel", min: 70, max: 140,
+      color: "#6b7fc0", body: 1.28,
+      summary: "폭우 속에서만 강을 가로지르는 긴 그림자." },
+    { id: "thunder-snakehead", name: "천둥가물치", en: "Thunder Snakehead", rarity: "hidden", kind: "fish", min: 40, max: 80,
+      color: "#66707f", body: 1.2,
+      summary: "천둥이 울리면 물 위로 솟는 가물치. 비 오는 강의 주인." }
   ];
 
   // 시간대별 출현 가중치 (합 100)
   var SPAWN = {
     dawn: [
-      ["pale-chub", 13], ["gudgeon", 9], ["dark-chub", 10],
-      ["korean-ayu", 7], ["smelt", 6], ["daseulgi", 8],
-      ["korean-perch", 3], ["silver-ayu", 11], ["miro", 6],
-      ["mandarin-fish", 5], ["swiri", 5], ["lenok", 4],
-      ["kumgang-loach", 3], ["jinju-jogae", 3], ["starlight-trout", 1],
-      ["dawn-sweetfish", 4], ["abyss-catfish", 2]
+      ["pale-chub", 10.4], ["gudgeon", 7.4], ["dark-chub", 8.3],
+      ["korean-ayu", 5.8], ["smelt", 5], ["daseulgi", 6.6],
+      ["korean-perch", 2.5], ["silver-ayu", 9.1], ["miro", 5],
+      ["mandarin-fish", 4.1], ["swiri", 4.1], ["lenok", 3.3],
+      ["kumgang-loach", 2.5], ["jinju-jogae", 2.5], ["starlight-trout", 0.8],
+      ["dawn-sweetfish", 3.3], ["abyss-catfish", 1.7], ["wae-molgae", 1.7],
+      ["jul-molgae", 1.7], ["cham-galkyeoni", 2.5], ["mul-dalpaengi", 1.7],
+      ["baega-sari", 1.7], ["beodeul-gaji", 1.7], ["wang-jonggae", 0.8],
+      ["tung-gari", 0.8], ["jaga-sari", 0.8], ["dol-jjukkumi", 0.8],
+      ["yuryeong-haepari", 1.7], ["hwasal-ojingeo", 0.8], ["mujigae-bit-haepari", 0.5],
+      ["cheonnyeon-jara", 0.4]
     ],
     day: [
-      ["pale-chub", 8], ["gudgeon", 7], ["dark-chub", 7],
-      ["sand-gudgeon", 8], ["oily-bitterling", 4], ["striped-bitterling", 2],
-      ["korean-shiner", 7], ["daseulgi", 5], ["nonurongi", 4],
-      ["common-carp", 7], ["silver-ayu", 4], ["nuchi", 3],
-      ["gang-junchi", 5], ["kkeuri", 3], ["miro", 2],
-      ["maljogae", 3], ["eorunchi", 4], ["masu-salmon", 3],
-      ["cham-jonggae", 2], ["kumgang-loach", 2], ["starlight-trout", 3],
-      ["golden-carp", 1], ["dawn-sweetfish", 2], ["rainbow-chub", 4]
+      ["pale-chub", 6.5], ["gudgeon", 5.4], ["dark-chub", 5.4],
+      ["sand-gudgeon", 6.2], ["oily-bitterling", 3.1], ["striped-bitterling", 1.5],
+      ["korean-shiner", 5.4], ["daseulgi", 3.9], ["nonurongi", 3.1],
+      ["common-carp", 5.4], ["silver-ayu", 3.1], ["nuchi", 2.3],
+      ["gang-junchi", 3.9], ["kkeuri", 2.3], ["miro", 1.5],
+      ["maljogae", 2.3], ["eorunchi", 3.1], ["masu-salmon", 2.3],
+      ["cham-jonggae", 1.5], ["kumgang-loach", 1.5], ["starlight-trout", 2.3],
+      ["golden-carp", 0.8], ["dawn-sweetfish", 1.5], ["rainbow-chub", 3.1],
+      ["wae-molgae", 2.3], ["cham-molgae", 2.3], ["jul-molgae", 2.3],
+      ["cham-galkyeoni", 1.5], ["mul-dalpaengi", 2.3], ["non-godung", 1.5],
+      ["jinggeomi", 1.5], ["minmul-damchi", 1.5], ["jung-gogi", 1.5],
+      ["cham-junggogi", 0.8], ["baega-sari", 0.8], ["beodeul-gaji", 0.8],
+      ["gireum-jonggae", 1.5], ["dol-jjukkumi", 0.8], ["gap-o-jingeo", 0.8],
+      ["eunbit-cheolgap", 0.4]
     ],
     sunset: [
-      ["pale-chub", 8], ["crucian-carp", 11], ["striped-bitterling", 2],
-      ["korean-shiner", 5], ["hwang-eo", 5], ["tteokbungeo", 8],
-      ["rosy-bitterling", 4], ["nonurongi", 2], ["jaecheop", 4],
-      ["common-carp", 9], ["nuchi", 3], ["brocade-carp", 6],
-      ["chamge", 3], ["softshell", 4], ["mandarin-fish", 6],
-      ["sunset-perch", 9], ["cham-jonggae", 2], ["dongsa-ri", 3],
-      ["golden-carp", 4], ["galaxy-eel", 1], ["byeolbit-jjukkumi", 1]
+      ["pale-chub", 6.4], ["crucian-carp", 9.3], ["striped-bitterling", 1.6],
+      ["korean-shiner", 4], ["hwang-eo", 4], ["tteokbungeo", 6.4],
+      ["rosy-bitterling", 3.2], ["nonurongi", 1.6], ["jaecheop", 3.2],
+      ["common-carp", 7.3], ["nuchi", 2.4], ["brocade-carp", 4.8],
+      ["chamge", 2.4], ["softshell", 3.2], ["mandarin-fish", 4.8],
+      ["sunset-perch", 7.3], ["cham-jonggae", 1.6], ["dongsa-ri", 2.4],
+      ["golden-carp", 3.2], ["galaxy-eel", 0.8], ["byeolbit-jjukkumi", 0.8],
+      ["cham-molgae", 1.6], ["non-godung", 1.6], ["bang-ge", 2.4],
+      ["minmul-damchi", 1.6], ["jung-gogi", 1.6], ["cham-junggogi", 1.6],
+      ["nun-dongjagae", 0.8], ["peol-jogae", 1.6], ["mi-yugi", 0.8],
+      ["cham-jjukkumi", 0.8], ["gap-o-jingeo", 2.4], ["muneo", 1.6],
+      ["nomura-haepari", 0.5], ["eunbit-cheolgap", 0.4]
     ],
     night: [
-      ["pale-chub", 4], ["crucian-carp", 8], ["gudgeon", 2],
-      ["sand-gudgeon", 7], ["jaecheop", 1], ["minmul-saeu", 6],
-      ["catfish", 12], ["dotted-gudgeon", 4], ["snakehead", 5],
-      ["eel", 8], ["chamge", 3], ["gajae", 4],
-      ["night-eel", 5], ["cham-jonggae", 4], ["kkuguri", 3],
-      ["dongsa-ri", 2], ["susumikkuri", 4], ["dol-sangeo", 2],
-      ["jinju-jogae", 2], ["agi-muneo", 4], ["starlight-trout", 2],
-      ["abyss-catfish", 2], ["galaxy-eel", 2], ["gang-muneo", 2],
-      ["byeolbit-jjukkumi", 2]
+      ["pale-chub", 2.8], ["crucian-carp", 5.5], ["gudgeon", 1.4],
+      ["sand-gudgeon", 4.8], ["jaecheop", 0.7], ["minmul-saeu", 4.1],
+      ["catfish", 7.3], ["dotted-gudgeon", 2.8], ["snakehead", 3.4],
+      ["eel", 5.5], ["chamge", 2.1], ["gajae", 2.8],
+      ["night-eel", 3.4], ["cham-jonggae", 2.8], ["kkuguri", 2.1],
+      ["dongsa-ri", 1.4], ["susumikkuri", 2.8], ["dol-sangeo", 1.4],
+      ["jinju-jogae", 1.4], ["agi-muneo", 2.8], ["starlight-trout", 1.4],
+      ["abyss-catfish", 1.4], ["galaxy-eel", 1.4], ["gang-muneo", 1.4],
+      ["byeolbit-jjukkumi", 1.4], ["mul-dalpaengi", 0.7], ["jinggeomi", 2.1],
+      ["bang-ge", 1.4], ["saeko-mikkuri", 1.4], ["wang-jonggae", 1.4],
+      ["nun-dongjagae", 1.4], ["tung-gari", 1.4], ["kkochi-dongjagae", 1.4],
+      ["gireum-jonggae", 0.7], ["peol-jogae", 0.7], ["daenong-gaengi", 2.1],
+      ["jaga-sari", 1.4], ["mi-yugi", 2.1], ["cham-jjukkumi", 2.1],
+      ["hanchi", 2.1], ["muneo", 1.4], ["boreumdal-mulhaepari", 2.1],
+      ["yuryeong-haepari", 0.7], ["hwasal-ojingeo", 1.4], ["banbit-ojingeo", 0.8],
+      ["mujigae-bit-haepari", 0.7], ["nomura-haepari", 0.3], ["eunhasu-haepari", 0.6],
+      ["dalbit-muneo", 0.6], ["cheonnyeon-jara", 0.3], ["simyeon-ojingeo", 0.4]
     ]
   };
 
   var FISH_BY_ID = {};
   FISH.forEach(function (f) { FISH_BY_ID[f.id] = f; });
+
+  // 비 전용 히든 5종 — 비 날씨에만, 5종이 각각 정확히 5%(합 25%) 확률로 걸린다
+  var RAIN_HIDDEN = ["raindrop-trout", "rainbow-umbrella-fish", "downpour-catfish", "storm-eel", "thunder-snakehead"];
+  var RAIN_HIDDEN_CHANCE = 0.05;
+  RAIN_HIDDEN.forEach(function (id) {
+    if (FISH_BY_ID[id]) FISH_BY_ID[id].rainOnly = true;
+  });
 
   var BANDS = {
     dawn:   { name: "새벽", hours: "05 – 08", preview: 6.4,  icon: "🌄", mood: "물안개가 강 위를 천천히 떠다녀요" },
@@ -1484,7 +1828,31 @@
     return out;
   }
 
+  function baitWeightMul(f) {
+    var b = (typeof BAITS_BY_ID !== "undefined" && BAITS_BY_ID[economy.bait]) || null;
+    if (!b) return 1;
+    var m = 1;
+    if (b.kindBonus && b.kindBonus[f.kind]) m *= b.kindBonus[f.kind];
+    if (b.bandBonus) {
+      var bands = bandsOf(f.id);
+      Object.keys(b.bandBonus).forEach(function (k) {
+        if (bands.indexOf(k) !== -1) m *= b.bandBonus[k];
+      });
+    }
+    return m;
+  }
+
   function rollFish(band, rareMul) {
+    // ① 비가 내리면 25% 확률로 비 전용 히든 (5종 × 5%, 낚싯대·미끼 보정 없음)
+    if (weather.current === "rain" && RAIN_HIDDEN.length) {
+      var hr = Math.random();
+      if (hr < RAIN_HIDDEN_CHANCE * RAIN_HIDDEN.length) {
+        var hi = Math.min(RAIN_HIDDEN.length - 1, Math.floor(hr / RAIN_HIDDEN_CHANCE));
+        var hf = FISH_BY_ID[RAIN_HIDDEN[hi]];
+        if (hf) return hf;
+      }
+    }
+    // ② 나머지 75%는 그 시간대의 일반 풀에서
     var table = SPAWN[band] || SPAWN.day;
     rareMul = rareMul || 1;
     var total = 0;
@@ -1493,6 +1861,7 @@
       var f = FISH_BY_ID[table[i][0]];
       var w = table[i][1];
       if (f && (f.rarity === "rare" || f.rarity === "legendary")) w *= rareMul;
+      if (f) w *= baitWeightMul(f);
       weights.push(w);
       total += w;
     }
@@ -1549,7 +1918,7 @@
     try { localStorage.setItem(BOOK_KEY, JSON.stringify(book)); } catch (err) { /* 저장 불가 환경 무시 */ }
   }
 
-  var settings = { sound: true, auto: true };
+  var settings = { sound: true, auto: true, wx: "auto" };
 
   function loadSettings() {
     try {
@@ -1559,6 +1928,7 @@
       if (!parsed || typeof parsed !== "object") return;
       if (typeof parsed.sound === "boolean") settings.sound = parsed.sound;
       if (typeof parsed.auto === "boolean") settings.auto = parsed.auto;
+      if (parsed.wx === "auto" || parsed.wx === "clear" || parsed.wx === "rain" || parsed.wx === "fog") settings.wx = parsed.wx;
     } catch (err) { /* 무시 */ }
   }
 
@@ -1580,10 +1950,16 @@
   ];
 
   var BAITS = [
-    { id: "worm",     name: "일반 떡밥",       price: 0,   pack: 0,  waitMul: 1.0,  sizeBonus: 1.0,    rareMul: 1.0, coinMul: 1.0,  swatch: "#8a6a43", desc: "기본 미끼. 무제한으로 쓸 수 있어요" },
-    { id: "corn",     name: "향긋한 옥수수",   price: 60,  pack: 10, waitMul: 0.85, sizeBonus: 1.15,   rareMul: 1.1, coinMul: 1.0,  swatch: "#f0c94e", desc: "10개 · 입질이 빨라지고 15% 더 큰 개체가 올라와요" },
-    { id: "lure",     name: "반짝이 루어",     price: 150, pack: 10, waitMul: 1.0,  sizeBonus: 1.0,    rareMul: 1.7, coinMul: 1.1,  swatch: "#7fd0e8", desc: "10개 · 희귀·전설 어종 확률이 눈에 띄게 올라가요" },
-    { id: "goldbait", name: "심해 황금 미끼", price: 400, pack: 5,  waitMul: 1.0,  sizeBonus: 1.35,   rareMul: 1.8, coinMul: 1.3,  swatch: "#ffd07a", desc: "5개 · 큰 개체 + 희귀 확률 + 코인 30% 보너스" }
+    { id: "worm",     name: "일반 떡밥",       price: 0,   pack: 0,  waitMul: 1.0,  sizeBonus: 1.0,  rareMul: 1.0, coinMul: 1.0,  swatch: "#8a6a43", desc: "기본 미끼. 무제한으로 쓸 수 있어요" },
+    { id: "corn",     name: "향긋한 옥수수",   price: 60,  pack: 10, waitMul: 0.85, sizeBonus: 1.15, rareMul: 1.0, coinMul: 1.0,  swatch: "#f0c94e", desc: "10개 · 입질이 빨라지고 15% 더 큰 개체가 올라와요" },
+    { id: "lure",     name: "반짝이 루어",     price: 150, pack: 10, waitMul: 1.0,  sizeBonus: 1.0,  rareMul: 1.7, coinMul: 1.1,  swatch: "#7fd0e8", desc: "10개 · 희귀·전설 어종 확률이 눈에 띄게 올라가요" },
+    { id: "shell",    name: "조개살 미끼",     price: 110, pack: 12, waitMul: 1.05, sizeBonus: 1.0,  rareMul: 1.0, coinMul: 1.0,  swatch: "#c9b8a0", desc: "12개 · 조개·달팽이·갑각류가 2배 이상 걸려요", kindBonus: { clam: 2.6, snail: 2.6, crab: 2.2, shrimp: 2.2 } },
+    { id: "shrimp",   name: "새우 미끼",       price: 130, pack: 10, waitMul: 1.0,  sizeBonus: 1.05, rareMul: 1.0, coinMul: 1.05, swatch: "#e08a7a", desc: "10개 · 해파리·오징어·문어가 2배 이상 걸려요", kindBonus: { jellyfish: 2.4, squid: 2.4, octopus: 2.2 } },
+    { id: "dawnbait", name: "새벽이슬 미끼",   price: 200, pack: 8,  waitMul: 0.8,  sizeBonus: 1.05, rareMul: 1.1, coinMul: 1.05, swatch: "#a9d8e8", desc: "8개 · 새벽 어종 2배, 입질이 빨라져요", bandBonus: { dawn: 2.0 } },
+    { id: "nightbait",name: "달빛 미끼",       price: 220, pack: 8,  waitMul: 0.95, sizeBonus: 1.1,  rareMul: 1.15, coinMul: 1.1, swatch: "#8fa8ff", desc: "8개 · 밤에만 나오는 생물이 2.2배 걸려요", bandBonus: { night: 2.2 } },
+    { id: "bigbait",  name: "왕밥 대어 미끼",  price: 380, pack: 6,  waitMul: 1.2,  sizeBonus: 1.6,  rareMul: 1.15, coinMul: 1.15, swatch: "#ffb066", desc: "6개 · 크기 +60% 대신 입질이 느려져요" },
+    { id: "goldbait", name: "심해 황금 미끼",  price: 400, pack: 5,  waitMul: 1.0,  sizeBonus: 1.35, rareMul: 1.8, coinMul: 1.3,  swatch: "#ffd07a", desc: "5개 · 큰 개체 + 희귀 확률 + 코인 30% 보너스" },
+    { id: "stormbait",name: "폭풍 미끼",       price: 480, pack: 5,  waitMul: 1.0,  sizeBonus: 1.1,  rareMul: 1.2, coinMul: 1.2,  swatch: "#7f8fc0", rainWaitMul: 0.6, rainRareMul: 1.6, desc: "5개 · 비 올 때 입질 -40% · 희귀 +60%" }
   ];
 
   var DRINKS = [
@@ -1593,7 +1969,7 @@
     { id: "energy", emoji: "⚡", name: "특제 에너지드링크", price: 130, hp: 100, buff: "big",     buffMs: 90000,  desc: "체력 완전 회복 · 90초간 대어 + 코인 보너스" }
   ];
 
-  var COIN_BASE = { common: 6, uncommon: 18, rare: 50, legendary: 150 };
+  var COIN_BASE = { common: 6, uncommon: 18, rare: 50, legendary: 150, hidden: 110 };
 
   var RODS_BY_ID = {};
   RODS.forEach(function (r) { RODS_BY_ID[r.id] = r; });
@@ -1666,6 +2042,7 @@
     var rod = RODS_BY_ID[economy.rod] || RODS[0];
     var bait = BAITS_BY_ID[economy.bait] || BAITS[0];
     var m = rod.waitMul * (bait.waitMul || 1);
+    if (bait.rainWaitMul && weather.current === "rain") m *= bait.rainWaitMul;
     if (activeBuff("biteFast")) m *= 0.62;
     if (isTired()) m *= 1.6;
     return m;
@@ -1698,6 +2075,7 @@
     ctx: null,
     master: null,
     waterGain: null,
+    rainGain: null,
     noiseBuffer: null,
     enabled: true,
     started: false,
@@ -1769,6 +2147,26 @@
       lfo2.connect(lfoGain2);
       lfoGain2.connect(bp.frequency);
       lfo2.start(0);
+
+      // 빗소리: 같은 노이즈를 높은 대역으로 걸러 비 올 때만 서서히 올린다
+      var rainSrc = ctx.createBufferSource();
+      rainSrc.buffer = buf;
+      rainSrc.loop = true;
+      var rhp = ctx.createBiquadFilter();
+      rhp.type = "highpass";
+      rhp.frequency.value = 900;
+      var rlp = ctx.createBiquadFilter();
+      rlp.type = "lowpass";
+      rlp.frequency.value = 5200;
+      rlp.Q.value = 0.4;
+      var rg = ctx.createGain();
+      rg.gain.value = (weather && weather.rain ? weather.rain : 0) * 0.17;
+      rainSrc.connect(rhp);
+      rhp.connect(rlp);
+      rlp.connect(rg);
+      rg.connect(master);
+      rainSrc.start(0);
+      this.rainGain = rg;
     },
 
     resume: function () {
@@ -1778,6 +2176,11 @@
         this.ctx.resume().catch(function () { /* 무시 */ });
       }
       this.started = true;
+    },
+
+    setRain: function (level) {
+      if (!this.rainGain || !this.ctx) return;
+      this.rainGain.gain.setTargetAtTime(clamp(level, 0, 1) * 0.17, this.ctx.currentTime, 0.6);
     },
 
     setEnabled: function (on) {
@@ -1983,6 +2386,81 @@
   var hour = 0;           // 현재 목표 시각 (0~24)
   var mood = null;        // 보간된 분위기
   var moodReady = false;
+
+  /* ---------------------------------------------------------------------
+     5-1. 날씨 (맑음 · 비 · 안개) — 자동 순환 + 직접 전환
+     --------------------------------------------------------------------- */
+  var WEATHER_INFO = {
+    clear: { label: "맑음", icon: "☀️", mood: "" },
+    rain:  { label: "비",   icon: "🌧️", mood: "빗줄기가 강을 두드려요 · 비 히든 5종 출현 중" },
+    fog:   { label: "안개", icon: "🌫️", mood: "강가에 물안개가 짙게 껴 있어요" }
+  };
+
+  var weather = {
+    mode: "auto",     // auto | clear | rain | fog
+    current: "clear", // clear | rain | fog
+    rain: 0,          // 0~1 연출 강도
+    fog: 0,
+    t: 0,
+    nextAt: 70,
+    soundRain: 0
+  };
+
+  function pickWeather() {
+    var band = currentBand();
+    var w = { clear: 0.52, rain: 0.26, fog: 0.22 };
+    if (band === "dawn")  { w.clear = 0.40; w.rain = 0.18; w.fog = 0.42; }
+    if (band === "day")   { w.clear = 0.68; w.rain = 0.22; w.fog = 0.10; }
+    if (band === "sunset"){ w.clear = 0.54; w.rain = 0.24; w.fog = 0.22; }
+    if (band === "night") { w.clear = 0.44; w.rain = 0.32; w.fog = 0.24; }
+    var keys = ["clear", "rain", "fog"].filter(function (k) { return k !== weather.current; });
+    var total = 0;
+    keys.forEach(function (k) { total += w[k]; });
+    var r = Math.random() * total;
+    for (var i = 0; i < keys.length; i++) {
+      r -= w[keys[i]];
+      if (r <= 0) return keys[i];
+    }
+    return keys[keys.length - 1];
+  }
+
+  function setWeatherMode(mode) {
+    if (mode !== "auto" && !WEATHER_INFO[mode]) return;
+    weather.mode = mode;
+    settings.wx = mode;
+    saveSettings();
+    if (mode === "auto") {
+      weather.t = 0;
+      weather.nextAt = rand(45, 100);
+    } else {
+      weather.current = mode;
+    }
+    updateWeatherButtons();
+    updateWeatherHUDText();
+  }
+
+  function updateWeather(dt) {
+    weather.t += dt;
+    if (weather.mode === "auto" && weather.t >= weather.nextAt) {
+      weather.t = 0;
+      weather.nextAt = rand(50, 120);
+      var next = pickWeather();
+      if (next !== weather.current) {
+        weather.current = next;
+        flashNotice(WEATHER_INFO[next].icon + " 날씨가 바뀌었어요 · " + WEATHER_INFO[next].label);
+        updateWeatherHUDText();
+      }
+    }
+    var k = 1 - Math.exp(-dt * 0.7);
+    weather.rain = lerp(weather.rain, weather.current === "rain" ? 1 : 0, k);
+    weather.fog = lerp(weather.fog, weather.current === "fog" ? 1 : 0, k);
+    if (Math.abs(weather.rain - weather.soundRain) > 0.03) {
+      weather.soundRain = weather.rain;
+      Sound.setRain(weather.rain);
+    }
+  }
+
+  function isRaining() { return weather.current === "rain"; }
 
   /* =====================================================================
      6. Three.js 준비
@@ -2242,6 +2720,7 @@
     buildBobber();
     buildRipples();
     buildFireflies();
+    buildRain();
     buildSwimmingFish();
 
     window.addEventListener("resize", onResize);
@@ -3055,75 +3534,235 @@
     scene.add(fireflies);
   }
 
+  /* ---------- 비: 3D 빗줄기 + 수면 빗방울 잔물결 ---------- */
+  var rainMesh = null, rainDrops = [];
+  var rainRippleMesh = null, rainRipples = [], rainSpawnT = 0, rainDummy = null;
+  var RAIN_RIPPLE_N = 54;
+
+  function buildRain() {
+    var COUNT = 520;
+    var pos = new Float32Array(COUNT * 6);
+    for (var i = 0; i < COUNT; i++) {
+      rainDrops.push({
+        x: rand(-28, 28), y: rand(0, 24), z: rand(-46, 12),
+        len: rand(0.5, 1.25), sp: rand(13, 21), drift: rand(-1.6, -0.7)
+      });
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    var mat = new THREE.LineBasicMaterial({
+      color: 0xd6e8f8, transparent: true, opacity: 0, depthWrite: false
+    });
+    rainMesh = new THREE.LineSegments(geo, mat);
+    rainMesh.frustumCulled = false;
+    rainMesh.visible = false;
+    rainMesh.renderOrder = 3;
+    scene.add(rainMesh);
+
+    rainDummy = new THREE.Object3D();
+    var ring = new THREE.RingGeometry(0.30, 0.42, 16);
+    var rmat = new THREE.MeshBasicMaterial({
+      color: 0xffffff, transparent: true, opacity: 0.55, depthWrite: false,
+      side: THREE.DoubleSide, blending: THREE.AdditiveBlending
+    });
+    rainRippleMesh = new THREE.InstancedMesh(ring, rmat, RAIN_RIPPLE_N);
+    rainRippleMesh.frustumCulled = false;
+    rainRippleMesh.visible = false;
+    rainRippleMesh.renderOrder = 2;
+    var black = new THREE.Color(0x000000);
+    for (var r = 0; r < RAIN_RIPPLE_N; r++) {
+      rainRipples.push({ life: 0, dur: 1, x: 0, z: 0 });
+      rainDummy.position.set(0, -60, 0);
+      rainDummy.scale.setScalar(0.001);
+      rainDummy.updateMatrix();
+      rainRippleMesh.setMatrixAt(r, rainDummy.matrix);
+      if (rainRippleMesh.setColorAt) rainRippleMesh.setColorAt(r, black);
+    }
+    scene.add(rainRippleMesh);
+  }
+
+  var rainColorTmp = null;
+
+  function updateRain(dt) {
+    if (!rainMesh) return;
+    var rainK = weather.rain;
+    var on = rainK > 0.02;
+    rainMesh.visible = on;
+    rainRippleMesh.visible = on;
+    if (!on) { rainMesh.material.opacity = 0; return; }
+    rainMesh.material.opacity = 0.38 * rainK;
+
+    var arr = rainMesh.geometry.attributes.position.array;
+    for (var i = 0; i < rainDrops.length; i++) {
+      var d = rainDrops[i];
+      d.y -= d.sp * dt;
+      d.x += d.drift * dt * 2.2;
+      if (d.y < -0.4 || d.x < -30) {
+        d.y = rand(18, 26);
+        d.x = rand(-28, 28);
+        d.z = rand(-46, 12);
+      }
+      var o = i * 6;
+      arr[o] = d.x;
+      arr[o + 1] = d.y;
+      arr[o + 2] = d.z;
+      arr[o + 3] = d.x + d.drift * d.len * 0.28;
+      arr[o + 4] = d.y - d.len * d.sp * 0.16;
+      arr[o + 5] = d.z;
+    }
+    rainMesh.geometry.attributes.position.needsUpdate = true;
+
+    // 수면에 떨어지는 빗방울 잔물결
+    rainSpawnT -= dt;
+    var spawnGap = 0.05 / Math.max(0.2, rainK);
+    while (rainSpawnT <= 0) {
+      rainSpawnT += spawnGap;
+      var slot = null;
+      for (var r = 0; r < rainRipples.length; r++) {
+        if (rainRipples[r].life <= 0) { slot = rainRipples[r]; break; }
+      }
+      if (!slot) break;
+      slot.life = rand(0.85, 1.5);
+      slot.dur = slot.life;
+      slot.x = rand(-18, 18);
+      slot.z = rand(-34, -6);
+    }
+    if (!rainColorTmp) rainColorTmp = new THREE.Color();
+    for (var k = 0; k < rainRipples.length; k++) {
+      var rp = rainRipples[k];
+      if (rp.life > 0) {
+        rp.life -= dt;
+        var p = 1 - clamp(rp.life / rp.dur, 0, 1);
+        var sc = 0.35 + p * 2.4;
+        rainDummy.position.set(rp.x, waveHeight(rp.x, rp.z, sceneTime) + 0.05, rp.z);
+        rainDummy.rotation.set(-Math.PI / 2, 0, 0);
+        rainDummy.scale.set(sc, sc, sc);
+        rainDummy.updateMatrix();
+        rainRippleMesh.setMatrixAt(k, rainDummy.matrix);
+        var fade = (1 - p) * 0.42 * rainK;
+        rainColorTmp.setRGB(fade, fade * 1.02, fade * 1.08);
+        if (rainRippleMesh.setColorAt) rainRippleMesh.setColorAt(k, rainColorTmp);
+      } else {
+        rainDummy.position.set(0, -60, 0);
+        rainDummy.rotation.set(0, 0, 0);
+        rainDummy.scale.setScalar(0.001);
+        rainDummy.updateMatrix();
+        rainRippleMesh.setMatrixAt(k, rainDummy.matrix);
+      }
+    }
+    rainRippleMesh.instanceMatrix.needsUpdate = true;
+    if (rainRippleMesh.instanceColor) rainRippleMesh.instanceColor.needsUpdate = true;
+  }
+
   /* =====================================================================
      8. 분위기 적용
      ===================================================================== */
   function applyMood(m) {
     if (!m || !waterUniforms) return;
 
+    /* ── 날씨 보정 ──────────────────────────────
+       비: 하늘·빛·물빛을 한 톤씩 낮추고 시야를 좁힌다
+       안개: Fog near/far를 강하게 당겨 물안개 속에 앉은 느낌 */
+    var rainK = weather ? clamp(weather.rain, 0, 1) : 0;
+    var fogK = weather ? clamp(weather.fog, 0, 1) : 0;
+    var nightF = clamp(m.starOpacity, 0, 1);
+
+    var wTop = m.skyTop;
+    var wHor = m.skyHorizon;
+    var wFogColor = m.fogColor;
+    if (rainK > 0.002) {
+      wTop = mix3(wTop, mix3([0.10, 0.12, 0.16], [0.03, 0.04, 0.06], nightF), rainK * 0.7);
+      wHor = mix3(wHor, mix3([0.24, 0.27, 0.33], [0.06, 0.08, 0.11], nightF), rainK * 0.62);
+      wFogColor = mix3(wFogColor, mix3([0.18, 0.21, 0.26], [0.07, 0.09, 0.13], nightF), rainK * 0.72);
+    }
+    if (fogK > 0.002) {
+      var fogSkyTop = [lerp(0.26, 0.05, nightF), lerp(0.29, 0.07, nightF), lerp(0.34, 0.11, nightF)];
+      var fogHor = [lerp(0.56, 0.12, nightF), lerp(0.60, 0.15, nightF), lerp(0.65, 0.20, nightF)];
+      var fogBody = [lerp(0.54, 0.13, nightF), lerp(0.58, 0.16, nightF), lerp(0.63, 0.21, nightF)];
+      wTop = mix3(wTop, fogSkyTop, fogK * 0.82);
+      wHor = mix3(wHor, fogHor, fogK * 0.86);
+      wFogColor = mix3(wFogColor, fogBody, fogK * 0.9);
+    }
+
+    var sunO = m.sunOpacity * (1 - 0.72 * rainK) * (1 - 0.62 * fogK);
+    var moonO = m.moonOpacity * (1 - 0.55 * rainK) * (1 - 0.35 * fogK);
+    var starO = m.starOpacity * (1 - 0.9 * rainK) * (1 - 0.55 * fogK);
+
     // 하늘
-    skyMat.uniforms.uTop.value.setRGB(m.skyTop[0], m.skyTop[1], m.skyTop[2]);
-    skyMat.uniforms.uHorizon.value.setRGB(m.skyHorizon[0], m.skyHorizon[1], m.skyHorizon[2]);
+    skyMat.uniforms.uTop.value.setRGB(wTop[0], wTop[1], wTop[2]);
+    skyMat.uniforms.uHorizon.value.setRGB(wHor[0], wHor[1], wHor[2]);
     skyMat.uniforms.uSunColor.value.setRGB(m.sunColor[0], m.sunColor[1], m.sunColor[2]);
-    skyMat.uniforms.uSunGlow.value = Math.max(m.sunOpacity, m.moonOpacity * 0.5);
-    skyMat.uniforms.uNight.value = clamp(m.starOpacity, 0, 1);
+    skyMat.uniforms.uSunGlow.value = Math.max(sunO, moonO * 0.5) * (1 - 0.4 * rainK) * (1 - 0.78 * fogK);
+    skyMat.uniforms.uNight.value = clamp(starO, 0, 1);
 
     dirFrom(m.sunAlt, m.sunAz, sunDirVec);
     dirFrom(m.moonAlt, -8, moonDirVec);
     skyMat.uniforms.uSunDir.value.copy(sunDirVec);
 
     sunSprite.position.set(sunDirVec.x * 320, sunDirVec.y * 320, sunDirVec.z * 320);
-    sunSprite.material.opacity = m.sunOpacity;
+    sunSprite.material.opacity = sunO * (1 - 0.5 * fogK);
     sunSprite.material.color.setRGB(m.sunDisc[0], m.sunDisc[1], m.sunDisc[2]);
 
     moonSprite.position.set(moonDirVec.x * 320, moonDirVec.y * 320, moonDirVec.z * 320);
-    moonSprite.material.opacity = m.moonOpacity;
+    moonSprite.material.opacity = moonO;
 
-    starField.material.opacity = clamp(m.starOpacity, 0, 1);
+    starField.material.opacity = clamp(starO, 0, 1);
 
-    // 안개
-    scene.fog.color.setRGB(m.fogColor[0], m.fogColor[1], m.fogColor[2]);
-    scene.fog.near = m.fogNear;
-    scene.fog.far = m.fogFar;
+    // 안개 (날씨에 따라 near/far를 당긴다)
+    var fNear = m.fogNear;
+    var fFar = m.fogFar;
+    if (rainK > 0.002) {
+      fNear = lerp(fNear, fNear * 0.62, rainK);
+      fFar = lerp(fFar, fFar * 0.5, rainK);
+    }
+    if (fogK > 0.002) {
+      fNear = lerp(fNear, 5.2, fogK);
+      fFar = lerp(fFar, 52, fogK);
+    }
+    scene.fog.color.setRGB(wFogColor[0], wFogColor[1], wFogColor[2]);
+    scene.fog.near = fNear;
+    scene.fog.far = fFar;
 
     // 조명
     var sunPower = m.sunIntensity / 1100;
-    var useSun = m.sunOpacity > 0.35;
-    var lightDir = useSun ? sunDirVec : moonDirVec;
+    var lightDir = sunO > 0.35 ? sunDirVec : moonDirVec;
     sunLight.position.set(lightDir.x * 60, Math.max(6, lightDir.y * 60), lightDir.z * 60);
     sunLight.color.setRGB(m.sunColor[0], m.sunColor[1], m.sunColor[2]);
-    sunLight.intensity = 0.10 + 1.05 * sunPower * Math.max(m.sunOpacity, m.moonOpacity * 0.55);
+    sunLight.intensity = (0.10 + 1.05 * sunPower * Math.max(sunO, moonO * 0.55)) *
+      (1 - 0.4 * rainK) * (1 - 0.26 * fogK);
 
-    hemiLight.color.setRGB(m.ambient[0], m.ambient[1], m.ambient[2]);
-    hemiLight.groundColor.setRGB(0.14 + m.ambient[0] * 0.12, 0.18 + m.ambient[1] * 0.15, 0.11);
-    hemiLight.intensity = 0.14 + 0.42 * (m.ambientIntensity / 460);
+    var amb = mix3(m.ambient, [0.48, 0.54, 0.62], rainK * 0.4);
+    hemiLight.color.setRGB(amb[0], amb[1], amb[2]);
+    hemiLight.groundColor.setRGB(0.14 + amb[0] * 0.12, 0.18 + amb[1] * 0.15, 0.11);
+    hemiLight.intensity = (0.14 + 0.42 * (m.ambientIntensity / 460)) * (1 - 0.16 * rainK);
 
     fillLight.color.setRGB(
-      clamp(m.ambient[0] * 1.05, 0, 1),
-      clamp(m.ambient[1] * 1.02, 0, 1),
-      clamp(m.ambient[2] * 1.0, 0, 1)
+      clamp(amb[0] * 1.05, 0, 1),
+      clamp(amb[1] * 1.02, 0, 1),
+      clamp(amb[2] * 1.0, 0, 1)
     );
-    fillLight.intensity = 0.1 + 0.18 * (m.ambientIntensity / 460);
+    fillLight.intensity = (0.1 + 0.18 * (m.ambientIntensity / 460)) * (1 - 0.2 * rainK);
 
     // 물
-    waterUniforms.uDeep.value.setRGB(m.water[0], m.water[1], m.water[2]);
+    var waterDeep = rainK > 0.002 ? mix3(m.water, [m.water[0] * 0.62, m.water[1] * 0.66, m.water[2] * 0.7], rainK) : m.water;
+    waterUniforms.uDeep.value.setRGB(waterDeep[0], waterDeep[1], waterDeep[2]);
     waterUniforms.uShallow.value.setRGB(
-      clamp(m.water[0] * 1.5 + m.skyHorizon[0] * 0.16, 0, 1),
-      clamp(m.water[1] * 1.45 + m.skyHorizon[1] * 0.16, 0, 1),
-      clamp(m.water[2] * 1.4 + m.skyHorizon[2] * 0.18, 0, 1)
+      clamp(waterDeep[0] * 1.5 + wHor[0] * 0.16, 0, 1),
+      clamp(waterDeep[1] * 1.45 + wHor[1] * 0.16, 0, 1),
+      clamp(waterDeep[2] * 1.4 + wHor[2] * 0.18, 0, 1)
     );
-    waterUniforms.uSky.value.setRGB(m.skyHorizon[0], m.skyHorizon[1], m.skyHorizon[2]);
+    waterUniforms.uSky.value.setRGB(wHor[0], wHor[1], wHor[2]);
     waterUniforms.uSunColor.value.setRGB(m.sunColor[0], m.sunColor[1], m.sunColor[2]);
-    waterUniforms.uFogColor.value.setRGB(m.fogColor[0], m.fogColor[1], m.fogColor[2]);
-    waterUniforms.uFogNear.value = m.fogNear * 0.9;
-    waterUniforms.uFogFar.value = m.fogFar;
-    waterUniforms.uSunDir.value.copy(m.sunOpacity > 0.2 ? sunDirVec : moonDirVec);
-    waterUniforms.uSunPower.value = m.sunOpacity > 0.2
-      ? (0.25 + 1.15 * sunPower)
-      : (0.55 * m.moonOpacity);
+    waterUniforms.uFogColor.value.setRGB(wFogColor[0], wFogColor[1], wFogColor[2]);
+    waterUniforms.uFogNear.value = fNear * 0.9;
+    waterUniforms.uFogFar.value = fFar;
+    waterUniforms.uSunDir.value.copy(sunO > 0.2 ? sunDirVec : moonDirVec);
+    waterUniforms.uSunPower.value = sunO > 0.2
+      ? (0.25 + 1.15 * sunPower) * (1 - 0.45 * rainK)
+      : (0.55 * moonO);
 
     // 밤 조명 (기준값을 저장해 두고 매 프레임 깜빡임을 곱한다)
-    lanternBase = 2.4 * (m.lantern / 950);
+    lanternBase = 2.4 * (m.lantern / 950) * (1 + 0.18 * rainK);
     fireBase = 2.2 * (m.fire / 820);
     lanternGlow.material.opacity = 0.9 * (m.lantern / 950);
     glowBase = 0.5 * (m.fire / 820);
@@ -3149,7 +3788,7 @@
 
     // 낚싯줄 색은 하늘 밝기에 맞춰 (낮에는 어둡게, 밤에는 밝게)
     if (lineMat) {
-      var nightness = clamp(m.starOpacity, 0, 1);
+      var nightness = clamp(starO, 0, 1);
       lineMat.color.setRGB(
         lerp(0.32, 0.9, nightness),
         lerp(0.39, 0.94, nightness),
@@ -3157,13 +3796,12 @@
       );
     }
 
-    // 헤엄치는 물고기: 시간대 밝기에 맞춰 색과 투명도를 조정 (수면 아래 비치는 느낌)
+    // 헤엄치는 물고기: 시간대·날씨 밝기에 맞춰 색과 투명도를 조정
     if (fishSchool) {
       var dayF = clamp(m.sunIntensity / 1100, 0, 1);
-      var nightF = clamp(m.starOpacity, 0, 1);
-      var moonF = clamp(m.moonOpacity, 0, 1);
-      var amb = clamp(m.ambientIntensity / 460, 0, 1);
-      var lit = 0.40 + 0.34 * amb + 0.34 * dayF * (1 - nightF) + 0.14 * moonF;
+      var moonF = clamp(moonO, 0, 1);
+      var ambF = clamp(m.ambientIntensity / 460, 0, 1);
+      var lit = (0.40 + 0.34 * ambF + 0.34 * dayF * (1 - nightF) + 0.14 * moonF) * (1 - 0.24 * rainK);
       fishSchool.mat.color.setRGB(lit, lit * 1.01, lit * 1.03);
       fishSchool.mat.emissive.setRGB(
         clamp(m.water[0] * 0.55 + 0.04, 0, 1) * (0.12 + nightF * 0.5),
@@ -3174,22 +3812,20 @@
       fishSchool.shadowMat.opacity = 0.10 + 0.16 * (1 - nightF);
     }
 
-    // 반딧불이 / 구름 / 안개
-    fireflies.material.opacity = clamp((m.starOpacity - 0.32) / 0.6, 0, 1) * 0.95;
+    // 반딧불이 (밤 · 비가 오지 않을 때만) / 구름 / 안개
+    fireflies.material.opacity = clamp((starO - 0.32) / 0.6, 0, 1) * 0.95 * (1 - 0.92 * rainK);
     cloudGroup.children.forEach(function (c) {
-      c.material.opacity = 0.10 + 0.30 * (1 - clamp(m.starOpacity, 0, 1));
-      c.material.color.setRGB(
-        0.55 + m.skyHorizon[0] * 0.45,
-        0.58 + m.skyHorizon[1] * 0.45,
-        0.62 + m.skyHorizon[2] * 0.45
-      );
+      c.material.opacity = 0.10 + 0.30 * (1 - nightF) + 0.34 * rainK;
+      var cg = mix3([0.55 + wHor[0] * 0.45, 0.58 + wHor[1] * 0.45, 0.62 + wHor[2] * 0.45],
+        [0.34, 0.37, 0.42], rainK * 0.55);
+      c.material.color.setRGB(clamp(cg[0], 0, 1), clamp(cg[1], 0, 1), clamp(cg[2], 0, 1));
     });
-    mistGroup.children.forEach(function (s) {
-      s.material.opacity = 0.34 * (m.fogMist || 0);
-      s.material.color.setRGB(
-        clamp(0.6 + m.skyHorizon[0] * 0.4, 0, 1),
-        clamp(0.66 + m.skyHorizon[1] * 0.4, 0, 1),
-        clamp(0.72 + m.skyHorizon[2] * 0.4, 0, 1)
+    mistGroup.children.forEach(function (sp) {
+      sp.material.opacity = clamp(0.34 * (m.fogMist || 0) + 0.46 * fogK + 0.16 * rainK, 0, 0.85);
+      sp.material.color.setRGB(
+        clamp(0.6 + wHor[0] * 0.4, 0, 1),
+        clamp(0.66 + wHor[1] * 0.4, 0, 1),
+        clamp(0.72 + wHor[2] * 0.4, 0, 1)
       );
     });
   }
@@ -3391,6 +4027,7 @@
     if (el.dexModal.classList.contains("open")) return;
     if (el.shopModal.classList.contains("open")) return;
     if (el.drinkModal.classList.contains("open")) return;
+    if (el.missionModal.classList.contains("open")) return;
     // 자판기를 직접 탭하면 자판기를 연다 (입질 중엔 낚아채기가 우선)
     if (state.phase !== "biting" && clientX !== undefined && tryTapVending(clientX, clientY)) return;
     if (state.phase === "biting") {
@@ -3532,6 +4169,11 @@
     economy.coins += earned;
     economy.totalEarned += earned;
 
+    // 오늘의 미션 진행 (낚시 횟수 · 코인 · 밤/비 어종)
+    missionAdd("catch", 1);
+    missionAdd("coin", earned);
+    if (currentBand() === "night" || weather.current === "rain") missionAdd("special", 1);
+
     // 장착 미끼 소모 (다 쓰면 일반 떡밥으로)
     if (economy.baits[economy.bait] > 0) {
       economy.baits[economy.bait] -= 1;
@@ -3574,7 +4216,8 @@
       '<div class="toast-fish">' + fishSVG(f) + '</div>' +
       '<div class="toast-body">' +
         '<div class="toast-name">' + f.name + ' <span style="color:' + rar.color + ';font-weight:800">' + result.len.toFixed(1) + 'cm</span></div>' +
-        '<div class="toast-meta">' + '★'.repeat(rar.stars) + ' ' + rar.label + ' · ' + BANDS[currentBand()].name + '</div>' +
+        '<div class="toast-meta">' + '★'.repeat(rar.stars) + ' ' + rar.label + ' · ' +
+          (f.rarity === "hidden" ? "🌧️" : BANDS[currentBand()].name + (isRaining() ? " · 🌧️" : "")) + '</div>' +
       '</div>' +
       '<div class="toast-badge">' + badge + '</div>' +
       '<div class="toast-coin">+' + result.coins + ' 🪙</div>';
@@ -3651,6 +4294,12 @@
         '<path d="M27 22 C23 30 17 32 13 29 M33 24 C31 32 27 35 23 34 M41 24 C41 32 37 35 33 34 M49 23 C51 31 49 34 45 34 M55 20 C60 27 63 29 67 28" stroke="currentColor" stroke-width="3.1" fill="none" stroke-linecap="round"/>' +
         '<circle cx="31.5" cy="12" r="2.1" fill="rgba(8,14,22,0.85)"/><circle cx="44.5" cy="12" r="2.1" fill="rgba(8,14,22,0.85)"/>';
     },
+    jellyfish: function () {
+      return '<path d="M12 20 C12 9.6 23 3 36 3 C49 3 60 9.6 60 20 C50 24.4 22 24.4 12 20 Z" fill="currentColor"/>' +
+        '<path d="M20 22.5 C19 27 21 30 20 33.5 M28 23.5 C27 28 29 31 28 34.5 M36 23.5 C35 29 37 31.5 36 35 M44 23.5 C43 28 45 31 44 34.5 M52 22.5 C51 27 53 30 52 33.5" stroke="currentColor" stroke-width="2.1" fill="none" stroke-linecap="round" opacity="0.85"/>' +
+        '<path d="M22 12.5 C25 8.5 30.5 6.2 36 6.2" stroke="rgba(255,255,255,0.42)" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="29" cy="15" r="1.7" fill="rgba(8,14,22,0.55)"/><circle cx="43" cy="15" r="1.7" fill="rgba(8,14,22,0.55)"/>';
+    },
     squid: function () {
       return '<path d="M50 17 C50 10 44 5 36 5 C28 5 22 10 22 17 C22 24 28 28 36 28 C44 28 50 24 50 17 Z" fill="currentColor"/>' +
         '<path d="M20 12 L8 6 L14 15 Z M20 22 L8 28 L14 19 Z" fill="currentColor" opacity="0.78"/>' +
@@ -3683,6 +4332,7 @@
   function fishMatchesFilter(f, filter) {
     if (filter === "all") return true;
     if (filter === "missing") return !book.records[f.id];
+    if (filter === "rain") return f.rarity === "hidden";
     return bandsOf(f.id).indexOf(filter) !== -1;
   }
 
@@ -3690,7 +4340,9 @@
     var rec = book.records[f.id];
     var got = !!rec;
     var rar = RARITY[f.rarity];
-    var bands = bandsOf(f.id).map(function (b) { return "<span>" + BANDS[b].name.charAt(0) + "</span>"; }).join("");
+    var bands = f.rarity === "hidden"
+      ? '<span class="rain">비</span>'
+      : bandsOf(f.id).map(function (b) { return "<span>" + BANDS[b].name.charAt(0) + "</span>"; }).join("");
 
     return '<div class="dex-card ' + (got ? "got" : "locked") + ' dex-' + (f.kind || "fish") + '" ' +
       'style="--fish:' + (got ? f.color : "#223044") + ';--rar:' + rar.color + '">' +
@@ -3699,7 +4351,9 @@
         '<div class="dex-meta">' +
           (got
             ? ('<b class="best">' + rec.longest.toFixed(1) + 'cm</b> · ' + rec.count + '마리')
-            : '아직 만나지 못했어요') +
+            : (f.rarity === "hidden"
+                ? '<span class="rain-hint">🌧️ 비 올 때만 출현</span>'
+                : '아직 만나지 못했어요')) +
         '</div>' +
         '<div class="dex-foot">' +
           '<span class="dex-rarity" title="' + rar.label + '">' + '★'.repeat(rar.stars) + '☆'.repeat(4 - rar.stars) + '</span>' +
@@ -3719,9 +4373,10 @@
     if (el.dexSpecies) el.dexSpecies.textContent = FISH.length + "종";
 
     // 필터 칩 숫자 갱신
-    var chipCounts = { all: FISH.length, dawn: 0, day: 0, sunset: 0, night: 0, missing: 0 };
+    var chipCounts = { all: FISH.length, dawn: 0, day: 0, sunset: 0, night: 0, rain: 0, missing: 0 };
     FISH.forEach(function (f) {
       if (!book.records[f.id]) chipCounts.missing += 1;
+      if (f.rarity === "hidden") chipCounts.rain += 1;
       bandsOf(f.id).forEach(function (b) { chipCounts[b] += 1; });
     });
     if (el.dexFilters) {
@@ -3811,6 +4466,7 @@
       if (isTired()) html += '<span class="buff-chip tired">😮‍💨 지침 · 입질이 느려짐</span>';
       el.buffRow.innerHTML = html;
     }
+    updateMissionBadge();
   }
 
   function applyRodAppearance() {
@@ -3947,12 +4603,223 @@
     economy.coins -= d.price;
     economy.hp = Math.min(100, economy.hp + d.hp);
     if (d.buff) economy.buffs[d.buff] = Date.now() + d.buffMs;
+    missionAdd("drink", 1);
     saveEconomy();
     updateHUD();
     renderDrinks();
     Sound.canDrop();
     setTimeout(function () { Sound.sip(); }, 850);
     flashNotice(d.name + " 구매! " + (economy.hp >= 100 ? "체력이 가득 찼어요" : "체력이 회복됐어요"));
+  }
+
+  /* =====================================================================
+     11-0. 오늘의 미션 · 업적
+     ===================================================================== */
+  var MISSION_KEY = "riverFishingWeb.mission.v1";
+
+  var DAILY_DEFS = [
+    { id: "catch12",  name: "오늘 12마리 낚기",  desc: "오늘 하루 12마리를 낚아 올려요", field: "catch",   goal: 12,  reward: 150 },
+    { id: "special1", name: "비·밤 어종 1종",     desc: "비가 오거나 밤에 한 마리만 낚아도 돼요", field: "special", goal: 1,  reward: 180 },
+    { id: "drink1",   name: "자판기 음료 1잔",   desc: "강가 자판기에서 음료를 한 잔 마셔요", field: "drink",   goal: 1,   reward: 80 },
+    { id: "coin250",  name: "코인 250 모으기",   desc: "오늘 낚시로 코인 250을 모아요", field: "coin",    goal: 250, reward: 120 }
+  ];
+
+  function rodTier() {
+    var t = 0;
+    RODS.forEach(function (r, i) { if (economy.rods[r.id]) t = Math.max(t, i); });
+    return t;
+  }
+
+  function rainHiddenCount() {
+    var n = 0;
+    RAIN_HIDDEN.forEach(function (id) { if (book.records[id]) n += 1; });
+    return n;
+  }
+
+  function seaKindCount() {
+    var n = 0;
+    FISH.forEach(function (f) {
+      if (f.kind === "jellyfish" || f.kind === "squid" || f.kind === "octopus") {
+        if (book.records[f.id]) n += 1;
+      }
+    });
+    return n;
+  }
+
+  var ACH_DEFS = [
+    { id: "dex25",   name: "도감 25종",              desc: "서로 다른 생물 25종 만나기", goal: 25,  reward: 150,  value: function () { return caughtCount(); } },
+    { id: "dex60",   name: "도감 60종",              desc: "서로 다른 생물 60종 만나기", goal: 60,  reward: 700,  value: function () { return caughtCount(); } },
+    { id: "dex100",  name: "강가 도감 100종 완성",   desc: "100종을 모두 도감에 올리기", goal: 100, reward: 3000, value: function () { return caughtCount(); } },
+    { id: "catch50", name: "누적 50마리",            desc: "모두 50마리를 낚아 올리기", goal: 50,  reward: 150,  value: function () { return totalCatches(); } },
+    { id: "catch300",name: "누적 300마리",           desc: "모두 300마리를 낚아 올리기", goal: 300, reward: 900,  value: function () { return totalCatches(); } },
+    { id: "rain1",   name: "비 히든 1종",            desc: "비 올 때만 나오는 생물 만나기", goal: 1, reward: 250, value: rainHiddenCount },
+    { id: "rain5",   name: "비 히든 5종 콤플리트",   desc: "비 히든 5종을 모두 모으기", goal: 5, reward: 1600, value: rainHiddenCount },
+    { id: "sea10",   name: "해파리·오징어·문어 10종", desc: "심해 손님 10종 모으기", goal: 10, reward: 600, value: seaKindCount },
+    { id: "rodGlass",name: "낚싯대 업그레이드",      desc: "대나무보다 좋은 낚싯대 장만하기", goal: 1, reward: 200, value: function () { return rodTier() >= 1 ? 1 : 0; } },
+    { id: "rodTitan",name: "티타늄 낚싯대",          desc: "티타늄 낚싯대 보유하기", goal: 1, reward: 800, value: function () { return rodTier() >= 3 ? 1 : 0; } },
+    { id: "rodGold", name: "황금 낚싯대",            desc: "황금 낚싯대 보유하기", goal: 1, reward: 2500, value: function () { return rodTier() >= 4 ? 1 : 0; } }
+  ];
+
+  function todayKey() {
+    var d = new Date();
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+
+  function defaultDaily() { return { catch: 0, special: 0, drink: 0, coin: 0 }; }
+
+  var missions = { day: "", daily: defaultDaily(), claimed: {}, ach: {} };
+
+  function saveMissions() {
+    try { localStorage.setItem(MISSION_KEY, JSON.stringify(missions)); } catch (err) { /* 무시 */ }
+  }
+
+  function loadMissions() {
+    var p = null;
+    try {
+      var raw = localStorage.getItem(MISSION_KEY);
+      p = raw ? JSON.parse(raw) : null;
+    } catch (err) { p = null; }
+    missions = { day: todayKey(), daily: defaultDaily(), claimed: {}, ach: {} };
+    if (p && typeof p === "object") {
+      if (p.day === missions.day) {
+        if (p.daily && typeof p.daily === "object") {
+          ["catch", "special", "drink", "coin"].forEach(function (k) {
+            missions.daily[k] = Math.max(0, Math.floor(Number(p.daily[k]) || 0));
+          });
+        }
+        // 오늘 받은 보상 기록만 복원 (지난 날짜 기록은 매일 초기화)
+        if (p.claimed && typeof p.claimed === "object") {
+          Object.keys(p.claimed).forEach(function (id) { if (p.claimed[id]) missions.claimed[id] = true; });
+        }
+      }
+      if (p.ach && typeof p.ach === "object") {
+        Object.keys(p.ach).forEach(function (id) { if (p.ach[id]) missions.ach[id] = true; });
+      }
+    }
+    saveMissions();
+  }
+
+  function checkDayRollover() {
+    var d = todayKey();
+    if (missions.day === d) return false;
+    missions.day = d;
+    missions.daily = defaultDaily();
+    missions.claimed = {};
+    saveMissions();
+    return true;
+  }
+
+  function dailyDone(def) { return (missions.daily[def.field] || 0) >= def.goal; }
+  function achDone(def) { return def.value() >= def.goal; }
+  function claimableCount() {
+    var n = 0;
+    DAILY_DEFS.forEach(function (d) { if (dailyDone(d) && !missions.claimed[d.id]) n += 1; });
+    ACH_DEFS.forEach(function (a) { if (achDone(a) && !missions.ach[a.id]) n += 1; });
+    return n;
+  }
+
+  function updateMissionBadge() {
+    var n = claimableCount();
+    if (el.missionDot) el.missionDot.classList.toggle("on", n > 0);
+    if (el.missionBtn) el.missionBtn.classList.toggle("has-reward", n > 0);
+  }
+
+  function missionAdd(field, amount) {
+    if (checkDayRollover()) { updateMissionBadge(); renderMissionsIfOpen(); }
+    var before = missions.daily[field] || 0;
+    missions.daily[field] = before + amount;
+    saveMissions();
+    DAILY_DEFS.forEach(function (d) {
+      if (d.field === field && before < d.goal && missions.daily[field] >= d.goal) {
+        flashNotice("🎯 미션 달성 · " + d.name + " · 보상 " + d.reward + "🪙");
+      }
+    });
+    updateMissionBadge();
+    renderMissionsIfOpen();
+  }
+
+  function claimMission(id) {
+    var def = null;
+    var isDaily = false;
+    DAILY_DEFS.forEach(function (d) { if (d.id === id) { def = d; isDaily = true; } });
+    if (!def) ACH_DEFS.forEach(function (a) { if (a.id === id) def = a; });
+    if (!def) return false;
+    if (isDaily) {
+      if (!dailyDone(def) || missions.claimed[id]) return false;
+      missions.claimed[id] = true;
+    } else {
+      if (!achDone(def) || missions.ach[id]) return false;
+      missions.ach[id] = true;
+    }
+    economy.coins += def.reward;
+    economy.totalEarned += def.reward;
+    saveEconomy();
+    saveMissions();
+    updateHUD();
+    if (el.coinPill) {
+      el.coinPill.classList.remove("pulse");
+      void el.coinPill.offsetWidth;
+      el.coinPill.classList.add("pulse");
+    }
+    Sound.coin();
+    flashNotice("보상 +" + def.reward + " 🪙 받았어요");
+    renderMissions();
+    updateMissionBadge();
+    return true;
+  }
+
+  var missionOpen = false;
+
+  function missionBar(cur, goal) {
+    var pct = clamp((cur / goal) * 100, 0, 100);
+    return '<div class="mission-bar"><span style="width:' + pct.toFixed(1) + '%"></span></div>';
+  }
+
+  function missionRowHTML(def, cur, done, claimed, daily) {
+    var btn;
+    if (claimed) btn = '<button class="claim-btn claimed" disabled>받음</button>';
+    else if (done) btn = '<button class="claim-btn ready" data-claim="' + def.id + '">보상 받기</button>';
+    else btn = '<span class="claim-wait">' + Math.min(cur, def.goal) + ' / ' + def.goal + '</span>';
+    return '<div class="mission-row' + (done ? " done" : "") + '">' +
+      '<div class="mission-info">' +
+        '<div class="mission-name">' + def.name + ' <span class="mission-reward">+' + def.reward + '🪙</span></div>' +
+        '<div class="mission-desc">' + def.desc + '</div>' +
+        missionBar(cur, def.goal) +
+      '</div>' + btn + '</div>';
+  }
+
+  function renderMissions() {
+    if (!el.missionBody) return;
+    if (el.missionCoins) el.missionCoins.textContent = economy.coins.toLocaleString() + " 🪙";
+
+    var dh = DAILY_DEFS.map(function (d) {
+      var cur = missions.daily[d.field] || 0;
+      return missionRowHTML(d, cur, cur >= d.goal, !!missions.claimed[d.id], true);
+    }).join("");
+
+    var ah = ACH_DEFS.map(function (a) {
+      var v = a.value();
+      return missionRowHTML(a, v, v >= a.goal, !!missions.ach[a.id], false);
+    }).join("");
+
+    el.missionBody.innerHTML =
+      '<div class="shop-section">오늘의 미션<span class="mission-reset">매일 자정에 새로 열려요</span></div>' + dh +
+      '<div class="shop-section">업적<span class="mission-reset">누적 기록 · 한 번만 받을 수 있어요</span></div>' + ah +
+      '<div class="shop-hint">받은 코인은 <b>🏪 상점</b>에서 낚싯대·미끼 10종으로 바꿀 수 있어요</div>';
+  }
+
+  function renderMissionsIfOpen() { if (missionOpen) renderMissions(); }
+
+  function openMissions() {
+    checkDayRollover();
+    renderMissions();
+    el.missionModal.classList.add("open");
+    missionOpen = true;
+  }
+
+  function closeMissions() {
+    el.missionModal.classList.remove("open");
+    missionOpen = false;
   }
 
   /* =====================================================================
@@ -4052,6 +4919,9 @@
     }
     if (fireGlow) fireGlow.material.opacity = glowBase * (0.8 + flick * 0.35);
     if (lanternGlow) lanternGlow.material.opacity = 0.9 * (lanternBase / 2.4) * (0.94 + Math.sin(sceneTime * 3.1) * 0.06);
+
+    // 비 (빗줄기 · 수면 잔물결)
+    updateRain(dt);
 
     // 반딧불이
     if (fireflies.material.opacity > 0.01) {
@@ -4440,6 +5310,11 @@
     el.hpText = $("#hpText");
     el.hpWrap = $("#hpWrap");
     el.buffRow = $("#buffRow");
+    el.missionModal = $("#missionModal");
+    el.missionBody = $("#missionBody");
+    el.missionCoins = $("#missionCoins");
+    el.missionDot = $("#missionDot");
+    el.missionBtn = $("#btnMission");
 
     el.btnStrike.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -4464,6 +5339,31 @@
     $("#shopBackdrop").addEventListener("click", closeShop);
     $("#drinkClose").addEventListener("click", closeDrink);
     $("#drinkBackdrop").addEventListener("click", closeDrink);
+
+    // 미션 · 업적
+    $("#btnMission").addEventListener("click", function (e) { e.stopPropagation(); openMissions(); });
+    $("#missionClose").addEventListener("click", closeMissions);
+    $("#missionBackdrop").addEventListener("click", closeMissions);
+    el.missionBody.addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest("[data-claim]") : null;
+      if (!btn || btn.disabled) return;
+      claimMission(btn.getAttribute("data-claim"));
+    });
+
+    // 날씨 전환
+    var wxBar = $("#weatherBar");
+    if (wxBar) {
+      Array.prototype.forEach.call(wxBar.querySelectorAll(".wx-btn"), function (b) {
+        b.addEventListener("click", function (e) {
+          e.stopPropagation();
+          var m = b.getAttribute("data-weather");
+          setWeatherMode(m);
+          if (typeof Sound !== "undefined") Sound.resume();
+          if (m !== "auto") flashNotice(WEATHER_INFO[m].icon + " " + WEATHER_INFO[m].label + " 날씨로 바꿨어요");
+          else flashNotice("날씨가 자연스럽게 바뀌어요");
+        });
+      });
+    }
 
     el.shopBody.addEventListener("click", function (e) {
       var btn = e.target.closest ? e.target.closest("[data-act]") : null;
@@ -4599,6 +5499,30 @@
      ===================================================================== */
   var hudTick = 0;
 
+  function updateWeatherHUDText() {
+    var info = WEATHER_INFO[weather.current] || WEATHER_INFO.clear;
+    var chip = $("#wxChip");
+    if (chip) {
+      chip.textContent = info.icon;
+      chip.title = "날씨 · " + info.label;
+      chip.classList.toggle("rain", weather.current === "rain");
+      chip.classList.toggle("fog", weather.current === "fog");
+    }
+    var moodEl = $("#moodLine");
+    if (moodEl) {
+      var bandMood = BANDS[currentBand()].mood;
+      moodEl.textContent = weather.current === "clear" ? bandMood : (info.mood + " · " + bandMood);
+    }
+  }
+
+  function updateWeatherButtons() {
+    var bar = $("#weatherBar");
+    if (!bar) return;
+    Array.prototype.forEach.call(bar.querySelectorAll(".wx-btn"), function (b) {
+      b.classList.toggle("active", b.getAttribute("data-weather") === weather.mode);
+    });
+  }
+
   function updateTime(dt) {
     var now = new Date();
     var realHour = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
@@ -4630,8 +5554,9 @@
     var band = currentBand();
     $("#bandName").textContent = BANDS[band].name;
     $("#timeIcon").textContent = BANDS[band].icon;
-    $("#moodLine").textContent = BANDS[band].mood;
+    updateWeatherHUDText();
     $("#previewChip").classList.toggle("on", previewing);
+    if (checkDayRollover()) { updateMissionBadge(); renderMissionsIfOpen(); }
 
     if (previewing) {
       var ph = BANDS[state.mode].preview;
@@ -4653,6 +5578,7 @@
     lastFrameTime = now;
     dt = Math.min(dt, 0.1);
 
+    updateWeather(dt);
     updateTime(dt);
     updateGame(dt);
     updateWorld(dt);
@@ -4707,11 +5633,22 @@
     book = loadBook();
     loadSettings();
     loadEconomy();
+    loadMissions();
     Sound.enabled = settings.sound;
     state.started = false;
 
     bindUI();
     updateDexBadge();
+
+    // 날씨 초기값 (저장된 전환 모드가 있으면 그대로)
+    weather.mode = settings.wx || "auto";
+    weather.current = weather.mode === "auto" ? "clear" : weather.mode;
+    weather.rain = weather.current === "rain" ? 1 : 0;
+    weather.fog = weather.current === "fog" ? 1 : 0;
+    weather.soundRain = weather.rain;
+    weather.nextAt = rand(45, 100);
+    updateWeatherButtons();
+
     updateHUD();
 
     if (settings.auto) {
@@ -4764,7 +5701,78 @@
     setHP: function (v) { economy.hp = clamp(Number(v) || 0, 0, 100); saveEconomy(); updateHUD(); },
     addCoins: function (n) { var k = Math.floor(Number(n) || 0); economy.coins = Math.max(0, economy.coins + k); if (k > 0) economy.totalEarned += k; saveEconomy(); updateHUD(); },
     forceCatch: function (manual) { landFish(!!manual); },
-    state: function () { return { phase: state.phase, session: state.session, started: state.started, band: currentBand() }; }
+    state: function () { return { phase: state.phase, session: state.session, started: state.started, band: currentBand() }; },
+    weather: function () {
+      return {
+        mode: weather.mode, current: weather.current,
+        rain: Math.round(weather.rain * 1000) / 1000,
+        fog: Math.round(weather.fog * 1000) / 1000,
+        label: WEATHER_INFO[weather.current].label,
+        rainVisible: !!(rainMesh && rainMesh.visible),
+        fireflies: fireflies ? Math.round(fireflies.material.opacity * 100) / 100 : 0,
+        fogNear: Math.round(scene && scene.fog ? scene.fog.near * 10 : 0) / 10,
+        fogFar: Math.round(scene && scene.fog ? scene.fog.far * 10 : 0) / 10
+      };
+    },
+    setWeather: function (m) { setWeatherMode(m); return window.__rf.weather(); },
+    raining: function () { return isRaining(); },
+    tickWeather: function (sec) { var n = Math.max(1, Math.round((Number(sec) || 3) * 60)); for (var i = 0; i < n; i++) updateWeather(0.016); return window.__rf.weather(); },
+    rollMany: function (n, band) {
+      var k = Math.max(1, Math.min(200000, Math.floor(Number(n) || 1000)));
+      var b = band || currentBand();
+      var counts = {};
+      for (var i = 0; i < k; i++) {
+        var f = rollFish(b, 1);
+        counts[f.id] = (counts[f.id] || 0) + 1;
+      }
+      return counts;
+    },
+    spawnSum: function () {
+      var out = {};
+      Object.keys(SPAWN).forEach(function (b) {
+        out[b] = Math.round(SPAWN[b].reduce(function (n, e) { return n + e[1]; }, 0) * 10) / 10;
+      });
+      return out;
+    },
+    species: function () {
+      return FISH.map(function (f) {
+        return { id: f.id, name: f.name, rarity: f.rarity, kind: f.kind, rainOnly: !!f.rainOnly, bands: bandsOf(f.id) };
+      });
+    },
+    baits: function () { return BAITS.map(function (b) { return { id: b.id, name: b.name, price: b.price, pack: b.pack }; }); },
+    setBait: function (id) {
+      if (!BAITS_BY_ID[id]) return null;
+      if (id !== "worm" && !(economy.baits[id] > 0)) economy.baits[id] = 99;
+      economy.bait = id; saveEconomy(); updateHUD(); renderShop(); return id;
+    },
+    missions: function () {
+      return {
+        day: missions.day,
+        daily: JSON.parse(JSON.stringify(missions.daily)),
+        claimed: Object.keys(missions.claimed),
+        achClaimed: Object.keys(missions.ach),
+        claimable: claimableCount(),
+        dailyDefs: DAILY_DEFS.map(function (d) {
+          return { id: d.id, goal: d.goal, reward: d.reward, value: missions.daily[d.field] || 0, done: dailyDone(d) };
+        }),
+        achievements: ACH_DEFS.map(function (a) {
+          return { id: a.id, goal: a.goal, reward: a.reward, value: a.value(), done: achDone(a) };
+        })
+      };
+    },
+    addMission: function (field, n) { missionAdd(field, Number(n) || 1); return window.__rf.missions(); },
+    claim: function (id) { return claimMission(id); },
+    seedBook: function (ids) {
+      (ids || []).forEach(function (id) {
+        if (!FISH_BY_ID[id]) return;
+        book.records[id] = { count: 1, longest: FISH_BY_ID[id].min, firstAt: Date.now(), lastAt: Date.now() };
+      });
+      saveBook(); updateDexBadge(); updateHUD(); renderDex();
+    },
+    resetBook: function () { book = { records: {} }; saveBook(); updateDexBadge(); updateHUD(); renderDex(); },
+    openMissions: function () { openMissions(); },
+    openDex: function () { openDex(); },
+    dexFilter: function (f) { dexFilter = f; renderDex(); }
   };
 })();
 </script>
