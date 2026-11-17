@@ -1469,46 +1469,56 @@
     cursor: pointer;
   }
   .char-panel {
-    flex: 0 0 auto;
-    margin: 0 calc(var(--safe-right) + 10px) calc(var(--safe-bottom) + 10px) calc(var(--safe-left) + 10px);
-    padding: 12px 14px 13px;
-    border-radius: 22px;
+    flex: 0 1 auto;
+    max-height: 38vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    scrollbar-width: none;
+    margin: 0 calc(var(--safe-right) + 10px) calc(var(--safe-bottom) + 8px) calc(var(--safe-left) + 10px);
+    padding: 9px 11px 10px;
+    border-radius: 20px;
     background: linear-gradient(180deg, rgba(16, 24, 38, 0.94), rgba(9, 14, 24, 0.97));
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
   }
+  .char-panel::-webkit-scrollbar { display: none; }
   .char-preview-tag {
     display: none;
     align-items: center;
     gap: 6px;
-    margin-bottom: 9px;
-    padding: 6px 10px;
-    border-radius: 11px;
+    margin-bottom: 6px;
+    padding: 4px 9px;
+    border-radius: 10px;
     background: rgba(140, 180, 255, 0.16);
     border: 1px solid rgba(150, 190, 255, 0.4);
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 800;
     color: #cfe4ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .char-preview-tag.on { display: flex; }
   .char-equip {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px 8px;
+    gap: 4px 6px;
   }
   .char-slot {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 8px;
-    border-radius: 10px;
+    align-items: baseline;
+    gap: 5px;
+    padding: 4px 7px;
+    border-radius: 9px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.07);
     min-width: 0;
   }
-  .char-slot .k { font-size: 10px; font-weight: 800; color: #8d9bb0; flex: 0 0 auto; }
+  .char-slot .k { font-size: 9.5px; font-weight: 800; color: #8d9bb0; flex: 0 0 auto; }
   .char-slot .v {
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
     color: #eaf2ff;
     white-space: nowrap;
@@ -1516,11 +1526,12 @@
     text-overflow: ellipsis;
   }
   .char-eff {
-    display: flex;
+    display: none;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 4px;
     margin-top: 7px;
   }
+  .char-panel.more-open .char-eff { display: flex; }
   .char-eff span {
     font-size: 10.5px;
     font-weight: 700;
@@ -1534,21 +1545,33 @@
   .char-eff span.cold { color: #bce4ff; background: rgba(120, 190, 255, 0.14); border-color: rgba(130, 195, 255, 0.3); }
   .char-eff span.hot { color: #ffc4a8; background: rgba(255, 120, 90, 0.14); border-color: rgba(255, 140, 110, 0.3); }
 
-  .char-sum { margin-top: 9px; font-size: 10.5px; color: var(--muted); line-height: 1.5; }
+  .char-sum {
+    margin-top: 6px;
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .char-sum b { color: #ffe6b6; }
-  .char-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .char-actions { display: flex; gap: 6px; margin-top: 8px; }
   .char-btn {
     appearance: none;
     flex: 1 1 0;
+    min-width: 0;
     font-family: inherit;
     border: 1px solid rgba(255, 208, 122, 0.45);
     background: rgba(255, 208, 122, 0.16);
     color: #ffe6b6;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 800;
-    padding: 10px 8px;
-    border-radius: 12px;
+    padding: 8px 4px;
+    border-radius: 11px;
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .char-btn.ghost {
     border-color: rgba(255, 255, 255, 0.14);
@@ -1593,6 +1616,20 @@
   }
   body.char-view .hud-top,
   body.char-view .hud-bottom { opacity: 0; pointer-events: none; }
+
+  /* 꾸미기 상점에서 미리보기 중 — 시트를 줄이고 상단을 비워 3D 캐릭터를 보여 준다 */
+  #shopModal.peek .dex-sheet { max-height: 52vh; }
+  #shopModal.peek .backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(180deg, rgba(3, 6, 12, 0.08) 0%, rgba(3, 6, 12, 0.2) 40%, rgba(3, 6, 12, 0.5) 100%);
+  }
+  body.shop-peek .hud-top,
+  body.shop-peek .hud-bottom { opacity: 0; pointer-events: none; }
+  body.shop-peek #toast,
+  body.shop-peek #catchFx,
+  body.char-view #toast,
+  body.char-view #catchFx { opacity: 0; pointer-events: none; }
 
   /* ── 꾸미기 미리보기 ───────────────────────── */
   .chip.cos-preview { background: rgba(140, 180, 255, 0.92); color: #08101c; }
@@ -2206,16 +2243,16 @@
       </div>
       <div class="char-hint">↔ 드래그해서 돌려 보세요 · ＋－로 더 가까이</div>
     </div>
-    <div class="char-panel">
+    <div class="char-panel" id="charPanel">
       <div class="char-preview-tag" id="charPreviewTag">👀 미리보기 중 (실제 미구매)</div>
       <div class="char-equip" id="charEquip"></div>
       <div class="char-sum" id="charSum"></div>
+      <div class="char-eff" id="charEff"></div>
       <div class="char-actions">
-        <button class="char-btn" id="charShopBtn">👒 꾸미기 상점</button>
-        <button class="char-btn ghost" id="charSpinBtn">↔ 정면으로</button>
-      </div>
-      <div class="char-actions">
-        <button class="char-btn gender" id="charGenderBtn">♀ 여성으로 바꾸기</button>
+        <button class="char-btn" id="charShopBtn">👒 상점</button>
+        <button class="char-btn ghost" id="charSpinBtn">↔ 정면</button>
+        <button class="char-btn gender" id="charGenderBtn">♀ 여성</button>
+        <button class="char-btn ghost" id="charMoreBtn" aria-expanded="false" aria-controls="charEff">자세히 ▾</button>
       </div>
     </div>
   </div>
@@ -8018,7 +8055,7 @@
 
   function syncGenderUI() {
     var b = $("#charGenderBtn");
-    if (b) b.textContent = (economy.gender === "female" ? "♂ 남성으로 바꾸기" : "♀ 여성으로 바꾸기");
+    if (b) b.textContent = (economy.gender === "female" ? "♂ 남성" : "♀ 여성");
     var pills = document.querySelectorAll("#introGender [data-gender]");
     Array.prototype.forEach.call(pills, function (n) {
       n.classList.toggle("active", n.getAttribute("data-gender") === economy.gender);
@@ -8779,7 +8816,7 @@
   }
 
   function updateCamera(dt) {
-    if (charView.open && angler) { updateCharCamera(dt); return; }
+    if ((charView.open || shopPeekOn()) && angler) { updateCharCamera(dt); return; }
     cam.yaw += (cam.yawTarget - cam.yaw) * Math.min(1, dt * 6);
     cam.pitch += (cam.pitchTarget - cam.pitch) * Math.min(1, dt * 6);
     cam.dist += (cam.distTarget - cam.dist) * Math.min(1, dt * 6);
@@ -9936,6 +9973,7 @@
     renderShop();
     renderCharPanel();
     updatePreviewChip();
+    updateShopPeek();
     if (!silent) {
       flashNotice("미리보기 중 · " + item.name + " (실제 구매 아님)");
       Sound.resume();
@@ -9952,8 +9990,31 @@
     renderCharPanel();
     updatePreviewChip();
     renderShop();
+    updateShopPeek();
     if (!silent) flashNotice((it ? it.name : "미리보기") + " 벗고 원래 차림으로 돌아갔어요");
     return true;
+  }
+
+  /* 상점 미리보기 중에는 시트를 줄이고 카메라를 캐릭터로 당겨 온다 */
+  function shopPeekOn() {
+    var m = $("#shopModal");
+    return !!(cosPreview && m && m.classList.contains("open") && !charView.open);
+  }
+
+  function updateShopPeek() {
+    var m = $("#shopModal");
+    var on = !!(cosPreview && m && m.classList.contains("open"));
+    if (m) m.classList.toggle("peek", on);
+    document.body.classList.toggle("shop-peek", on);
+    if (on) {
+      updateCharFit();
+      charView.zoom = 1;
+      charView.yaw = charView.yawCur = CHAR_FRONT_YAW;
+      charView.pitch = charView.pitchCur = 0.16;
+      updateCharDist(true);
+    } else if (!charView.open) {
+      clearCharViewOffset();
+    }
   }
 
   /* ---------- 꾸미기 반영 (3D 캐릭터 · 의자) ---------- */
@@ -10252,11 +10313,13 @@
     if (tab) shopTab = tab;
     renderShop();
     el.shopModal.classList.add("open");
+    updateShopPeek();
   }
   function closeShop(keepPreview) {
     el.shopModal.classList.remove("open");
     // 상점을 닫으면 미구매 미리보기는 원래 장착 상태로 돌아간다
     if (keepPreview !== true && cosPreview) clearPreview(true);
+    updateShopPeek();
   }
 
   function openDrink() {
@@ -11092,13 +11155,181 @@
     open: false,
     yaw: CHAR_FRONT_YAW, yawCur: CHAR_FRONT_YAW,
     pitch: 0.10, pitchCur: 0.10,
+    zoom: 1,
     dist: 2.95, distCur: 2.95,
+    fit: null,
+    offKey: "",
     saved: null,
     drag: false, lastX: 0, lastY: 0
   };
 
+  var CHAR_VIEW_FILL = 0.84;   // 비어 있는 세로 영역에서 캐릭터가 차지하는 비율
+
   function charTargetY() {
     return (angler ? angler.position.y : 0.88) + 1.02;
+  }
+
+  /* 앉은 캐릭터 + 의자의 월드 경계 상자 (낚싯대·파라솔은 빼고) */
+  function charBodyBox() {
+    if (!angler) return null;
+    var rod = rodGroup, para = angler.userData.parasol;
+    var inside = function (o, root) {
+      var n = o;
+      while (n) { if (n === root) return true; n = n.parent; }
+      return false;
+    };
+    var box = new THREE.Box3();
+    var tmp = new THREE.Box3();
+    angler.updateMatrixWorld(true);
+    angler.traverse(function (o) {
+      if (!o.isMesh || !o.geometry) return;
+      if (rod && inside(o, rod)) return;
+      if (para && inside(o, para)) return;
+      var n = o, vis = true;
+      while (n && n !== angler) { if (n.visible === false) { vis = false; break; } n = n.parent; }
+      if (!vis) return;
+      if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+      tmp.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld);
+      box.union(tmp);
+    });
+    return box.isEmpty() ? null : box;
+  }
+
+  /* 캐릭터를 화면에 꼭 맞추기 위한 중심·높이를 다시 계산한다 */
+  function updateCharFit() {
+    var box = charBodyBox();
+    if (!box || !charView) return;
+    var c = box.getCenter(new THREE.Vector3());
+    var s = box.getSize(new THREE.Vector3());
+    charView.fit = { cx: c.x, cy: c.y, cz: c.z, h: Math.max(0.6, s.y), w: Math.max(0.3, s.x) };
+    charView.fitDirty = true;
+  }
+
+  /* 실제 화면에 그려지는 몸·의자(메시별 경계상자)의 화면 범위 — 빈 구석이 많은 통짜 상자보다 정확 */
+  function charVisualExtent() {
+    if (!angler || !camera) return null;
+    var rod = rodGroup, para = angler.userData.parasol;
+    var inside = function (o, root) {
+      var n = o;
+      while (n) { if (n === root) return true; n = n.parent; }
+      return false;
+    };
+    var vw = window.innerWidth || 390, vh = window.innerHeight || 844;
+    var v = new THREE.Vector3();
+    var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9, found = false;
+    angler.updateMatrixWorld(true);
+    angler.traverse(function (o) {
+      if (!o.isMesh || !o.geometry) return;
+      if (rod && inside(o, rod)) return;
+      if (para && inside(o, para)) return;
+      var n = o, vis = true;
+      while (n && n !== angler) { if (n.visible === false) { vis = false; break; } n = n.parent; }
+      if (!vis) return;
+      if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+      var bb = o.geometry.boundingBox;
+      if (!bb || isNaN(bb.min.x + bb.min.y + bb.min.z + bb.max.x + bb.max.y + bb.max.z)) return;
+      found = true;
+      for (var i = 0; i < 8; i++) {
+        v.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z);
+        v.applyMatrix4(o.matrixWorld).project(camera);
+        var sx = (v.x * 0.5 + 0.5) * vw;
+        var sy = (-v.y * 0.5 + 0.5) * vh;
+        if (sx < minX) minX = sx;
+        if (sx > maxX) maxX = sx;
+        if (sy < minY) minY = sy;
+        if (sy > maxY) maxY = sy;
+      }
+    });
+    if (!found) return null;
+    return { left: minX, right: maxX, top: minY, bottom: maxY, h: maxY - minY, w: maxX - minX };
+  }
+
+  function placeCharCamera(D, yaw, pitch) {
+    var fit = charView.fit;
+    var cx = fit ? fit.cx : angler.position.x;
+    var cy = fit ? fit.cy : charTargetY();
+    var cz = fit ? fit.cz : angler.position.z;
+    var cd = Math.cos(pitch) * D;
+    camera.position.set(
+      cx + Math.sin(yaw) * cd,
+      cy + Math.sin(pitch) * D,
+      cz + Math.cos(yaw) * cd
+    );
+    camera.lookAt(cx, cy, cz);
+  }
+
+  /* 캐릭터가 비어 있는 영역을 꽉 채우는 카메라 거리를 실측으로 구한다 */
+  function computeCharFitDist(area) {
+    var avail = Math.max(60, area.bottom - area.top);
+    var targetPx = CHAR_VIEW_FILL * avail;
+    charView.fitAvail = avail;
+    if (!charView.fit) { charView.centerBias = 0; return 2.9; }
+    var saved = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+    var d = 4, ext = null;
+    for (var i = 0; i < 3; i++) {
+      placeCharCamera(d, charView.yaw, charView.pitch);
+      camera.updateMatrixWorld(true);
+      ext = charVisualExtent();
+      if (!ext || ext.h < 6) { d = 2.9; break; }
+      var factor = ext.h / targetPx;
+      if (Math.abs(factor - 1) < 0.02) break;
+      d = clamp(d * factor, 0.7, 16);
+    }
+    // 실제로 보이는 덩어리의 위아래 중심과 경계상자 중심의 차이 → 화면에서 균형 보정
+    var bias = 0;
+    if (ext) {
+      placeCharCamera(d, charView.yaw, charView.pitch);
+      camera.updateMatrixWorld(true);
+      var e2 = charVisualExtent();
+      if (e2) bias = (e2.top + e2.bottom) / 2 - projectScreenY(charView.fit.cx, charView.fit.cy, charView.fit.cz);
+    }
+    charView.centerBias = isFinite(bias) ? bias : 0;
+    camera.position.set(saved.x, saved.y, saved.z);
+    camera.updateMatrixWorld(true);
+    return d;
+  }
+
+  function projectScreenY(x, y, z) {
+    var v = new THREE.Vector3(x, y, z).project(camera);
+    return (-v.y * 0.5 + 0.5) * (window.innerHeight || 844);
+  }
+
+  /* 캐릭터가 보여야 하는 세로 영역(px) — 내 캐릭터는 헤더~카드 사이, 상점 미리보기는 시트 위쪽 */
+  function charFocusArea() {
+    var vh = window.innerHeight || 844;
+    var vw = window.innerWidth || 390;
+    var top = 0, bottom = vh;
+    if (charView.open) {
+      var st = document.querySelector(".char-stage");
+      if (st) {
+        var r = st.getBoundingClientRect();
+        if (r.height > 10) { top = r.top; bottom = r.bottom; }
+      }
+    } else {
+      var sheet = document.querySelector("#shopModal .dex-sheet");
+      var sTop = sheet ? sheet.getBoundingClientRect().top : vh * 0.48;
+      top = 44;
+      bottom = Math.min(vh, sTop - 6);
+    }
+    if (bottom - top < 90) bottom = Math.min(vh, top + 90);
+    return { top: top, bottom: bottom, vh: vh, vw: vw };
+  }
+
+  /* 캐릭터가 영역 한가운데 오도록 카메라 시야를 화면 단위로 밀어 준다 */
+  function applyCharViewOffset(area) {
+    if (!camera) return;
+    var bias = (charView.centerBias || 0) / (charView.zoom || 1);
+    var shift = Math.round(area.vh / 2 - (area.top + area.bottom) / 2 + bias);
+    var key = area.vw + "x" + area.vh + ":" + shift;
+    if (charView.offKey === key) return;
+    charView.offKey = key;
+    if (Math.abs(shift) > 1) camera.setViewOffset(area.vw, area.vh, 0, shift, area.vw, area.vh);
+    else camera.clearViewOffset();
+  }
+
+  function clearCharViewOffset() {
+    charView.offKey = "";
+    if (camera) camera.clearViewOffset();
   }
 
   function renderCharPanel() {
@@ -11112,23 +11343,27 @@
     }).join("");
     syncGenderUI();
     var sum = $("#charSum");
+    var ownedAll = 0, totalAll = 0;
+    COSMETIC_CATS.forEach(function (c) {
+      ownedAll += ownedCosmeticCount(c.id);
+      totalAll += COSMETICS[c.id].length;
+    });
+    var w = WEATHER_INFO[weather.current] || WEATHER_INFO.clear;
+    var gi = genderLabel();
+    var tz = tempZoneInfo();
     if (sum) {
-      var ownedAll = 0, totalAll = 0;
-      COSMETIC_CATS.forEach(function (c) {
-        ownedAll += ownedCosmeticCount(c.id);
-        totalAll += COSMETICS[c.id].length;
-      });
-      var w = WEATHER_INFO[weather.current] || WEATHER_INFO.clear;
-      var pv = cosPreview ? ' · <b>미리보기 중 (실제 미구매)</b>' : "";
+      sum.innerHTML = '<span class="char-gender">' + gi.icon + ' ' + gi.label + '</span> · ' +
+        w.icon + ' ' + w.label + ' · <b>🌡️ ' + tempRounded() + '°C ' + tz.label + '</b> · 꾸미기 <b>' +
+        ownedAll + ' / ' + totalAll + '</b>';
+    }
+    var eff = $("#charEff");
+    if (eff) {
       var chair = chairStats();
       var ow = outfitWarmth();
       var woe = weatherOutfitEffect();
       var warmthLabel = WARMTH_INFO[ow.level].icon + " 보온 " + WARMTH_INFO[ow.level].label +
         " (상의 " + WARMTH_INFO[ow.top].label + " · 모자 " + WARMTH_INFO[ow.hat].label + ")";
-      var tz = tempZoneInfo();
-      var gi = genderLabel();
-      sum.innerHTML = '<span class="char-gender">' + gi.icon + ' ' + gi.label + '</span> · 지금 <b>' + w.icon + ' ' + w.label + "</b> 날씨 · <b>🌡️ " + tempRounded() + "°C " + tz.label + '</b> · 보유 꾸미기 <b>' + ownedAll + ' / ' + totalAll + '</b>' + pv +
-        '<div class="char-eff">' +
+      eff.innerHTML =
           '<span class="temp">🌡️ ' + tempRounded() + '°C · ' + tz.label + ' (' + tz.range + ')' +
             (hasThermometer() ? ' · 스마트 온도계 자동 코디 ' + (economy.autoOutfit ? "ON" : "OFF") : ' · 스마트 온도계 미보유') + '</span>' +
           '<span class="warm">🪑 ' + chair.name + ' · 최대 체력 ' + chair.maxHp +
@@ -11136,9 +11371,9 @@
             ' · 회복 ×' + chair.regenMul + ' · 소모 ×' + chair.drainMul + '</span>' +
           '<span class="' + (woe.cls || "") + '">' + warmthLabel + (woe.chip ? " · " + woe.chip : "") + '</span>' +
           '<span class="gender-chip">' + gi.icon + ' 캐릭터 ' + gi.label + ' · 👤에서 언제든 전환</span>' +
-          '<span>⏱️ 플레이 ' + formatPlaytime(economy.playSeconds) + '</span>' +
-        '</div>';
+          '<span>⏱️ 플레이 ' + formatPlaytime(economy.playSeconds) + '</span>';
     }
+    updateCharFit();
     updatePreviewChip();
   }
 
@@ -11159,20 +11394,38 @@
     charView.drag = false;
     charView.yaw = charView.yawCur = CHAR_FRONT_YAW;
     charView.pitch = charView.pitchCur = 0.10;
-    charView.dist = charView.distCur = 2.95;
+    charView.zoom = 1;
+    var panel = $("#charPanel");
+    if (panel) panel.classList.remove("more-open");
+    var moreBtn = $("#charMoreBtn");
+    if (moreBtn) { moreBtn.setAttribute("aria-expanded", "false"); moreBtn.textContent = "자세히 ▾"; }
     document.body.classList.add("char-view");
     var m = $("#charModal");
     if (m) m.classList.add("open");
     renderCharPanel();
+    updateCharFit();
+    updateCharDist(true);
     Sound.resume();
     flashNotice("꾸민 차림을 가까이서 보고 있어요 · 드래그로 돌려 보세요");
     return true;
+  }
+
+  /* 패널 높이에 맞춰 기준 거리만 다시 계산 (배율은 사용자 줌 그대로) */
+  function updateCharDist(instant) {
+    if (!angler || !camera) return;
+    var area = charFocusArea();
+    charView.fitDist = computeCharFitDist(area);
+    var dTarget = clamp(charView.fitDist * charView.zoom, 0.7, 16);
+    charView.dist = dTarget;
+    if (instant) charView.distCur = dTarget;
+    charView.fitDirty = false;
   }
 
   function closeCharView() {
     if (!charView.open) return false;
     charView.open = false;
     charView.drag = false;
+    clearCharViewOffset();
     document.body.classList.remove("char-view");
     var m = $("#charModal");
     if (m) m.classList.remove("open");
@@ -11216,19 +11469,29 @@
       stage.addEventListener("pointerleave", stop, { passive: true });
       stage.addEventListener("wheel", function (e) {
         e.preventDefault();
-        charView.dist = clamp(charView.dist + e.deltaY * 0.0012, 1.7, 4.6);
+        charView.zoom = clamp(charView.zoom + e.deltaY * 0.0012, 0.55, 1.9);
       }, { passive: false });
     }
     var zi = $("#charZoomIn");
     var zo = $("#charZoomOut");
-    if (zi) zi.addEventListener("click", function (e) { e.stopPropagation(); charView.dist = clamp(charView.dist - 0.35, 1.7, 4.6); });
-    if (zo) zo.addEventListener("click", function (e) { e.stopPropagation(); charView.dist = clamp(charView.dist + 0.35, 1.7, 4.6); });
+    if (zi) zi.addEventListener("click", function (e) { e.stopPropagation(); charView.zoom = clamp(charView.zoom * 0.86, 0.55, 1.9); });
+    if (zo) zo.addEventListener("click", function (e) { e.stopPropagation(); charView.zoom = clamp(charView.zoom * 1.16, 0.55, 1.9); });
     var spin = $("#charSpinBtn");
     if (spin) spin.addEventListener("click", function (e) {
       e.stopPropagation();
       charView.yaw = CHAR_FRONT_YAW;
       charView.pitch = 0.10;
-      charView.dist = 2.95;
+      charView.zoom = 1;
+    });
+    var moreBtn = $("#charMoreBtn");
+    if (moreBtn) moreBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var panel = $("#charPanel");
+      if (!panel) return;
+      var open = !panel.classList.contains("more-open");
+      panel.classList.toggle("more-open", open);
+      moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      moreBtn.textContent = open ? "접기 ▴" : "자세히 ▾";
     });
     var shopBtn = $("#charShopBtn");
     if (shopBtn) shopBtn.addEventListener("click", function (e) {
@@ -11246,17 +11509,19 @@
     var k = Math.min(1, dt * 7);
     charView.yawCur += (charView.yaw - charView.yawCur) * k;
     charView.pitchCur += (charView.pitch - charView.pitchCur) * k;
-    charView.distCur += (charView.dist - charView.distCur) * k;
-    var ax = angler.position.x;
-    var az = angler.position.z;
-    var ty = charTargetY();
-    var cd = Math.cos(charView.pitchCur) * charView.distCur;
-    camera.position.set(
-      ax + Math.sin(charView.yawCur) * cd,
-      ty + Math.sin(charView.pitchCur) * charView.distCur,
-      az + Math.cos(charView.yawCur) * cd
-    );
-    camera.lookAt(ax, ty - 0.07, az);
+
+    var area = charFocusArea();
+    applyCharViewOffset(area);
+    var avail = Math.max(60, area.bottom - area.top);
+    if (charView.fitDirty || !charView.fitDist) {
+      charView.fitDist = computeCharFitDist(area);
+      charView.fitDirty = false;
+    }
+    var scale = charView.fitAvail ? clamp(charView.fitAvail / avail, 0.5, 2.2) : 1;
+    var dTarget = clamp(charView.fitDist * scale * charView.zoom, 0.7, 16);
+    charView.dist = dTarget;
+    charView.distCur += (dTarget - charView.distCur) * k;
+    placeCharCamera(charView.distCur, charView.yawCur, charView.pitchCur);
   }
 
   /* =====================================================================
@@ -12389,6 +12654,7 @@
     camera.aspect = w / h;
     camera.fov = fovFor(camera.aspect);
     camera.updateProjectionMatrix();
+    if (charView) { charView.fitDirty = true; charView.offKey = ""; }
   }
 
   /* =====================================================================
@@ -13059,6 +13325,20 @@
       };
     },
     dragChar: function (dx, dy) { rotateCharBy(dx, dy || 0); return charView.yaw; },
+    charScreenBox: function () {
+      var ext = charVisualExtent();
+      if (!ext) return null;
+      return {
+        left: Math.round(ext.left), right: Math.round(ext.right),
+        top: Math.round(ext.top), bottom: Math.round(ext.bottom),
+        w: Math.round(ext.w), h: Math.round(ext.h),
+        fit: charView.fit ? { cx: Math.round(charView.fit.cx * 100) / 100, cy: Math.round(charView.fit.cy * 100) / 100, h: Math.round(charView.fit.h * 100) / 100 } : null,
+        fitDist: charView.fitDist ? Math.round(charView.fitDist * 100) / 100 : null,
+        fitAvail: charView.fitAvail ? Math.round(charView.fitAvail) : null,
+        dist: Math.round(charView.dist * 100) / 100,
+        viewOffset: camera.view && camera.view.enabled ? { y: camera.view.offsetY, full: camera.view.fullHeight } : null
+      };
+    },
     previewCos: function (cat, id) { return startPreview(cat, id, true); },
     previewOff: function () { return clearPreview(true); },
     previewChar: function () { closeShop(true); return openCharView(); },
