@@ -12791,6 +12791,16 @@
         chairsVisible: u.chairs ? Object.keys(u.chairs).filter(function (id) { return u.chairs[id].visible; }) : [],
         topId: u.topId || null,
         topAccVisible: u.topAcc ? Object.keys(u.topAcc).filter(function (id) { return u.topAcc[id].visible; }) : [],
+        accId: u.accId || null,
+        accVisible: (function () {
+          if (!u.accSet) return [];
+          return Object.keys(u.accSet).filter(function (id) {
+            var n = u.accSet[id];
+            if (!n) return false;
+            if (n.parts) return n.parts.some(function (p) { return p.visible; });
+            return n.visible;
+          });
+        })(),
         sleevesSkin: !!(u.armL && u.armL.material === u.skinMat)
       };
     },
