@@ -1899,6 +1899,33 @@
     cursor: pointer;
   }
 
+  /* ── 🌡️ 기온 표시 · 스마트 온도계 ── */
+  .temp-chip {
+    font-size: 11.5px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 8px;
+    color: #dff0ff;
+    background: rgba(120, 200, 255, 0.14);
+    border: 1px solid rgba(140, 210, 255, 0.30);
+    font-variant-numeric: tabular-nums;
+  }
+  .temp-chip[data-zone="cold"] { color: #cfe8ff; background: rgba(90, 160, 255, 0.22); border-color: rgba(120, 190, 255, 0.46); }
+  .temp-chip[data-zone="hot"]  { color: #ffe4c6; background: rgba(255, 150, 90, 0.22); border-color: rgba(255, 170, 110, 0.46); }
+  .wb-temp {
+    flex: 0 0 auto;
+    font-size: 11px;
+    font-weight: 800;
+    color: #d8ecff;
+    font-variant-numeric: tabular-nums;
+  }
+  .buff-chip.thermo { background: rgba(120, 200, 255, 0.14); color: #dff0ff; border-color: rgba(140, 210, 255, 0.30); }
+  .buff-chip.thermo.off { opacity: 0.66; }
+  .shop-row.thermo .shop-name small { color: #9fd6ff; }
+  .shop-row.thermo .shop-eff { color: #cbe6ff; }
+  .char-eff span.temp { color: #cfe8ff; background: rgba(120, 200, 255, 0.13); border-color: rgba(140, 210, 255, 0.26); }
+
   /* 작은 화면 / 가로 모드 보정 */
   @media (max-height: 560px) {
     .time-card { padding: 6px 10px; }
@@ -1928,6 +1955,7 @@
             <span id="bandName">새벽</span>
             <span id="clockText">06:24</span>
             <span class="wx-chip" id="wxChip" title="날씨">☀️</span>
+            <span class="temp-chip" id="tempChip" data-zone="mild" title="현재 기온">🌡️ 12°C</span>
             <span class="chip cos-preview" id="cosPreviewChip">미리보기 중 (실제 미구매)</span>
           </div>
           <div class="time-mood" id="moodLine">물안개가 강 위를 천천히 떠다녀요</div>
@@ -1985,6 +2013,7 @@
       <div id="weatherBadge" role="status" aria-live="polite" aria-label="현재 날씨 · 자동으로 바뀝니다">
         <span class="wb-ico" id="wxBadgeIco">☀️</span>
         <span class="wb-label" id="wxBadgeLabel">맑음</span>
+        <span class="wb-temp" id="wxBadgeTemp">🌡️ 12°C · 쾌적</span>
         <span class="wb-note">날씨는 저절로 바뀌어요</span>
         <span class="wb-next" id="wxBadgeNext">다음 변화 –</span>
       </div>
@@ -2144,6 +2173,7 @@
         <li><span class="ico">🎯</span><span><b>오늘의 미션 · 업적</b> — 목표를 채우면 코인 보상을 받고, 완료된 보상은 한 번에 받을 수 있어요</span></li>
         <li><span class="ico">🪙</span><span><b>코인 · 상점 · 자판기</b> — 코인으로 낚싯대·미끼를 바꾸고 음료로 체력을 회복해요</span></li>
         <li><span class="ico">👒</span><span><b>꾸미기 상점 · 👤 내 캐릭터</b> — 옷은 <b>보온</b>으로 추위를 막고 리클라이너는 최대 체력을 올려요. 상단 👤으로 가까이 볼 수 있어요</span></li>
+        <li><span class="ico">🌡️</span><span><b>기온 · 🌡️ 스마트 온도계</b> — 시간대와 날씨에 따라 기온이 바뀌어요(-6~26°C). 상점 <b>장비</b> 탭의 온도계를 사면 <b>보유한 옷</b>으로 기온에 맞춰 알아서 갈아입어요</span></li>
         <li><span class="ico">🥫</span><span><b>0.05%의 꽝</b> — 아주 가끔 낚싯줄에 찌그러진 캔이 걸려요</span></li>
       </ul>
       <button id="introStart">강가로 나가기</button>
@@ -3715,20 +3745,22 @@
     };
   }
 
-  /* 날씨 × 옷 두께 → 체력 소모 배율과 HUD 문구 */
+  /* 기온 구간(추움 ≤10 · 쾌적 11~20 · 더움 ≥21) × 옷 두께 → 체력 소모 배율과 HUD 문구
+     (예전에는 날씨만 봤지만, 이제 기온이 기준이다 — 눈이 와도 따뜻하면 덜 지친다) */
   function weatherOutfitEffect() {
-    var w = weather.current;
+    var zone = temp.zone || "mild";
     var lv = outfitWarmth().level;
-    var cold = (w === "snow" || w === "storm" || w === "rain");
-    if (cold) {
+    if (zone === "cold") {
       if (lv === "thin") return { mul: 1.5, chip: "🥶 얇은 옷: 체력 소모↑", cls: "cold" };
       if (lv === "warm") return { mul: 0.75, chip: "🧣 따뜻한 옷: 추위 완화", cls: "warm" };
       return { mul: 1, chip: "🧥 보통 옷: 추위 그대로", cls: "" };
     }
-    if (w === "clear") {
+    if (zone === "hot") {
       if (lv === "warm") return { mul: 1.15, chip: "🥵 두꺼운 옷: 더위", cls: "hot" };
       if (lv === "thin") return { mul: 0.9, chip: "🍃 얇은 옷: 쾌적", cls: "cool" };
+      return { mul: 1, chip: "", cls: "" };
     }
+    if (lv === "warm") return { mul: 1.05, chip: "🥵 조금 더워요", cls: "hot" };
     return { mul: 1, chip: "", cls: "" };
   }
 
@@ -3789,7 +3821,9 @@
       drinksBought: 0,            // 누적 자판기 음료 (업적용)
       baitsEver: { worm: true },  // 한 번이라도 산 미끼 (업적용)
       duds: { total: 0, kinds: {}, firstAt: 0 },  // 0.05% 꽝 기록 (어종 310종과 분리)
-      playSeconds: 0                              // 누적 플레이타임 (초)
+      playSeconds: 0,                             // 누적 플레이타임 (초)
+      thermometer: false,                         // 🌡️ 스마트 온도계 보유 (영구)
+      autoOutfit: false                           // 스마트 온도계 자동 코디 ON/OFF
     };
   }
 
@@ -3835,6 +3869,8 @@
         var eq = p.cosmetics && p.cosmetics[c.id];
         if (eq && economy.ownedCos[c.id][eq]) economy.cosmetics[c.id] = eq;
       });
+      economy.thermometer = !!p.thermometer;
+      economy.autoOutfit = !!p.autoOutfit;
       economy.drinksBought = Math.max(0, Math.floor(Number(p.drinksBought) || 0));
       economy.duds = { total: 0, kinds: {}, firstAt: 0 };
       if (p.duds && typeof p.duds === "object") {
@@ -4380,6 +4416,8 @@
       weather.soundRain = weather.rain;
       Sound.setRain(weather.rain);
     }
+
+    updateTemperature(dt);
   }
 
   // 한 번의 번개: 화면 섬광 + (잠시 뒤) 천둥 소리
@@ -4404,6 +4442,227 @@
   function isSnowing() { return weather.current === "snow"; }
   // 비·뇌우 모두 우비를 입는다 (눈은 우비 대상이 아니다 — 꾸민 차림 그대로 낚시)
   function isWetWeather() { return weather.current === "rain" || weather.current === "storm"; }
+
+  /* ---------------------------------------------------------------------
+     5-2. 기온 (°C) — 시간대 × 날씨 → 하루 곡선 + 자연스러운 미세 변동
+     --------------------------------------------------------------------- */
+  var TEMP_MIN = -6, TEMP_MAX = 26;
+  /* 맑으면 +6, 눈이면 -5 … 같은 날씨 보정 */
+  var TEMP_WX_OFFSET = { clear: 6, fog: -0.5, rain: -2, storm: -2.5, snow: -5 };
+  var TEMP_ZONES = {
+    cold: { id: "cold", label: "추움", icon: "🥶", range: "10°C 이하" },
+    mild: { id: "mild", label: "쾌적", icon: "🙂", range: "11~20°C" },
+    hot:  { id: "hot",  label: "더움", icon: "🥵", range: "21°C 이상" }
+  };
+
+  var temp = {
+    cur: 12,          // 화면에 보이는 기온 (목표를 부드럽게 따라간다)
+    noise: 0,         // ±1.1°C 미세 변동
+    noiseTarget: 0,
+    noiseNext: 20,
+    forced: null,     // 검증용 고정 기온
+    zone: "mild",     // 확정된 온도 구간 (체력 효과 · 자동 코디의 기준)
+    zoneHold: 0,      // 구간이 바뀐 채 버틴 시간 (경계에서 옷 갈아입기 남발 방지)
+    inited: false
+  };
+
+  /* 14시 최고 · 02시 최저의 하루 곡선 → -1°C ~ +20°C (날씨 보정 전) */
+  function tempBaseAtHour(h) {
+    return 9.5 + 10.5 * Math.cos(((((h - 14) % 24) + 24) % 24) / 24 * Math.PI * 2);
+  }
+
+  function tempHourNow() {
+    if (state.mode === "live") return gameHour();
+    return BANDS[state.mode] ? BANDS[state.mode].preview : 12;
+  }
+
+  function tempTargetNow() {
+    if (temp.forced !== null) return temp.forced;
+    var t = tempBaseAtHour(tempHourNow()) + (TEMP_WX_OFFSET[weather.current] || 0) + temp.noise;
+    return clamp(t, TEMP_MIN, TEMP_MAX);
+  }
+
+  /* 화면에 보이는 정수 기온 기준: ≤10 추움 / 11~20 쾌적 / ≥21 더움 */
+  function tempZoneOf(v) {
+    var r = Math.round(v);
+    if (r <= 10) return "cold";
+    if (r <= 20) return "mild";
+    return "hot";
+  }
+
+  function tempNow() { return temp.inited ? temp.cur : tempTargetNow(); }
+  function tempRounded() { return Math.round(tempNow()) + 0; }
+  function tempZoneInfo() { return TEMP_ZONES[temp.zone] || TEMP_ZONES.mild; }
+
+  function updateTemperature(dt) {
+    if (temp.noiseNext <= 0) {
+      temp.noiseTarget = rand(-1.1, 1.1);
+      temp.noiseNext = rand(18, 42);
+    }
+    temp.noiseNext -= dt;
+    temp.noise = lerp(temp.noise, temp.noiseTarget, 1 - Math.exp(-dt * 0.4));
+
+    var target = tempTargetNow();
+    if (!temp.inited) {
+      temp.cur = target;
+      temp.cur = clamp(temp.cur, TEMP_MIN, TEMP_MAX);
+      temp.inited = true;
+      temp.zone = tempZoneOf(temp.cur);
+      temp.zoneHold = 0;
+      applyAutoOutfit(temp.zone, true);       // 새로고침 직후엔 조용히 맞춰 입는다
+      return;
+    }
+    temp.cur = clamp(lerp(temp.cur, target, 1 - Math.exp(-dt * 0.22)), TEMP_MIN, TEMP_MAX);
+
+    var z = tempZoneOf(temp.cur);
+    if (z !== temp.zone) {
+      temp.zoneHold += dt;
+      if (temp.zoneHold >= 3.5) settleTempZone(z);
+    } else {
+      temp.zoneHold = 0;
+    }
+  }
+
+  function settleTempZone(z) {
+    temp.zone = z;
+    temp.zoneHold = 0;
+    applyAutoOutfit(z, false);
+  }
+
+  /* 검증 · 미리보기용: 기온을 고정하고 구간·코디를 즉시 반영한다 (null 이면 해제) */
+  function setForcedTemp(v) {
+    if (v === null || v === undefined || v === "") {
+      temp.forced = null;
+      return tempRounded();
+    }
+    var n = clamp(Number(v) || 0, TEMP_MIN, TEMP_MAX);
+    temp.forced = n;
+    temp.cur = n;
+    temp.inited = true;
+    temp.zone = tempZoneOf(n);
+    temp.zoneHold = 0;
+    applyAutoOutfit(temp.zone, false);
+    updateTempHUD();
+    return Math.round(n);
+  }
+
+  /* ---------------------------------------------------------------------
+     5-3. 🌡️ 스마트 온도계 — 보유한 옷 중에서 기온에 맞춰 자동 코디
+     --------------------------------------------------------------------- */
+  var THERMO_PRICE = 1200;
+  var OUTFIT_FOR_ZONE = {
+    cold: { top: "warm",   hat: "warm" },
+    mild: { top: "normal", hat: "normal" },
+    hot:  { top: "thin",   hat: "thin" }
+  };
+  var OUTFIT_CATS = ["top", "hat"];
+
+  function hasThermometer() { return !!economy.thermometer; }
+  function autoOutfitOn() { return !!(economy.thermometer && economy.autoOutfit); }
+  function ownsCos(cat, id) { return !!(economy.ownedCos[cat] && economy.ownedCos[cat][id]); }
+
+  /* 받침 유무에 따라 '으로 / 로' */
+  function josaRo(word) {
+    var t = String(word || "").trim();
+    if (!t) return "으로";
+    var code = t.charCodeAt(t.length - 1);
+    if (code < 0xac00 || code > 0xd7a3) return "으로";
+    return ((code - 0xac00) % 28 === 0) ? "로" : "으로";
+  }
+
+  /* 보유한 옷 중 목표 보온 등급에 가장 가까운 것.
+     동점이면 추울 땐 더 두꺼운 쪽, 더울 땐 더 얇은 쪽. 미구매 아이템은 후보가 아니다. */
+  function bestOwnedOutfit(cat, wantWarmth, zone) {
+    var list = COSMETICS[cat] || [];
+    var want = WARMTH_INFO[wantWarmth] ? WARMTH_INFO[wantWarmth].score : 1;
+    var best = null, bestKey = null;
+    list.forEach(function (it) {
+      if (!it.warmth) return;
+      if (!ownsCos(cat, it.id)) return;                 // ★ 미구매 아이템 금지
+      var s = WARMTH_INFO[it.warmth] ? WARMTH_INFO[it.warmth].score : 1;
+      var key = [Math.abs(s - want), (zone === "hot" ? s : -s), it.price];
+      if (!bestKey || key[0] < bestKey[0] ||
+          (key[0] === bestKey[0] && key[1] < bestKey[1]) ||
+          (key[0] === bestKey[0] && key[1] === bestKey[1] && key[2] < bestKey[2])) {
+        best = it; bestKey = key;
+      }
+    });
+    return best;
+  }
+
+  function applyAutoOutfit(zone, silent) {
+    if (!autoOutfitOn()) return { changed: false, reason: "off" };
+    if (cosPreview) return { changed: false, reason: "preview" };   // 미리보기를 방해하지 않는다
+    var plan = OUTFIT_FOR_ZONE[zone] || OUTFIT_FOR_ZONE.mild;
+    var changed = [];
+    OUTFIT_CATS.forEach(function (cat) {
+      var curId = economy.cosmetics[cat];
+      var curItem = cosmeticItem(cat, curId);
+      if (!curItem) return;
+      var curScore = WARMTH_INFO[curItem.warmth || "normal"].score;
+      var wantScore = WARMTH_INFO[plan[cat]].score;
+      if (curScore === wantScore) return;               // 이미 기온에 맞는 등급
+      var pick = bestOwnedOutfit(cat, plan[cat], zone);
+      if (!pick) return;                                // 보유한 옷이 없으면 현재 착장 유지
+      var pickScore = WARMTH_INFO[pick.warmth || "normal"].score;
+      if (pickScore === curScore) return;               // 더 가까운 보유 옷이 없으면 유지
+      if (!ownsCos(cat, pick.id)) return;               // ★ 안전장치: 미구매 아이템 금지
+      economy.cosmetics[cat] = pick.id;
+      changed.push({ cat: cat, id: pick.id, name: pick.name, from: curItem.name });
+    });
+    if (!changed.length) return { changed: false, reason: "none" };
+
+    applyCosmetics();
+    saveEconomy();
+    updateHUD();
+    if (el && el.shopBody) renderShop();
+    if ($("#charEquip")) renderCharPanel();
+    updateTempHUD();
+    if (!silent) {
+      var names = changed.map(function (c) { return c.name; }).join("·");
+      flashNotice("🌡️ " + tempRounded() + "°C · 보유한 " + names + josaRo(names) + " 갈아입었어요!");
+    }
+    return { changed: true, items: changed };
+  }
+
+  function buyThermometer() {
+    if (economy.thermometer) return toggleAutoOutfit();
+    if (economy.coins < THERMO_PRICE) {
+      flashNotice("코인이 부족해요 · 낚아서 모아 보세요");
+      Sound.miss();
+      return false;
+    }
+    economy.coins -= THERMO_PRICE;
+    economy.thermometer = true;
+    economy.autoOutfit = true;                          // 구매하면 기본 ON
+    saveEconomy();
+    applyAutoOutfit(temp.zone, true);
+    updateHUD();
+    if (el && el.shopBody) renderShop();
+    if ($("#charEquip")) renderCharPanel();
+    updateTempHUD();
+    Sound.coin();
+    flashNotice("🌡️ 스마트 온도계 구매! 자동 코디 ON · 지금 " + tempRounded() + "°C " + tempZoneInfo().label);
+    return true;
+  }
+
+  function toggleAutoOutfit() {
+    if (!economy.thermometer) {
+      flashNotice("🌡️ 스마트 온도계를 먼저 구매해 주세요");
+      return false;
+    }
+    economy.autoOutfit = !economy.autoOutfit;
+    saveEconomy();
+    if (economy.autoOutfit) applyAutoOutfit(temp.zone, true);
+    updateHUD();
+    if (el && el.shopBody) renderShop();
+    if ($("#charEquip")) renderCharPanel();
+    updateTempHUD();
+    flashNotice(economy.autoOutfit
+      ? "🌡️ 자동 코디를 켰어요 · 기온이 바뀌면 보유한 옷으로 알아서 갈아입어요"
+      : "🌡️ 자동 코디를 껐어요 · 직접 고른 차림 그대로 낚시해요");
+    return economy.autoOutfit;
+  }
 
   /* =====================================================================
      6. Three.js 준비
@@ -7914,6 +8173,10 @@
       if (chair.maxHp > 100) {
         html += '<span class="buff-chip boost">🪑 ' + chair.name.replace("럭셔리 ", "") + ' · 최대 ' + chair.maxHp + '</span>';
       }
+      if (hasThermometer()) {
+        html += '<span class="buff-chip thermo' + (economy.autoOutfit ? "" : " off") + '">🌡️ 자동 코디 ' +
+          (economy.autoOutfit ? "ON" : "OFF") + '</span>';
+      }
       var woe = weatherOutfitEffect();
       if (woe.chip) html += '<span class="buff-chip ' + (woe.cls || "") + '">' + woe.chip + '</span>';
       if (state.castManual) html += '<span class="buff-chip manual">👆 수동 1.2×</span>';
@@ -8178,7 +8441,29 @@
     return parts.join("");
   }
 
+  function thermoRowHTML() {
+    var owned = hasThermometer();
+    var z = tempZoneInfo();
+    var live = "🌡️ 지금 " + tempRounded() + "°C · " + z.label + " (" + z.range + ")" +
+      (owned ? " · 자동 코디 " + (economy.autoOutfit ? "ON" : "OFF") : "");
+    var btn;
+    if (!owned) {
+      btn = '<button class="buy-btn' + (economy.coins < THERMO_PRICE ? " poor" : "") +
+        '" data-act="buyThermo">' + THERMO_PRICE.toLocaleString() + ' 🪙</button>';
+    } else {
+      btn = '<button class="buy-btn small' + (economy.autoOutfit ? " equip" : "") +
+        '" data-act="toggleAutoOutfit">자동 코디 ' + (economy.autoOutfit ? "ON" : "OFF") + '</button>';
+    }
+    return '<div class="shop-row thermo' + (owned ? " equipped" : "") + '">' +
+      '<span class="rod-dot" style="background:linear-gradient(135deg,#8fd3ff,#ffd07a)"></span>' +
+      '<div class="shop-info"><div class="shop-name">🌡️ 스마트 온도계' +
+        (owned ? '<small>보유</small>' : '') + '</div>' +
+      '<div class="shop-desc">지금 기온에 맞춰 <b>보유한 상의·모자</b>로 알아서 갈아입어요 · 한 번 사면 영구 보관</div>' +
+      '<div class="shop-eff" id="thermoEff">' + live + '</div></div>' + btn + '</div>';
+  }
+
   function renderShop() {
+    if (!el.shopBody) return;
     if (el.shopCoins) el.shopCoins.textContent = economy.coins.toLocaleString() + " 🪙";
     renderShopTabs();
 
@@ -8221,9 +8506,11 @@
       return;
     }
     el.shopBody.innerHTML =
+      '<div class="shop-section">🌡️ 스마트 온도계</div>' + thermoRowHTML() +
       rodRows +
       '<div class="shop-section">미끼 · 소품</div>' + baitRows +
-      '<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 낚싯대를 바꾸면 강가 3D 장면의 낚싯대도 바로 바뀌어요</div>';
+      '<div class="shop-hint">보유 코인 <b>' + economy.coins.toLocaleString() + ' 🪙</b> · 낚싯대를 바꾸면 강가 3D 장면의 낚싯대도 바로 바뀌어요 · ' +
+      '🌡️ <b>스마트 온도계</b>를 사면 기온이 바뀔 때 보유한 옷으로 자동 코디돼요</div>';
   }
 
   function renderDrinks() {
@@ -9093,8 +9380,11 @@
       var woe = weatherOutfitEffect();
       var warmthLabel = WARMTH_INFO[ow.level].icon + " 보온 " + WARMTH_INFO[ow.level].label +
         " (상의 " + WARMTH_INFO[ow.top].label + " · 모자 " + WARMTH_INFO[ow.hat].label + ")";
-      sum.innerHTML = '지금 <b>' + w.icon + ' ' + w.label + '</b> 날씨 · 보유 꾸미기 <b>' + ownedAll + ' / ' + totalAll + '</b>' + pv +
+      var tz = tempZoneInfo();
+      sum.innerHTML = '지금 <b>' + w.icon + ' ' + w.label + "</b> 날씨 · <b>🌡️ " + tempRounded() + "°C " + tz.label + '</b> · 보유 꾸미기 <b>' + ownedAll + ' / ' + totalAll + '</b>' + pv +
         '<div class="char-eff">' +
+          '<span class="temp">🌡️ ' + tempRounded() + '°C · ' + tz.label + ' (' + tz.range + ')' +
+            (hasThermometer() ? ' · 스마트 온도계 자동 코디 ' + (economy.autoOutfit ? "ON" : "OFF") : ' · 스마트 온도계 미보유') + '</span>' +
           '<span class="warm">🪑 ' + chair.name + ' · 최대 체력 ' + chair.maxHp +
             (chair.maxHp > 100 ? ' (+' + (chair.maxHp - 100) + ')' : '') +
             ' · 회복 ×' + chair.regenMul + ' · 소모 ×' + chair.drainMul + '</span>' +
@@ -9975,6 +10265,8 @@
         else if (act === "previewOff") clearPreview();
         else if (act === "previewBuy") buyCosmetic(cat, id);
         else if (act === "previewChar") { closeShop(true); openCharView(); }
+        else if (act === "buyThermo") buyThermometer();
+        else if (act === "toggleAutoOutfit") toggleAutoOutfit();
       });
     }
 
@@ -10151,6 +10443,26 @@
     if (moodEl) {
       var bandMood = BANDS[currentBand()].mood;
       moodEl.textContent = weather.current === "clear" ? bandMood : (info.mood + " · " + bandMood);
+    }
+    updateTempHUD();
+  }
+
+  /* 현재 기온을 HUD(시간 카드 · 날씨 배지)와 상점 온도계 행에 반영 */
+  function updateTempHUD() {
+    var t = tempRounded();
+    var z = tempZoneInfo();
+    var chip = $("#tempChip");
+    if (chip) {
+      chip.textContent = "🌡️ " + t + "°C";
+      chip.setAttribute("data-zone", temp.zone);
+      chip.title = "현재 기온 " + t + "°C · " + z.label + " (" + z.range + ")";
+    }
+    var wb = $("#wxBadgeTemp");
+    if (wb) wb.textContent = "🌡️ " + t + "°C · " + z.label;
+    var row = $("#thermoEff");
+    if (row) {
+      row.textContent = "🌡️ 지금 " + t + "°C · " + z.label + " (" + z.range + ")" +
+        (hasThermometer() ? " · 자동 코디 " + (economy.autoOutfit ? "ON" : "OFF") : "");
     }
   }
 
@@ -10366,6 +10678,7 @@
     weather.soundRain = weather.rain;
     weather.nextAt = rand(45, 100);
     updateWeatherButtons();
+    updateTempHUD();
 
     updateHUD();
 
@@ -10613,6 +10926,61 @@
         next: $("#wxBadgeNext") ? $("#wxBadgeNext").textContent : null
       };
     },
+    temperature: function () {
+      var z = tempZoneInfo();
+      return {
+        temp: Math.round(tempNow() * 10) / 10,
+        rounded: tempRounded(),
+        zone: temp.zone,
+        zoneLabel: z.label,
+        range: z.range,
+        base: Math.round(tempBaseAtHour(tempHourNow()) * 10) / 10,
+        wxOffset: TEMP_WX_OFFSET[weather.current] || 0,
+        noise: Math.round(temp.noise * 100) / 100,
+        forced: temp.forced,
+        weather: weather.current,
+        band: currentBand(),
+        hour: Math.round(tempHourNow() * 100) / 100,
+        min: TEMP_MIN, max: TEMP_MAX,
+        chip: $("#tempChip") ? $("#tempChip").textContent : null,
+        chipZone: $("#tempChip") ? $("#tempChip").getAttribute("data-zone") : null,
+        badge: $("#wxBadgeTemp") ? $("#wxBadgeTemp").textContent : null
+      };
+    },
+    forceTemp: function (v) { return setForcedTemp(v); },
+    thermo: function () {
+      var row = document.querySelector("#shopBody .shop-row.thermo");
+      var z = tempZoneInfo();
+      var buffChip = null;
+      Array.prototype.some.call(document.querySelectorAll("#buffRow .buff-chip"), function (n) {
+        if (n.textContent.indexOf("자동 코디") !== -1) { buffChip = n.textContent.replace(/\s+/g, " ").trim(); return true; }
+        return false;
+      });
+      return {
+        price: THERMO_PRICE,
+        owned: hasThermometer(),
+        auto: !!economy.autoOutfit,
+        autoOn: autoOutfitOn(),
+        zone: temp.zone,
+        zoneLabel: z.label,
+        temp: tempRounded(),
+        plan: OUTFIT_FOR_ZONE[temp.zone] || null,
+        equipped: JSON.parse(JSON.stringify(economy.cosmetics)),
+        ownedCos: JSON.parse(JSON.stringify(economy.ownedCos)),
+        warmth: { top: warmthOf("top"), hat: warmthOf("hat"), level: outfitWarmth().level },
+        row: row ? row.textContent.replace(/\s+/g, " ").trim() : null,
+        rowButtons: row ? Array.prototype.map.call(row.querySelectorAll("[data-act]"), function (b) {
+          return b.getAttribute("data-act") + ":" + b.textContent.trim();
+        }) : [],
+        buffChip: buffChip,
+        charSum: $("#charSum") ? $("#charSum").textContent.replace(/\s+/g, " ").trim() : null,
+        notice: $("#notice") ? $("#notice").textContent : null,
+        noticeOn: $("#notice") ? $("#notice").classList.contains("on") : null,
+        thermoEff: $("#thermoEff") ? $("#thermoEff").textContent : null
+      };
+    },
+    buyThermometer: function () { return buyThermometer(); },
+    toggleAutoOutfit: function () { return toggleAutoOutfit(); },
     manualBonus: function () {
       return {
         mul: MANUAL_RARE_MUL,
@@ -10794,7 +11162,7 @@
     cosmeticList: function () {
       return COSMETIC_CATS.map(function (c) {
         return { cat: c.id, label: c.label, items: COSMETICS[c.id].map(function (it) {
-          return { id: it.id, name: it.name, price: it.price };
+          return { id: it.id, name: it.name, price: it.price, warmth: it.warmth || null };
         }) };
       });
     },
