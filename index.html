@@ -1,0 +1,3392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="로우폴리 3D 강가에서 즐기는 잔잔한 낚시. 시간대마다 빛과 물고기가 바뀝니다.">
+<title>강가 낚시 · River Fishing</title>
+<style>
+  :root {
+    --ink: #f3f7fd;
+    --muted: #b8c5d8;
+    --glass: rgba(9, 16, 28, 0.44);
+    --glass-strong: rgba(8, 13, 23, 0.82);
+    --line: rgba(255, 255, 255, 0.14);
+    --accent: #ffd07a;
+    --accent-soft: rgba(255, 208, 122, 0.16);
+    --good: #8fe0b6;
+    --radius: 20px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #060a11;
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard",
+      "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+    overscroll-behavior: none;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #app {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: #060a11;
+  }
+
+  canvas#scene {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+  }
+
+  /* 화면 가장자리 비네트 */
+  #vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 80% at 50% 45%, rgba(0, 0, 0, 0) 45%, rgba(4, 8, 14, 0.55) 100%);
+    mix-blend-mode: multiply;
+  }
+
+  /* ── 상단 HUD ─────────────────────────────── */
+  .hud-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: calc(var(--safe-top) + 12px) calc(var(--safe-right) + 14px) 0 calc(var(--safe-left) + 14px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .time-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px 9px 11px;
+    border-radius: 16px;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+    max-width: 66vw;
+  }
+
+  .time-icon {
+    font-size: 21px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  }
+
+  .time-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+
+  .time-title {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .time-title #clockText {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .time-mood {
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 46vw;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: #1a1206;
+    background: var(--accent);
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .chip.on { opacity: 1; transform: scale(1); }
+
+  .top-actions { display: flex; gap: 8px; pointer-events: auto; }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--glass);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: var(--ink);
+    font-size: 17px;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.2s, border-color 0.2s;
+  }
+  .icon-btn:active { transform: scale(0.93); }
+  .icon-btn.off { color: #7c8ba1; border-color: rgba(255, 255, 255, 0.08); }
+  .icon-btn .badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #1a1206;
+    font-size: 10px;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0 2px rgba(8, 13, 23, 0.8);
+  }
+  .icon-btn { position: relative; }
+
+  /* ── 입질 표시 ─────────────────────────────── */
+  #biteBanner {
+    position: absolute;
+    left: 50%;
+    top: 26%;
+    transform: translate(-50%, -50%) scale(0.4);
+    width: 108px;
+    height: 108px;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 6;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+  }
+  #biteBanner.on {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    animation: bitePulse 0.7s ease-in-out infinite;
+  }
+  #biteBanner .core {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 46px;
+    font-weight: 900;
+    color: #201304;
+    background: radial-gradient(circle at 35% 30%, #fff3c8, #ffcb5e 55%, #f0a12f);
+    box-shadow: 0 0 30px rgba(255, 198, 90, 0.85), 0 0 80px rgba(255, 170, 60, 0.45);
+    font-family: "Arial Black", -apple-system, system-ui, sans-serif;
+  }
+  #biteBanner .halo {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 219, 150, 0.75);
+    animation: haloOut 1.1s ease-out infinite;
+  }
+  #biteBanner .halo.b { animation-delay: 0.55s; }
+  #biteBanner .bite-tip {
+    position: absolute;
+    bottom: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffe3ad;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+  }
+
+  @keyframes bitePulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.06); }
+  }
+  @keyframes haloOut {
+    0% { transform: scale(0.9); opacity: 0.9; }
+    100% { transform: scale(1.55); opacity: 0; }
+  }
+
+  /* ── 토스트 ───────────────────────────────── */
+  #toast {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--safe-top) + 74px);
+    transform: translate(-50%, -16px);
+    min-width: 214px;
+    max-width: 88vw;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px 11px 12px;
+    border-radius: 18px;
+    background: var(--glass-strong);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.2, 1.2, 0.4, 1);
+    z-index: 7;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  #toast .toast-fish {
+    width: 54px;
+    height: 34px;
+    color: var(--fish, #9fc0d4);
+    flex: 0 0 auto;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+  }
+  #toast .toast-fish svg { width: 100%; height: 100%; display: block; }
+  #toast .toast-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  #toast .toast-name {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #toast .toast-meta { font-size: 12px; color: var(--muted); }
+  #toast .toast-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid rgba(255, 208, 122, 0.35);
+    white-space: nowrap;
+  }
+
+  /* ── 하단 HUD ─────────────────────────────── */
+  .hud-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 calc(var(--safe-right) + 12px) calc(var(--safe-bottom) + 12px) calc(var(--safe-left) + 12px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  #notice {
+    align-self: center;
+    max-width: 92vw;
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #e7eefb;
+    background: rgba(8, 14, 24, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 7px 14px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  #notice.on { opacity: 1; transform: translateY(0); }
+
+  #statusPill {
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 12px;
+    color: #dbe6f6;
+    white-space: nowrap;
+    max-width: 94vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #statusPill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #7fd0a6;
+    box-shadow: 0 0 8px rgba(127, 208, 166, 0.8);
+    flex: 0 0 auto;
+    animation: dotPulse 2.4s ease-in-out infinite;
+  }
+  #statusPill.biting .dot { background: #ffc65e; box-shadow: 0 0 10px rgba(255, 198, 94, 0.95); }
+  @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .panel {
+    pointer-events: auto;
+    border-radius: var(--radius);
+    background: var(--glass);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(16px) saturate(1.15);
+    -webkit-backdrop-filter: blur(16px) saturate(1.15);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+  }
+
+  #bandBar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    padding: 6px;
+    width: 100%;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .band-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #c7d4e6;
+    border-radius: 14px;
+    padding: 7px 2px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.12s;
+  }
+  .band-btn .ico { font-size: 16px; line-height: 1.1; opacity: 0.9; }
+  .band-btn:active { transform: scale(0.95); }
+  .band-btn.active {
+    background: rgba(255, 255, 255, 0.13);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  }
+  .band-btn.active .ico { filter: drop-shadow(0 0 8px rgba(255, 214, 140, 0.6)); }
+
+  #actionRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .action-btn {
+    appearance: none;
+    font-family: inherit;
+    pointer-events: auto;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: var(--glass);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+  }
+  .action-btn:active { transform: scale(0.97); }
+  .action-btn .ico { font-size: 15px; }
+
+  #btnStrike {
+    background: linear-gradient(180deg, rgba(255, 214, 140, 0.22), rgba(255, 178, 66, 0.14));
+    border-color: rgba(255, 208, 122, 0.4);
+    color: #ffe9bd;
+  }
+  #btnStrike.hot {
+    background: linear-gradient(180deg, #ffe6ae, #ffc45c);
+    border-color: #fff0c9;
+    color: #221604;
+    box-shadow: 0 0 26px rgba(255, 196, 92, 0.75), 0 10px 26px rgba(0, 0, 0, 0.3);
+    animation: hotPulse 0.8s ease-in-out infinite;
+  }
+  @keyframes hotPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.035); }
+  }
+
+  /* ── 도감 모달 ─────────────────────────────── */
+  #dexModal {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  #dexModal.open { opacity: 1; pointer-events: auto; }
+  #dexModal .backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 6, 12, 0.62);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .dex-sheet {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, rgba(16, 24, 38, 0.97), rgba(9, 14, 24, 0.99));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 4px;
+    border-radius: 26px 26px 0 0;
+    box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.6);
+    transform: translateY(26px);
+    transition: transform 0.32s cubic-bezier(0.2, 1, 0.35, 1);
+    padding-bottom: calc(var(--safe-bottom) + 10px);
+  }
+  #dexModal.open .dex-sheet { transform: translateY(0); }
+
+  .dex-head {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dex-head-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .dex-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+  .dex-title small { font-size: 11px; font-weight: 600; color: var(--muted); margin-left: 6px; }
+  .close-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.07);
+    color: #dbe6f6;
+    font-size: 16px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .progress-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .progress-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .progress-top strong { color: var(--ink); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .progress-track {
+    height: 7px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.09);
+    overflow: hidden;
+  }
+  #dexProgressBar {
+    height: 100%;
+    width: 0%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #7fd0a6, #ffd07a);
+    transition: width 0.5s cubic-bezier(0.2, 1, 0.4, 1);
+  }
+  .dex-stats {
+    display: flex;
+    gap: 14px;
+    font-size: 11.5px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .dex-stats b { color: #e9f1ff; font-weight: 700; }
+
+  .dex-scroll {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 14px 6px;
+    overscroll-behavior: contain;
+  }
+
+  .dex-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  @media (min-width: 520px) {
+    .dex-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .dex-card {
+    position: relative;
+    border-radius: 16px;
+    padding: 10px 11px 9px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 132px;
+    overflow: hidden;
+  }
+  .dex-card.got {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035));
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+  .dex-card::after {
+    content: "";
+    position: absolute;
+    right: -30px;
+    top: -30px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: var(--fish, #333);
+    opacity: 0.10;
+    filter: blur(6px);
+    pointer-events: none;
+  }
+  .dex-card.locked::after { opacity: 0.03; }
+
+  .dex-fish {
+    height: 40px;
+    color: var(--fish, #6a7a90);
+  }
+  .dex-fish svg { height: 100%; width: auto; display: block; }
+  .dex-card.locked .dex-fish {
+    color: #1b2637;
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.08));
+  }
+  .dex-card.locked .dex-fish svg { opacity: 0.9; }
+  .dex-card.eel .dex-fish svg { transform: scaleX(1.22); transform-origin: left center; }
+
+  .dex-name {
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .dex-name .rarity-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--rar);
+    box-shadow: 0 0 8px var(--rar);
+    flex: 0 0 auto;
+  }
+  .dex-card.locked .dex-name { color: #7d8da3; letter-spacing: 0.06em; }
+
+  .dex-meta { font-size: 11px; color: var(--muted); line-height: 1.35; }
+  .dex-meta .best { color: #ffe6b6; font-weight: 700; }
+
+  .dex-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 2px;
+  }
+  .dex-rarity { font-size: 10.5px; font-weight: 700; color: var(--rar); }
+  .dex-bands { display: flex; gap: 3px; }
+  .dex-bands span {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #b9c8db;
+  }
+
+  .dex-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 18px 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .dex-actions .hint { font-size: 11px; color: var(--muted); }
+  #dexReset {
+    appearance: none;
+    font-family: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    color: #c9d5e6;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  #dexReset.confirm {
+    background: rgba(255, 96, 96, 0.18);
+    border-color: rgba(255, 120, 120, 0.5);
+    color: #ffb4b4;
+  }
+
+  /* ── 인트로 ───────────────────────────────── */
+  #intro {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: calc(var(--safe-top) + 24px) 24px calc(var(--safe-bottom) + 24px);
+    background:
+      radial-gradient(120% 90% at 50% 10%, rgba(255, 190, 120, 0.16), rgba(6, 10, 18, 0) 55%),
+      linear-gradient(180deg, rgba(7, 12, 22, 0.78), rgba(5, 9, 16, 0.94));
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    transition: opacity 0.45s ease, visibility 0.45s;
+  }
+  #intro.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .intro-inner { max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .intro-kicker {
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(255, 214, 150, 0.85);
+    font-weight: 700;
+  }
+  .intro-title {
+    margin: 0;
+    font-size: clamp(30px, 9vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+    background: linear-gradient(180deg, #ffffff, #ffe3b3 60%, #f7b976);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 6px 24px rgba(255, 170, 80, 0.25));
+  }
+  .intro-sub {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #c6d3e6;
+    word-break: keep-all;
+  }
+  .intro-list {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+  }
+  .intro-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    color: #d5e0ef;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 12px;
+    padding: 9px 12px;
+  }
+  .intro-list li .ico { font-size: 15px; }
+  .intro-list li b { color: #fff; font-weight: 700; }
+
+  #introStart {
+    margin-top: 8px;
+    appearance: none;
+    font-family: inherit;
+    border: 0;
+    border-radius: 18px;
+    padding: 16px 46px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #23160a;
+    background: linear-gradient(180deg, #ffe9bb, #ffc861 55%, #f3a53c);
+    box-shadow: 0 16px 36px rgba(240, 160, 60, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: transform 0.14s ease, box-shadow 0.2s;
+  }
+  #introStart:active { transform: scale(0.97); box-shadow: 0 8px 20px rgba(240, 160, 60, 0.3); }
+  .intro-note { font-size: 11px; color: #8b9bb2; line-height: 1.5; }
+
+  /* ── 부팅 오류 ─────────────────────────────── */
+  #bootError {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: none;
+    place-items: center;
+    padding: 24px;
+    background: rgba(4, 8, 14, 0.94);
+    text-align: center;
+  }
+  #bootError.show { display: grid; }
+  .boot-card { max-width: 360px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .boot-card h2 { margin: 0; font-size: 18px; }
+  .boot-card p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; word-break: keep-all; }
+  .boot-card button {
+    appearance: none;
+    font-family: inherit;
+    margin-top: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 11px 22px;
+    border-radius: 14px;
+    cursor: pointer;
+  }
+
+  /* 작은 화면 / 가로 모드 보정 */
+  @media (max-height: 560px) {
+    .time-card { padding: 6px 10px; }
+    .time-mood { display: none; }
+    .panel { border-radius: 16px; }
+    .band-btn { padding: 5px 2px 4px; font-size: 10px; }
+    .action-btn { padding: 9px 6px; font-size: 12px; }
+    .hud-bottom { gap: 6px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #biteBanner.on, #biteBanner .halo, #btnStrike.hot { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="scene" aria-label="3D 강가 낚시 장면"></canvas>
+  <div id="vignette"></div>
+
+  <header class="hud-top">
+    <div class="time-card">
+      <div class="time-icon" id="timeIcon">🌄</div>
+      <div class="time-text">
+        <div class="time-title">
+          <span id="bandName">새벽</span>
+          <span id="clockText">06:24</span>
+          <span class="chip" id="previewChip">미리보기</span>
+        </div>
+        <div class="time-mood" id="moodLine">물안개가 강 위를 천천히 떠다녀요</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="btnSound" aria-label="소리 켜기/끄기" title="소리">🔊</button>
+      <button class="icon-btn" id="btnDexTop" aria-label="도감 열기" title="도감">
+        📖<span class="badge" id="dexBadge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <div id="biteBanner" aria-hidden="true">
+    <div class="halo"></div>
+    <div class="halo b"></div>
+    <div class="core">!</div>
+    <div class="bite-tip">지금 탭!</div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="hud-bottom">
+    <div id="notice"></div>
+    <div id="statusPill"><span class="dot"></span><span id="statusText">찌를 던질 준비를 하고 있어요</span></div>
+    <div class="panel" id="bandBar" role="group" aria-label="시간대 미리보기">
+      <button class="band-btn active" data-band="live"><span class="ico">⏱️</span><span>실시간</span></button>
+      <button class="band-btn" data-band="dawn"><span class="ico">🌄</span><span>새벽</span></button>
+      <button class="band-btn" data-band="day"><span class="ico">☀️</span><span>낮</span></button>
+      <button class="band-btn" data-band="sunset"><span class="ico">🌇</span><span>노을</span></button>
+      <button class="band-btn" data-band="night"><span class="ico">🌙</span><span>밤</span></button>
+    </div>
+    <div id="actionRow">
+      <button class="action-btn" id="btnStrike"><span class="ico">🎣</span><span id="strikeLabel">낚아채기</span></button>
+      <button class="action-btn" id="btnDex"><span class="ico">📖</span><span>도감</span></button>
+      <button class="action-btn" id="btnAuto"><span class="ico">🤖</span><span id="autoLabel">자동 낚시</span></button>
+    </div>
+  </footer>
+
+  <div id="dexModal" role="dialog" aria-modal="true" aria-label="물고기 도감">
+    <div class="backdrop" id="dexBackdrop"></div>
+    <div class="dex-sheet">
+      <div class="dex-head">
+        <div class="dex-head-row">
+          <div class="dex-title">물고기 도감<small>10종</small></div>
+          <button class="close-btn" id="dexClose" aria-label="닫기">✕</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-top"><span>수집률</span><strong id="dexCount">0 / 10</strong></div>
+          <div class="progress-track"><div id="dexProgressBar"></div></div>
+        </div>
+        <div class="dex-stats">
+          <span>총 <b id="dexTotal">0</b>마리</span>
+          <span>최대 <b id="dexBest">0cm</b></span>
+          <span>이번 세션 <b id="dexSession">0</b>마리</span>
+        </div>
+      </div>
+      <div class="dex-scroll"><div class="dex-grid" id="dexGrid"></div></div>
+      <div class="dex-actions">
+        <span class="hint">기록은 이 브라우저에 저장돼요</span>
+        <button id="dexReset">도감 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="intro">
+    <div class="intro-inner">
+      <div class="intro-kicker">Low-poly River</div>
+      <h1 class="intro-title">강가 낚시</h1>
+      <p class="intro-sub">해가 바뀌면 강물 빛도, 찾아오는 물고기도 바뀝니다.<br>강가에 앉아 잔잔하게 한 마리씩 모아 보세요.</p>
+      <ul class="intro-list">
+        <li><span class="ico">👆</span><span><b>찌가 흔들리면 탭</b> — 화면을 탭하면 조금 더 큰 개체가 걸려요</span></li>
+        <li><span class="ico">🕒</span><span><b>실시간 · 4가지 시간대</b> — 아래 버튼으로 새벽·낮·노을·밤을 바로 볼 수 있어요</span></li>
+        <li><span class="ico">🐟</span><span><b>물고기 10종 도감</b> — 시간대마다 다른 확률로 나타나요</span></li>
+      </ul>
+      <button id="introStart">강가로 나가기</button>
+      <div class="intro-note">소리는 이 버튼을 누를 때 켜져요 · 도감은 이 브라우저에 저장됩니다</div>
+    </div>
+  </div>
+
+  <div id="bootError">
+    <div class="boot-card">
+      <div style="font-size:34px">🎣</div>
+      <h2>3D 라이브러리를 불러오지 못했어요</h2>
+      <p>인터넷 연결을 확인한 뒤 다시 시도해 주세요. Three.js를 CDN에서 내려받아 그리는 장면이라 첫 실행에만 연결이 필요합니다.</p>
+      <button id="bootRetry">다시 시도</button>
+    </div>
+  </div>
+</div>
+
+<noscript>
+  <div style="position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:#060a11;color:#fff;text-align:center;font-family:sans-serif">
+    이 페이지는 JavaScript가 필요합니다. 브라우저 설정에서 JavaScript를 켜 주세요.
+  </div>
+</noscript>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================================================
+     0. 유틸
+     ===================================================================== */
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var rand = function (a, b) { return a + Math.random() * (b - a); };
+  var easeOut = function (t) { return 1 - Math.pow(1 - t, 3); };
+  var easeInOut = function (t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; };
+  var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
+
+  /* =====================================================================
+     1. 어종 데이터 · 확률표 (iOS FishCatalog.swift 와 동일)
+     ===================================================================== */
+  var RARITY = {
+    common:    { label: "흔함",      stars: 1, color: "#a8c2d6" },
+    uncommon:  { label: "조금 희귀", stars: 2, color: "#8fdcb8" },
+    rare:      { label: "희귀",      stars: 3, color: "#8fb4ff" },
+    legendary: { label: "전설",      stars: 4, color: "#ffd07a" }
+  };
+
+  var FISH = [
+    { id: "pale-chub", name: "피라미", en: "Pale Chub", rarity: "common", min: 7, max: 15,
+      color: "#aac6d8", body: 1.0,
+      summary: "수면 가까이에서 빠르게 움직이는 작은 물고기. 낮에는 물빛에 몸이 반짝인다." },
+    { id: "crucian-carp", name: "붕어", en: "Crucian Carp", rarity: "common", min: 12, max: 32,
+      color: "#c39a63", body: 1.05,
+      summary: "어느 시간대에나 만날 수 있는 강의 오랜 친구. 느긋하게 찌를 흔든다." },
+    { id: "common-carp", name: "잉어", en: "Common Carp", rarity: "uncommon", min: 35, max: 85,
+      color: "#d2913f", body: 1.12,
+      summary: "등지느러미를 수면 위로 내밀며 유유히 헤엄친다. 한 번 걸리면 팔이 아프다." },
+    { id: "catfish", name: "메기", en: "Catfish", rarity: "uncommon", min: 28, max: 65,
+      color: "#6a7280", body: 1.15,
+      summary: "긴 수염으로 어둠 속을 더듬는다. 해가 진 뒤에만 입질이 온다." },
+    { id: "mandarin-fish", name: "쏘가리", en: "Mandarin Fish", rarity: "rare", min: 18, max: 38,
+      color: "#dfa63f", body: 1.02,
+      summary: "새벽과 노을의 경계에서만 모습을 드러내는 강의 사냥꾼." },
+    { id: "night-eel", name: "밤장어", en: "Night Eel", rarity: "rare", min: 45, max: 95,
+      color: "#54617a", body: 1.28, eel: true,
+      summary: "밤물 속을 미끄러지는 긴 그림자. 잡고 나면 손이 한참 미끌미끌하다." },
+    { id: "silver-ayu", name: "은빛은어", en: "Silver Sweetfish", rarity: "uncommon", min: 12, max: 26,
+      color: "#d6e8f0", body: 1.06,
+      summary: "새벽 햇살을 등에 받으면 은가루를 뿌린 것처럼 반짝인다." },
+    { id: "sunset-perch", name: "노을농어", en: "Sunset Perch", rarity: "rare", min: 30, max: 52,
+      color: "#ec8050", body: 1.04,
+      summary: "해가 지는 쪽으로 몸을 돌리는 습성이 있다. 지느러미 끝이 붉다." },
+    { id: "starlight-trout", name: "별빛송어", en: "Starlight Trout", rarity: "legendary", min: 32, max: 58,
+      color: "#93a9ff", body: 1.08,
+      summary: "별이 물에 비치는 밤에만 오른다. 비늘에 별자리가 새겨져 있다고 전해진다." },
+    { id: "golden-carp", name: "황금잉어", en: "Golden Carp", rarity: "legendary", min: 55, max: 105,
+      color: "#f5c85a", body: 1.14,
+      summary: "노을이 강을 금빛으로 물들이는 몇 분 동안에만 낚이는 전설의 잉어." }
+  ];
+
+  var FISH_BY_ID = {};
+  FISH.forEach(function (f) { FISH_BY_ID[f.id] = f; });
+
+  // 시간대별 출현 가중치 (합 100)
+  var SPAWN = {
+    dawn: [
+      ["pale-chub", 30], ["silver-ayu", 26], ["crucian-carp", 20], ["mandarin-fish", 12], ["common-carp", 12]
+    ],
+    day: [
+      ["pale-chub", 32], ["crucian-carp", 28], ["common-carp", 18], ["silver-ayu", 14], ["mandarin-fish", 6], ["starlight-trout", 2]
+    ],
+    sunset: [
+      ["crucian-carp", 22], ["sunset-perch", 22], ["common-carp", 20], ["mandarin-fish", 16], ["pale-chub", 12], ["golden-carp", 8]
+    ],
+    night: [
+      ["catfish", 30], ["night-eel", 24], ["crucian-carp", 18], ["starlight-trout", 12], ["common-carp", 10], ["pale-chub", 6]
+    ]
+  };
+
+  var BANDS = {
+    dawn:   { name: "새벽", hours: "05 – 08", preview: 6.4,  icon: "🌄", mood: "물안개가 강 위를 천천히 떠다녀요" },
+    day:    { name: "낮",   hours: "08 – 17", preview: 12.5, icon: "☀️", mood: "햇살이 수면에 부서지고 있어요" },
+    sunset: { name: "노을", hours: "17 – 20", preview: 18.4, icon: "🌇", mood: "강물이 노을빛으로 물들고 있어요" },
+    night:  { name: "밤",   hours: "20 – 05", preview: 22.5, icon: "🌙", mood: "별빛과 랜턴 불빛만 남았어요" }
+  };
+
+  function bandForHour(h) {
+    h = ((h % 24) + 24) % 24;
+    if (h >= 5 && h < 8) return "dawn";
+    if (h >= 8 && h < 17) return "day";
+    if (h >= 17 && h < 20) return "sunset";
+    return "night";
+  }
+
+  function bandsOf(fishId) {
+    var out = [];
+    ["dawn", "day", "sunset", "night"].forEach(function (b) {
+      var found = SPAWN[b].some(function (e) { return e[0] === fishId; });
+      if (found) out.push(b);
+    });
+    return out;
+  }
+
+  function rollFish(band) {
+    var table = SPAWN[band] || SPAWN.day;
+    var total = 0;
+    table.forEach(function (e) { total += e[1]; });
+    var pick = Math.random() * total;
+    for (var i = 0; i < table.length; i++) {
+      pick -= table[i][1];
+      if (pick <= 0) return FISH_BY_ID[table[i][0]];
+    }
+    return FISH_BY_ID[table[table.length - 1][0]];
+  }
+
+  function rollLength(fish, unit) {
+    var u = clamp(unit === undefined ? Math.random() : unit, 0, 0.9999);
+    var curved = Math.pow(u, 1.45);
+    var raw = fish.min + (fish.max - fish.min) * curved;
+    return Math.round(raw * 10) / 10;
+  }
+
+  /* =====================================================================
+     2. 저장 (localStorage)
+     ===================================================================== */
+  var BOOK_KEY = "riverFishingWeb.fishBook.v1";
+  var SETTINGS_KEY = "riverFishingWeb.settings.v1";
+
+  var book = { records: {} };
+
+  function loadBook() {
+    try {
+      var raw = localStorage.getItem(BOOK_KEY);
+      if (!raw) return { records: {} };
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || !parsed.records) return { records: {} };
+      var clean = {};
+      Object.keys(parsed.records).forEach(function (id) {
+        var r = parsed.records[id];
+        if (!FISH_BY_ID[id] || !r) return;
+        var count = Number(r.count) || 0;
+        var longest = Number(r.longest) || 0;
+        if (count <= 0) return;
+        clean[id] = {
+          count: count,
+          longest: longest,
+          firstAt: Number(r.firstAt) || Date.now(),
+          lastAt: Number(r.lastAt) || Date.now()
+        };
+      });
+      return { records: clean };
+    } catch (err) {
+      return { records: {} };
+    }
+  }
+
+  function saveBook() {
+    try { localStorage.setItem(BOOK_KEY, JSON.stringify(book)); } catch (err) { /* 저장 불가 환경 무시 */ }
+  }
+
+  var settings = { sound: true, auto: true };
+
+  function loadSettings() {
+    try {
+      var raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return;
+      if (typeof parsed.sound === "boolean") settings.sound = parsed.sound;
+      if (typeof parsed.auto === "boolean") settings.auto = parsed.auto;
+    } catch (err) { /* 무시 */ }
+  }
+
+  function saveSettings() {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (err) { /* 무시 */ }
+  }
+
+  function caughtCount() { return Object.keys(book.records).length; }
+
+  function totalCatches() {
+    var n = 0;
+    Object.keys(book.records).forEach(function (id) { n += book.records[id].count; });
+    return n;
+  }
+
+  function bestLength() {
+    var best = 0;
+    Object.keys(book.records).forEach(function (id) {
+      best = Math.max(best, book.records[id].longest);
+    });
+    return best;
+  }
+
+  /* =====================================================================
+     3. 사운드 (Web Audio API · 외부 음원 없음)
+     ===================================================================== */
+  var Sound = {
+    ctx: null,
+    master: null,
+    waterGain: null,
+    noiseBuffer: null,
+    enabled: true,
+    started: false,
+
+    init: function () {
+      if (this.ctx) return;
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      var ctx;
+      try { ctx = new AC(); } catch (err) { return; }
+      this.ctx = ctx;
+
+      var master = ctx.createGain();
+      master.gain.value = this.enabled ? 0.5 : 0;
+      master.connect(ctx.destination);
+      this.master = master;
+
+      // 잔잔한 물소리: 브라운 노이즈 + 저역 통과 + 느린 LFO
+      var seconds = 2;
+      var len = Math.floor(ctx.sampleRate * seconds);
+      var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      var data = buf.getChannelData(0);
+      var last = 0;
+      for (var i = 0; i < len; i++) {
+        var white = Math.random() * 2 - 1;
+        last = (last + 0.02 * white) / 1.02;
+        data[i] = last * 3.4;
+      }
+      this.noiseBuffer = buf;
+
+      var src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+
+      var bp = ctx.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = 460;
+      bp.Q.value = 0.62;
+
+      var lp = ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 1150;
+      lp.Q.value = 0.35;
+
+      var g = ctx.createGain();
+      g.gain.value = 0.14;
+
+      src.connect(bp);
+      bp.connect(lp);
+      lp.connect(g);
+      g.connect(master);
+      src.start(0);
+      this.waterGain = g;
+
+      var lfo = ctx.createOscillator();
+      lfo.type = "sine";
+      lfo.frequency.value = 0.11;
+      var lfoGain = ctx.createGain();
+      lfoGain.gain.value = 0.05;
+      lfo.connect(lfoGain);
+      lfoGain.connect(g.gain);
+      lfo.start(0);
+
+      var lfo2 = ctx.createOscillator();
+      lfo2.type = "sine";
+      lfo2.frequency.value = 0.047;
+      var lfoGain2 = ctx.createGain();
+      lfoGain2.gain.value = 260;
+      lfo2.connect(lfoGain2);
+      lfoGain2.connect(bp.frequency);
+      lfo2.start(0);
+    },
+
+    resume: function () {
+      if (!this.ctx) this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === "suspended" && this.ctx.resume) {
+        this.ctx.resume().catch(function () { /* 무시 */ });
+      }
+      this.started = true;
+    },
+
+    setEnabled: function (on) {
+      this.enabled = !!on;
+      if (this.master && this.ctx) {
+        this.master.gain.setTargetAtTime(on ? 0.5 : 0, this.ctx.currentTime, 0.12);
+      }
+    },
+
+    noiseBurst: function (when, dur, freq, gainValue) {
+      if (!this.ctx || !this.noiseBuffer) return;
+      var ctx = this.ctx;
+      var src = ctx.createBufferSource();
+      src.buffer = this.noiseBuffer;
+      src.loop = true;
+      var f = ctx.createBiquadFilter();
+      f.type = "bandpass";
+      f.frequency.value = freq;
+      f.Q.value = 1.1;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(gainValue, when + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+      src.connect(f);
+      f.connect(g);
+      g.connect(this.master);
+      src.start(when);
+      src.stop(when + dur + 0.05);
+    },
+
+    tone: function (when, freq, dur, gainValue, type, glideTo) {
+      if (!this.ctx) return;
+      var ctx = this.ctx;
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = type || "sine";
+      osc.frequency.setValueAtTime(freq, when);
+      if (glideTo) osc.frequency.exponentialRampToValueAtTime(glideTo, when + dur);
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(gainValue, when + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+      osc.connect(g);
+      g.connect(this.master);
+      osc.start(when);
+      osc.stop(when + dur + 0.05);
+    },
+
+    bite: function () {
+      if (!this.enabled || !this.ctx) return;
+      var t = this.ctx.currentTime + 0.01;
+      this.tone(t, 540, 0.24, 0.22, "sine", 130);
+      this.noiseBurst(t, 0.18, 1500, 0.18);
+    },
+
+    catchFish: function (rarity) {
+      if (!this.enabled || !this.ctx) return;
+      var t = this.ctx.currentTime + 0.02;
+      var base = rarity === "legendary" ? 784 : rarity === "rare" ? 659.25 : 523.25;
+      var steps = rarity === "legendary" ? [1, 1.25, 1.5, 2, 2.5] : [1, 1.25, 1.5];
+      steps.forEach(function (m, i) {
+        this.tone(t + i * 0.085, base * m, 0.34, 0.13, "triangle");
+      }, this);
+      this.noiseBurst(t, 0.22, 900, 0.10);
+    },
+
+    miss: function () {
+      if (!this.enabled || !this.ctx) return;
+      var t = this.ctx.currentTime + 0.01;
+      this.tone(t, 220, 0.28, 0.10, "sine", 120);
+    },
+
+    cast: function () {
+      if (!this.enabled || !this.ctx) return;
+      var t = this.ctx.currentTime + 0.01;
+      this.noiseBurst(t, 0.3, 2400, 0.07);
+    }
+  };
+
+  /* =====================================================================
+     4. 시간대별 분위기 (RiverMood 프리셋 · 키프레임 보간)
+     ===================================================================== */
+  var MOODS = {
+    dawn: {
+      skyTop: [0.14, 0.21, 0.40], skyHorizon: [0.96, 0.68, 0.52],
+      sunDisc: [1.00, 0.87, 0.68], sunColor: [1.00, 0.80, 0.62],
+      sunIntensity: 560, sunAlt: 10, sunAz: 8, sunOpacity: 0.95,
+      moonOpacity: 0, moonAlt: -30, starOpacity: 0.16,
+      ambient: [0.55, 0.63, 0.82], ambientIntensity: 360,
+      fogColor: [0.74, 0.74, 0.80], fogNear: 26, fogFar: 185,
+      water: [0.24, 0.32, 0.40], fogMist: 0.9,
+      lantern: 140, fire: 220
+    },
+    day: {
+      skyTop: [0.24, 0.50, 0.86], skyHorizon: [0.78, 0.90, 0.98],
+      sunDisc: [1.00, 0.98, 0.90], sunColor: [1.00, 0.96, 0.88],
+      sunIntensity: 1100, sunAlt: 58, sunAz: 4, sunOpacity: 1,
+      moonOpacity: 0, moonAlt: -30, starOpacity: 0,
+      ambient: [0.72, 0.82, 0.95], ambientIntensity: 460,
+      fogColor: [0.82, 0.89, 0.96], fogNear: 60, fogFar: 330,
+      water: [0.10, 0.34, 0.42], fogMist: 0.05,
+      lantern: 0, fire: 0
+    },
+    sunset: {
+      skyTop: [0.17, 0.18, 0.40], skyHorizon: [0.99, 0.55, 0.34],
+      sunDisc: [1.00, 0.72, 0.44], sunColor: [1.00, 0.60, 0.34],
+      sunIntensity: 950, sunAlt: 7, sunAz: -7, sunOpacity: 1,
+      moonOpacity: 0.15, moonAlt: -14, starOpacity: 0.10,
+      ambient: [0.54, 0.45, 0.60], ambientIntensity: 400,
+      fogColor: [0.66, 0.46, 0.44], fogNear: 34, fogFar: 235,
+      water: [0.24, 0.16, 0.20], fogMist: 0.25,
+      lantern: 430, fire: 400
+    },
+    night: {
+      skyTop: [0.02, 0.03, 0.09], skyHorizon: [0.06, 0.09, 0.18],
+      sunDisc: [0.72, 0.80, 1.00], sunColor: [0.62, 0.74, 1.00],
+      sunIntensity: 170, sunAlt: -32, sunAz: 0, sunOpacity: 0,
+      moonOpacity: 0.95, moonAlt: 14, starOpacity: 0.92,
+      ambient: [0.34, 0.44, 0.72], ambientIntensity: 190,
+      fogColor: [0.04, 0.06, 0.13], fogNear: 30, fogFar: 210,
+      water: [0.03, 0.06, 0.12], fogMist: 0.35,
+      lantern: 950, fire: 820
+    }
+  };
+
+  var KEYFRAMES = [
+    [0.0, "night"], [4.3, "night"], [5.8, "dawn"], [7.2, "dawn"],
+    [8.8, "day"], [15.4, "day"], [17.5, "sunset"], [18.9, "sunset"],
+    [20.4, "night"], [24.0, "night"]
+  ];
+
+  function lerpMood(a, b, t) {
+    var out = {};
+    Object.keys(a).forEach(function (k) {
+      var va = a[k];
+      var vb = (b[k] === undefined) ? va : b[k];
+      if (Array.isArray(va)) {
+        out[k] = [
+          lerp(va[0], vb[0], t),
+          lerp(va[1], vb[1], t),
+          lerp(va[2], vb[2], t)
+        ];
+      } else {
+        out[k] = lerp(va, vb, t);
+      }
+    });
+    return out;
+  }
+
+  function moodAtHour(h) {
+    h = ((h % 24) + 24) % 24;
+    for (var i = 0; i < KEYFRAMES.length - 1; i++) {
+      var h0 = KEYFRAMES[i][0];
+      var h1 = KEYFRAMES[i + 1][0];
+      if (h >= h0 && h <= h1) {
+        var span = Math.max(h1 - h0, 0.0001);
+        var t = (h - h0) / span;
+        return lerpMood(MOODS[KEYFRAMES[i][1]], MOODS[KEYFRAMES[i + 1][1]], t);
+      }
+    }
+    return lerpMood(MOODS.night, MOODS.night, 0);
+  }
+
+  /* =====================================================================
+     5. 상태
+     ===================================================================== */
+  var state = {
+    started: false,
+    mode: "live",          // live | dawn | day | sunset | night
+    phase: "idle",         // idle | casting | waiting | biting | caught | missed
+    phaseTime: 0,
+    waitDuration: 6,
+    biteElapsed: 0,
+    biteWindow: 1.8,
+    autoDelay: 0.8,
+    pendingStrike: false,
+    manual: false,
+    session: 0,
+    lastCatch: null
+  };
+
+  var hour = 0;           // 현재 목표 시각 (0~24)
+  var mood = null;        // 보간된 분위기
+  var moodReady = false;
+
+  /* =====================================================================
+     6. Three.js 준비
+     ===================================================================== */
+  var THREE = null;
+  var renderer, scene, camera;
+  var sunLight, hemiLight, fillLight, lanternLight, fireLight;
+  var skyMat, skyMesh;
+  var waterUniforms, waterMesh;
+  var sunSprite, moonSprite, starField, cloudGroup, mistGroup, fireflies;
+  var flameOuter, flameInner, fireGlow, lanternBulb, lanternGlow;
+  var rodTip, rodGroup, angler, bobber, lineMesh, lineMat, lineSegments = 22;
+  var lineDummy = null, lineDir = null, lineUp = null;
+  var ripplePool = [];
+  var jumpers = [];
+  var sceneTime = 0;
+  var lastFrameTime = 0;
+  var tipVec = null;
+  var sunDirVec = null;
+  var moonDirVec = null;
+  var fireBase = 0;
+  var glowBase = 0;
+  var lanternBase = 0;
+
+  var cam = {
+    target: { x: 0, y: 1.3, z: -8 },
+    yaw: 0.02, pitch: 0.19, dist: 21,
+    yawTarget: 0.02, pitchTarget: 0.19, distTarget: 21,
+    shake: 0
+  };
+
+  var BOBBER_TARGET = { x: -0.6, z: -13 };
+  var BOBBER_REST_Y = 0;
+
+  function waveHeight(x, z, t) {
+    var h = 0;
+    h += Math.sin(x * 0.55 + t * 1.1) * 0.15;
+    h += Math.sin(z * 0.42 - t * 0.9) * 0.12;
+    h += Math.sin((x + z) * 0.85 + t * 1.7) * 0.06;
+    h += Math.sin((x * 1.7 - z * 0.6) + t * 2.3) * 0.035;
+    return h;
+  }
+
+  function groundHeight(x, z) {
+    var t = clamp((z + 6) / 12, 0, 1);
+    var h = -0.55 + t * 1.95;
+    h += Math.sin(x * 0.32) * 0.14;
+    h += Math.cos(x * 0.17 + z * 0.21) * 0.10;
+    h += Math.sin((x + z) * 0.6) * 0.05;
+    return h;
+  }
+
+  function makeGlowTexture(inner, outer) {
+    var size = 128;
+    var c = document.createElement("canvas");
+    c.width = c.height = size;
+    var ctx = c.getContext("2d");
+    var grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    grad.addColorStop(0, inner);
+    grad.addColorStop(0.35, outer);
+    grad.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+    var tex = new THREE.CanvasTexture(c);
+    tex.needsUpdate = true;
+    return tex;
+  }
+
+  function makeSoftBlobTexture() {
+    var size = 128;
+    var c = document.createElement("canvas");
+    c.width = c.height = size;
+    var ctx = c.getContext("2d");
+    var grad = ctx.createRadialGradient(size / 2, size / 2, size * 0.05, size / 2, size / 2, size / 2);
+    grad.addColorStop(0, "rgba(255,255,255,0.95)");
+    grad.addColorStop(0.45, "rgba(255,255,255,0.55)");
+    grad.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+    var tex = new THREE.CanvasTexture(c);
+    tex.needsUpdate = true;
+    return tex;
+  }
+
+  function makeShadowTexture() {
+    var size = 128;
+    var c = document.createElement("canvas");
+    c.width = c.height = size;
+    var ctx = c.getContext("2d");
+    var grad = ctx.createRadialGradient(size / 2, size / 2, 2, size / 2, size / 2, size / 2);
+    grad.addColorStop(0, "rgba(0,0,0,0.55)");
+    grad.addColorStop(0.55, "rgba(0,0,0,0.22)");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+    var tex = new THREE.CanvasTexture(c);
+    tex.needsUpdate = true;
+    return tex;
+  }
+
+  var shadowTexture = null;
+
+  function addContactShadow(x, z, size, opacity) {
+    if (!shadowTexture) shadowTexture = makeShadowTexture();
+    var mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(size, size),
+      new THREE.MeshBasicMaterial({
+        map: shadowTexture, transparent: true, opacity: opacity === undefined ? 0.5 : opacity,
+        depthWrite: false, color: 0xffffff
+      })
+    );
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.set(x, groundHeight(x, z) + 0.06, z);
+    scene.add(mesh);
+    return mesh;
+  }
+
+  /* ---------- 물 셰이더 ---------- */
+  var waterVertex = [
+    "uniform float uTime;",
+    "varying vec3 vWorld;",
+    "varying vec3 vNormalW;",
+    "varying float vWaveH;",
+    "float waveH(vec2 p, float t){",
+    "  float h = 0.0;",
+    "  h += sin(p.x * 0.55 + t * 1.1) * 0.15;",
+    "  h += sin(p.y * 0.42 - t * 0.9) * 0.12;",
+    "  h += sin((p.x + p.y) * 0.85 + t * 1.7) * 0.06;",
+    "  h += sin((p.x * 1.7 - p.y * 0.6) + t * 2.3) * 0.035;",
+    "  return h;",
+    "}",
+    "void main(){",
+    "  vec4 wp = modelMatrix * vec4(position, 1.0);",
+    "  float h = waveH(wp.xz, uTime);",
+    "  wp.y += h;",
+    "  float e = 0.35;",
+    "  float hx = waveH(wp.xz + vec2(e, 0.0), uTime) - h;",
+    "  float hz = waveH(wp.xz + vec2(0.0, e), uTime) - h;",
+    "  vec3 n = normalize(vec3(-hx / e, 1.0, -hz / e));",
+    "  vWorld = wp.xyz;",
+    "  vNormalW = normalize(mat3(modelMatrix) * n);",
+    "  vWaveH = h;",
+    "  gl_Position = projectionMatrix * viewMatrix * wp;",
+    "}"
+  ].join("\n");
+
+  var waterFragment = [
+    "uniform vec3 uDeep;",
+    "uniform vec3 uShallow;",
+    "uniform vec3 uSky;",
+    "uniform vec3 uSunColor;",
+    "uniform vec3 uSunDir;",
+    "uniform vec3 uFogColor;",
+    "uniform vec3 uCamPos;",
+    "uniform float uSunPower;",
+    "uniform float uFogNear;",
+    "uniform float uFogFar;",
+    "uniform float uTime;",
+    "varying vec3 vWorld;",
+    "varying vec3 vNormalW;",
+    "varying float vWaveH;",
+    "void main(){",
+    "  vec3 V = normalize(uCamPos - vWorld);",
+    "  vec3 N = normalize(vNormalW);",
+    "  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 3.0);",
+    "  float crest = clamp(vWaveH * 2.0 + 0.5, 0.0, 1.0);",
+    "  vec3 col = mix(uDeep, uShallow, crest);",
+    "  col = mix(col, uSky, fres * 0.62);",
+    "  float dist = length(uCamPos - vWorld);",
+    "  float farFade = clamp(dist / 90.0, 0.0, 1.0);",
+    "  vec3 H = normalize(uSunDir + V);",
+    "  float ndh = max(dot(N, H), 0.0);",
+    "  float spec = pow(ndh, 90.0) * 0.8 + pow(ndh, 420.0) * 2.4;",
+    "  col += uSunColor * spec * uSunPower * (1.0 - farFade * 0.75);",
+    "  float glitter = pow(max(ndh, 0.0), 26.0) * 0.14;",
+    "  col += uSunColor * glitter * uSunPower;",
+    "  float fogF = smoothstep(uFogNear, uFogFar, dist);",
+    "  col = mix(col, uFogColor, clamp(fogF, 0.0, 1.0));",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join("\n");
+
+  /* ---------- 하늘 셰이더 ---------- */
+  var skyVertex = [
+    "varying vec3 vDir;",
+    "void main(){",
+    "  vDir = position;",
+    "  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+    "}"
+  ].join("\n");
+
+  var skyFragment = [
+    "uniform vec3 uTop;",
+    "uniform vec3 uHorizon;",
+    "uniform vec3 uSunColor;",
+    "uniform vec3 uSunDir;",
+    "uniform float uSunGlow;",
+    "uniform float uNight;",
+    "varying vec3 vDir;",
+    "void main(){",
+    "  vec3 d = normalize(vDir);",
+    "  float h = d.y;",
+    "  float t = pow(clamp(h, 0.0, 1.0), 0.55);",
+    "  vec3 col = mix(uHorizon, uTop, t);",
+    "  col = mix(uHorizon * 0.82, col, smoothstep(-0.16, 0.02, h));",
+    "  float sd = max(dot(d, normalize(uSunDir)), 0.0);",
+    "  col += uSunColor * pow(sd, 6.0) * 0.20 * uSunGlow;",
+    "  col += uSunColor * pow(sd, 220.0) * 0.75 * uSunGlow;",
+    "  col *= (1.0 - uNight * 0.06);",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join("\n");
+
+  /* =====================================================================
+     7. 씬 구성
+     ===================================================================== */
+  function fovFor(aspect) {
+    if (aspect >= 0.7) return 54;
+    return Math.min(72, 54 + (0.7 - aspect) * 60);
+  }
+
+  function initThree() {
+    renderer = new THREE.WebGLRenderer({
+      canvas: $("#scene"),
+      antialias: true,
+      alpha: false,
+      powerPreference: "high-performance"
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    renderer.setClearColor(0x0a1220, 1);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x8796a8, 20, 110);
+
+    camera = new THREE.PerspectiveCamera(fovFor(window.innerWidth / window.innerHeight), window.innerWidth / window.innerHeight, 0.1, 900);
+    camera.position.set(0.6, 3.4, 11.5);
+
+    tipVec = new THREE.Vector3();
+    sunDirVec = new THREE.Vector3();
+    moonDirVec = new THREE.Vector3();
+    lineDummy = new THREE.Object3D();
+    lineDir = new THREE.Vector3();
+    lineUp = new THREE.Vector3(0, 1, 0);
+
+    buildLights();
+    buildSky();
+    buildStars();
+    buildWater();
+    buildNearBank();
+    buildFarBank();
+    buildProps();
+    buildAngler();
+    buildBobber();
+    buildRipples();
+    buildFireflies();
+
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", function () {
+      setTimeout(onResize, 250);
+    });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", onResize);
+    }
+    setupCameraControls();
+
+    mood = moodAtHour(12);
+    moodReady = true;
+    applyMood(mood, 1);
+  }
+
+  function buildLights() {
+    hemiLight = new THREE.HemisphereLight(0xbfd4ee, 0x2c3b2a, 0.9);
+    scene.add(hemiLight);
+
+    sunLight = new THREE.DirectionalLight(0xfff2dd, 1.9);
+    sunLight.position.set(12, 40, 20);
+    scene.add(sunLight);
+
+    // 카메라 쪽에서 캐릭터를 살짝 덜어 주는 보조광
+    fillLight = new THREE.DirectionalLight(0xdfe9ff, 0.3);
+    fillLight.position.set(-8, 9, 18);
+    scene.add(fillLight);
+
+    lanternLight = new THREE.PointLight(0xffb066, 0, 16, 2);
+    lanternLight.position.set(-2.35, 2.2, 1.9);
+    scene.add(lanternLight);
+
+    fireLight = new THREE.PointLight(0xff8a3c, 0, 14, 2);
+    fireLight.position.set(2.35, 0.9, 1.1);
+    scene.add(fireLight);
+  }
+
+  function buildSky() {
+    skyMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTop: { value: new THREE.Color(0x2f63b5) },
+        uHorizon: { value: new THREE.Color(0xc9dff5) },
+        uSunColor: { value: new THREE.Color(0xfff2d8) },
+        uSunDir: { value: new THREE.Vector3(0, 1, 0) },
+        uSunGlow: { value: 1 },
+        uNight: { value: 0 }
+      },
+      vertexShader: skyVertex,
+      fragmentShader: skyFragment,
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: false
+    });
+    skyMesh = new THREE.Mesh(new THREE.SphereGeometry(420, 24, 16), skyMat);
+    skyMesh.frustumCulled = false;
+    scene.add(skyMesh);
+
+    var glowTex = makeGlowTexture("rgba(255,255,255,1)", "rgba(255,236,190,0.55)");
+    sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: glowTex, color: 0xfff1cf, transparent: true, opacity: 1,
+      blending: THREE.AdditiveBlending, depthWrite: false, fog: false
+    }));
+    sunSprite.scale.set(46, 46, 1);
+    scene.add(sunSprite);
+
+    var moonTex = makeGlowTexture("rgba(244,249,255,1)", "rgba(196,216,255,0.5)");
+    moonSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: moonTex, color: 0xdfe8ff, transparent: true, opacity: 0,
+      blending: THREE.AdditiveBlending, depthWrite: false, fog: false
+    }));
+    moonSprite.scale.set(28, 28, 1);
+    scene.add(moonSprite);
+  }
+
+  function buildStars() {
+    var count = 700;
+    var pos = new Float32Array(count * 3);
+    for (var i = 0; i < count; i++) {
+      var u = Math.random();
+      var v = Math.random() * 0.92 + 0.03;   // 위쪽 반구
+      var theta = u * Math.PI * 2;
+      var phi = Math.acos(v);
+      var r = 380;
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.cos(phi) + 10;
+      pos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    var tex = makeGlowTexture("rgba(255,255,255,1)", "rgba(210,225,255,0.35)");
+    var mat = new THREE.PointsMaterial({
+      size: 3.4,
+      map: tex,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true,
+      fog: false
+    });
+    starField = new THREE.Points(geo, mat);
+    starField.frustumCulled = false;
+    scene.add(starField);
+
+    cloudGroup = new THREE.Group();
+    var blob = makeSoftBlobTexture();
+    for (var c = 0; c < 7; c++) {
+      var spr = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: blob, color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false, fog: false
+      }));
+      var sx = rand(40, 80);
+      spr.scale.set(sx, sx * 0.42, 1);
+      spr.position.set(rand(-160, 160), rand(48, 86), rand(-260, -140));
+      spr.userData.speed = rand(0.25, 0.7);
+      spr.userData.baseX = spr.position.x;
+      cloudGroup.add(spr);
+    }
+    scene.add(cloudGroup);
+
+    // 새벽 물안개
+    mistGroup = new THREE.Group();
+    for (var m = 0; m < 4; m++) {
+      var mist = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: blob, color: 0xdfe9f6, transparent: true, opacity: 0, depthWrite: false, fog: false
+      }));
+      mist.scale.set(rand(60, 90), rand(16, 26), 1);
+      mist.position.set(rand(-50, 50), rand(1.2, 3.2), rand(-60, -18));
+      mist.userData.speed = rand(0.15, 0.4);
+      mistGroup.add(mist);
+    }
+    scene.add(mistGroup);
+  }
+
+  function buildWater() {
+    waterUniforms = {
+      uTime: { value: 0 },
+      uDeep: { value: new THREE.Color(0x1d4a55) },
+      uShallow: { value: new THREE.Color(0x2f7280) },
+      uSky: { value: new THREE.Color(0xc9dff5) },
+      uSunColor: { value: new THREE.Color(0xfff0d0) },
+      uSunDir: { value: new THREE.Vector3(0, 1, 0) },
+      uFogColor: { value: new THREE.Color(0x9fb0c2) },
+      uCamPos: { value: new THREE.Vector3() },
+      uSunPower: { value: 1 },
+      uFogNear: { value: 20 },
+      uFogFar: { value: 120 }
+    };
+
+    var geo = new THREE.PlaneGeometry(320, 130, 140, 56);
+    var mat = new THREE.ShaderMaterial({
+      uniforms: waterUniforms,
+      vertexShader: waterVertex,
+      fragmentShader: waterFragment,
+      fog: false
+    });
+    waterMesh = new THREE.Mesh(geo, mat);
+    waterMesh.rotation.x = -Math.PI / 2;
+    waterMesh.position.set(0, 0, -70);
+    scene.add(waterMesh);
+  }
+
+  function buildNearBank() {
+    // 근처 강둑 지형
+    var geo = new THREE.PlaneGeometry(220, 40, 48, 18);
+    geo.rotateX(-Math.PI / 2);
+    geo.translate(0, 0, 8);   // z: -12 ~ +28
+
+    var pos = geo.attributes.position;
+    var colors = [];
+    var cGrass = new THREE.Color(0x4f7c3f);
+    var cGrass2 = new THREE.Color(0x3f6533);
+    var cDirt = new THREE.Color(0x7a6a4d);
+
+    for (var i = 0; i < pos.count; i++) {
+      var x = pos.getX(i);
+      var z = pos.getZ(i);
+      var y = groundHeight(x, z);
+      pos.setY(i, y);
+
+      var n = (Math.sin(x * 1.7) + Math.cos(z * 2.3) + Math.sin((x + z) * 0.8)) / 3;
+      var col = cGrass.clone().lerp(cGrass2, (n + 1) / 2);
+      if (z < -3.2) col.lerp(cDirt, clamp((-z - 3.2) / 2.5, 0, 1));
+      colors.push(col.r, col.g, col.b);
+    }
+    var flat = geo.toNonIndexed();
+    flat.computeVertexNormals();
+    var colors2 = [];
+    var p2 = flat.attributes.position;
+    for (var j = 0; j < p2.count; j++) {
+      var xx = p2.getX(j);
+      var zz = p2.getZ(j);
+      var nn = (Math.sin(xx * 1.7) + Math.cos(zz * 2.3) + Math.sin((xx + zz) * 0.8)) / 3;
+      var cc = cGrass.clone().lerp(cGrass2, (nn + 1) / 2);
+      if (zz < -1.8) {
+        var wet = clamp((-zz - 1.8) / 2.2, 0, 1);
+        cc.lerp(cDirt, wet * 0.62);
+      }
+      colors2.push(cc.r, cc.g, cc.b);
+    }
+    flat.setAttribute("color", new THREE.Float32BufferAttribute(colors2, 3));
+    flat.computeVertexNormals();
+
+    var mat = new THREE.MeshStandardMaterial({
+      vertexColors: true, roughness: 0.96, metalness: 0.0, flatShading: true
+    });
+    var bank = new THREE.Mesh(flat, mat);
+    bank.receiveShadow = false;
+    scene.add(bank);
+
+    // 물가 모래 띠는 지형 정점 색으로 표현한다 (별도 판을 덮으면 단차가 보인다)
+    buildGrass();
+    buildReeds();
+    buildTreesNear();
+    buildRocks();
+  }
+
+  function buildGrass() {
+    var count = 700;
+    var geo = new THREE.ConeGeometry(0.06, 0.42, 3);
+    geo.translate(0, 0.21, 0);
+    var mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true });
+    var mesh = new THREE.InstancedMesh(geo, mat, count);
+    var dummy = new THREE.Object3D();
+    var col = new THREE.Color();
+    for (var i = 0; i < count; i++) {
+      var x = rand(-60, 60);
+      var z = rand(-3.2, 22);
+      if (Math.abs(x) < 2.6 && z > -1 && z < 6.5) {
+        x += (x >= 0 ? 1 : -1) * rand(2.8, 5);
+      }
+      var y = groundHeight(x, z);
+      dummy.position.set(x, y, z);
+      dummy.rotation.y = rand(0, Math.PI * 2);
+      var s = rand(0.7, 1.6);
+      dummy.scale.set(s, s * rand(0.8, 1.5), s);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+      col.setHSL(0.26 + Math.random() * 0.07, 0.38 + Math.random() * 0.16, 0.22 + Math.random() * 0.14);
+      mesh.setColorAt(i, col);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    scene.add(mesh);
+  }
+
+  function buildReeds() {
+    var clumps = [];
+    for (var c = 0; c < 22; c++) {
+      var cx = rand(-44, 44);
+      if (Math.abs(cx) < 3.2) cx += (cx >= 0 ? 1 : -1) * rand(4, 8);
+      var cz = rand(-3.6, -1.6);
+      var n = Math.floor(rand(4, 9));
+      for (var k = 0; k < n; k++) {
+        clumps.push([cx + rand(-0.55, 0.55), cz + rand(-0.45, 0.45)]);
+      }
+    }
+
+    var count = clumps.length;
+    var geo = new THREE.ConeGeometry(0.022, 1.35, 3);
+    geo.translate(0, 0.675, 0);
+    var mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true });
+    var mesh = new THREE.InstancedMesh(geo, mat, count);
+    var dummy = new THREE.Object3D();
+    var col = new THREE.Color();
+    for (var i = 0; i < count; i++) {
+      var x = clumps[i][0];
+      var z = clumps[i][1];
+      var y = groundHeight(x, z) + 0.02;
+      dummy.position.set(x, y, z);
+      dummy.rotation.set(rand(-0.16, 0.16), rand(0, 6.28), rand(-0.18, 0.18));
+      var s = rand(0.75, 1.25);
+      dummy.scale.set(1, s, 1);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+      col.setHSL(0.21 + Math.random() * 0.06, 0.30, 0.24 + Math.random() * 0.12);
+      mesh.setColorAt(i, col);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    scene.add(mesh);
+  }
+
+  function buildTreesNear() {
+    var spots = [
+      [-16, 9.5, 1.0], [15.5, 6.2, 0.9], [-24, 14, 1.25], [23, 16, 1.1],
+      [-9.5, 18, 1.15], [28, 5, 0.85]
+    ];
+    spots.forEach(function (s) {
+      var tree = makeTree(s[2], false);
+      tree.position.set(s[0], groundHeight(s[0], s[1]), s[1]);
+      tree.rotation.y = rand(0, Math.PI * 2);
+      scene.add(tree);
+    });
+  }
+
+  function makeTree(scale, dark) {
+    var g = new THREE.Group();
+    var trunkMat = new THREE.MeshStandardMaterial({
+      color: dark ? 0x2a2620 : 0x5a4433, roughness: 1, flatShading: true
+    });
+    var leafMat = new THREE.MeshStandardMaterial({
+      color: dark ? 0x12301f : 0x2f5c39, roughness: 1, flatShading: true
+    });
+    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.19, 1.7, 5), trunkMat);
+    trunk.position.y = 0.85;
+    g.add(trunk);
+
+    var levels = 3;
+    for (var i = 0; i < levels; i++) {
+      var r = 1.35 - i * 0.34;
+      var h = 1.5 - i * 0.22;
+      var cone = new THREE.Mesh(new THREE.ConeGeometry(r, h, 6), leafMat);
+      cone.position.y = 1.55 + i * 0.78;
+      cone.rotation.y = i * 0.5;
+      g.add(cone);
+    }
+    g.scale.setScalar(scale);
+    return g;
+  }
+
+  function buildRocks() {
+    var rockMat = new THREE.MeshStandardMaterial({ color: 0x7c818a, roughness: 0.92, flatShading: true });
+    var spots = [
+      [-5.2, -5.2, 0.6], [4.6, -5.6, 0.85], [-11.5, -3.4, 0.5], [9.5, -4.2, 0.55],
+      [2.2, 6.5, 0.35], [-8, 11, 0.45], [13, 9.5, 0.4], [-2.6, -6.4, 0.38]
+    ];
+    spots.forEach(function (s) {
+      var geo = new THREE.IcosahedronGeometry(s[2], 0);
+      var pos = geo.attributes.position;
+      for (var i = 0; i < pos.count; i++) {
+        pos.setXYZ(
+          i,
+          pos.getX(i) * rand(0.8, 1.2),
+          pos.getY(i) * rand(0.55, 0.9),
+          pos.getZ(i) * rand(0.8, 1.2)
+        );
+      }
+      geo.computeVertexNormals();
+      var rock = new THREE.Mesh(geo, rockMat);
+      var y = groundHeight(s[0], s[1]);
+      rock.position.set(s[0], y + s[2] * 0.35, s[1]);
+      rock.rotation.set(rand(0, 1), rand(0, 6.28), rand(0, 1));
+      scene.add(rock);
+    });
+  }
+
+  function buildFarBank() {
+    // 건너편 둔덕
+    var geo = new THREE.PlaneGeometry(360, 70, 60, 10);
+    geo.rotateX(-Math.PI / 2);
+    geo.translate(0, 0, -125);
+    var pos = geo.attributes.position;
+    for (var i = 0; i < pos.count; i++) {
+      var x = pos.getX(i);
+      var z = pos.getZ(i);
+      var t = clamp((-z - 92) / 26, 0, 1);
+      var h = t * 6.5 + Math.sin(x * 0.06) * 1.6 + Math.cos(x * 0.13 + z * 0.05) * 1.0;
+      pos.setY(i, Math.max(-1.2, h - 1.5));
+    }
+    geo.computeVertexNormals();
+    var bank = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+      color: 0x35503a, roughness: 1, flatShading: true
+    }));
+    scene.add(bank);
+
+    // 건너편 숲 실루엣 (원뿔 인스턴스)
+    var count = 190;
+    var coneGeo = new THREE.ConeGeometry(1, 1, 5);
+    coneGeo.translate(0, 0.5, 0);
+    var mat = new THREE.MeshStandardMaterial({ color: 0x1d3527, roughness: 1, flatShading: true });
+    var forest = new THREE.InstancedMesh(coneGeo, mat, count);
+    var dummy = new THREE.Object3D();
+    for (var c = 0; c < count; c++) {
+      var x = rand(-160, 160);
+      var z = rand(-135, -95);
+      var t = clamp((-z - 92) / 32, 0, 1);
+      var base = t * 6.5 + Math.sin(x * 0.06) * 1.6 + Math.cos(x * 0.13) * 1.0 - 1.5;
+      var h = rand(7, 15);
+      dummy.position.set(x, Math.max(-1.0, base), z);
+      dummy.rotation.y = rand(0, 6.28);
+      dummy.scale.set(rand(1.6, 3.0), h, rand(1.6, 3.0));
+      dummy.updateMatrix();
+      forest.setMatrixAt(c, dummy.matrix);
+    }
+    forest.instanceMatrix.needsUpdate = true;
+    scene.add(forest);
+  }
+
+  function buildProps() {
+    // 장작불
+    var fireGroup = new THREE.Group();
+    var groundY = groundHeight(2.35, 1.1);
+    fireGroup.position.set(2.35, groundY, 1.1);
+
+    var stoneMat = new THREE.MeshStandardMaterial({ color: 0x6f737a, roughness: 0.95, flatShading: true });
+    for (var i = 0; i < 7; i++) {
+      var a = (i / 7) * Math.PI * 2;
+      var stone = new THREE.Mesh(new THREE.IcosahedronGeometry(0.16, 0), stoneMat);
+      stone.position.set(Math.cos(a) * 0.52, 0.03, Math.sin(a) * 0.52);
+      stone.scale.set(1, 0.7, 1);
+      fireGroup.add(stone);
+    }
+
+    var logMat = new THREE.MeshStandardMaterial({ color: 0x4a3524, roughness: 1, flatShading: true });
+    for (var l = 0; l < 3; l++) {
+      var log = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 0.9, 5), logMat);
+      log.rotation.z = Math.PI / 2;
+      log.rotation.y = (l / 3) * Math.PI * 2;
+      log.position.y = 0.09 + l * 0.035;
+      fireGroup.add(log);
+    }
+
+    flameOuter = new THREE.Mesh(
+      new THREE.ConeGeometry(0.24, 0.8, 6),
+      new THREE.MeshBasicMaterial({ color: 0xff7a2a, transparent: true, opacity: 0.78, blending: THREE.AdditiveBlending, depthWrite: false })
+    );
+    flameOuter.position.y = 0.5;
+    fireGroup.add(flameOuter);
+
+    flameInner = new THREE.Mesh(
+      new THREE.ConeGeometry(0.13, 0.5, 6),
+      new THREE.MeshBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false })
+    );
+    flameInner.position.y = 0.42;
+    fireGroup.add(flameInner);
+
+    var glowTex = makeGlowTexture("rgba(255,190,110,0.9)", "rgba(255,120,40,0.3)");
+    fireGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: glowTex, color: 0xffb070, transparent: true, opacity: 0, depthWrite: false,
+      blending: THREE.AdditiveBlending, fog: false
+    }));
+    fireGlow.scale.set(3.2, 3.2, 1);
+    fireGlow.position.y = 0.7;
+    fireGroup.add(fireGlow);
+
+    scene.add(fireGroup);
+    addContactShadow(2.35, 1.1, 1.9, 0.32);
+
+    // 랜턴 기둥
+    var lanternGroup = new THREE.Group();
+    var ly = groundHeight(-2.75, 1.9);
+    lanternGroup.position.set(-2.75, ly, 1.9);
+    var poleMat = new THREE.MeshStandardMaterial({ color: 0x4b3a2a, roughness: 1, flatShading: true });
+    var pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 2.4, 5), poleMat);
+    pole.position.y = 1.2;
+    lanternGroup.add(pole);
+
+    var arm = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.55, 5), poleMat);
+    arm.rotation.z = Math.PI / 2;
+    arm.position.set(0.26, 2.34, 0);
+    lanternGroup.add(arm);
+
+    lanternBulb = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.17, 0),
+      new THREE.MeshBasicMaterial({ color: 0xffd9a0 })
+    );
+    lanternBulb.position.set(0.5, 2.2, 0);
+    lanternGroup.add(lanternBulb);
+
+    var lGlowTex = makeGlowTexture("rgba(255,230,180,0.95)", "rgba(255,170,80,0.25)");
+    lanternGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: lGlowTex, color: 0xffcf8f, transparent: true, opacity: 0, depthWrite: false,
+      blending: THREE.AdditiveBlending, fog: false
+    }));
+    lanternGlow.scale.set(2.6, 2.6, 1);
+    lanternGlow.position.copy(lanternBulb.position);
+    lanternGroup.add(lanternGlow);
+
+    scene.add(lanternGroup);
+
+    // 낚시 의자 대신 작은 나무 상자
+    var crateMat = new THREE.MeshStandardMaterial({ color: 0x6b5334, roughness: 1, flatShading: true });
+    var crate = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.36, 0.46), crateMat);
+    var cx = 1.55;
+    var cz = 2.9;
+    crate.position.set(cx, groundHeight(cx, cz) + 0.18, cz);
+    crate.rotation.y = -0.35;
+    scene.add(crate);
+  }
+
+  /* ---------- 낚시꾼 ---------- */
+  function buildAngler() {
+    angler = new THREE.Group();
+    var baseX = -1.0;
+    var baseZ = 2.35;
+    var baseY = groundHeight(baseX, baseZ);
+    angler.position.set(baseX, baseY, baseZ);
+    angler.rotation.y = 0.10;
+    addContactShadow(baseX, baseZ, 1.5, 0.5);
+
+    var skinMat = new THREE.MeshStandardMaterial({ color: 0xe0b091, roughness: 0.82, flatShading: true });
+    var jacketMat = new THREE.MeshStandardMaterial({ color: 0x3f6f83, roughness: 0.92, flatShading: true });
+    var pantsMat = new THREE.MeshStandardMaterial({ color: 0x2c3b52, roughness: 0.95, flatShading: true });
+    var hatMat = new THREE.MeshStandardMaterial({ color: 0xd8b271, roughness: 0.88, flatShading: true });
+    var bootMat = new THREE.MeshStandardMaterial({ color: 0x30402f, roughness: 1, flatShading: true });
+
+    // 다리
+    var legGeo = new THREE.CylinderGeometry(0.1, 0.085, 0.78, 6);
+    var legL = new THREE.Mesh(legGeo, pantsMat);
+    legL.position.set(-0.13, 0.39, 0);
+    angler.add(legL);
+    var legR = new THREE.Mesh(legGeo, pantsMat);
+    legR.position.set(0.13, 0.39, 0);
+    angler.add(legR);
+
+    var bootGeo = new THREE.BoxGeometry(0.19, 0.12, 0.3);
+    var bootL = new THREE.Mesh(bootGeo, bootMat);
+    bootL.position.set(-0.13, 0.06, 0.04);
+    angler.add(bootL);
+    var bootR = new THREE.Mesh(bootGeo, bootMat);
+    bootR.position.set(0.13, 0.06, 0.04);
+    angler.add(bootR);
+
+    // 몸통
+    var torso = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.29, 0.68, 7), jacketMat);
+    torso.position.y = 1.12;
+    angler.add(torso);
+    angler.userData.torso = torso;
+
+    // 목
+    var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.1, 6), skinMat);
+    neck.position.y = 1.5;
+    angler.add(neck);
+
+    // 머리
+    var head = new THREE.Group();
+    head.position.y = 1.66;
+    var skull = new THREE.Mesh(new THREE.IcosahedronGeometry(0.19, 1), skinMat);
+    head.add(skull);
+    // 눈
+    var eyeMat = new THREE.MeshBasicMaterial({ color: 0x1b2430 });
+    var eyeGeo = new THREE.SphereGeometry(0.022, 6, 6);
+    var eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+    eyeL.position.set(-0.068, 0.03, -0.172);
+    head.add(eyeL);
+    var eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+    eyeR.position.set(0.068, 0.03, -0.172);
+    head.add(eyeR);
+
+    // 모자 (챙 + crown)
+    var brim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.025, 12), hatMat);
+    brim.position.y = 0.13;
+    head.add(brim);
+    var crown = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.19, 0.18, 10), hatMat);
+    crown.position.y = 0.22;
+    head.add(crown);
+    // 낚싯바늘 장식
+    var hookDeco = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.008, 4, 8), new THREE.MeshStandardMaterial({ color: 0xc9a24a, roughness: 0.6 }));
+    hookDeco.position.set(0.17, 0.19, 0);
+    hookDeco.rotation.y = Math.PI / 2;
+    head.add(hookDeco);
+
+    angler.add(head);
+    angler.userData.head = head;
+
+    // 왼팔 (몸 옆으로)
+    var armGeo = new THREE.CylinderGeometry(0.065, 0.055, 0.52, 6);
+    var leftShoulder = new THREE.Mesh(new THREE.IcosahedronGeometry(0.095, 0), jacketMat);
+    leftShoulder.position.set(-0.235, 1.34, 0.02);
+    angler.add(leftShoulder);
+    var leftArm = new THREE.Mesh(armGeo, jacketMat);
+    leftArm.position.set(-0.30, 1.16, 0.02);
+    leftArm.rotation.z = 0.14;
+    leftArm.rotation.x = -0.06;
+    angler.add(leftArm);
+    angler.userData.leftArm = leftArm;
+
+    var leftHand = new THREE.Mesh(new THREE.IcosahedronGeometry(0.06, 0), skinMat);
+    leftHand.position.set(-0.37, 0.89, 0.02);
+    angler.add(leftHand);
+
+    // 오른팔 (낚싯대를 잡은 팔) — 어깨 피벗
+    var armPivot = new THREE.Group();
+    armPivot.position.set(0.27, 1.34, 0.02);
+    var rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.058, 0.5, 6), jacketMat);
+    rightArm.position.set(-0.02, -0.24, -0.16);
+    rightArm.rotation.x = 0.62;
+    armPivot.add(rightArm);
+    var rightHand = new THREE.Mesh(new THREE.IcosahedronGeometry(0.065, 0), skinMat);
+    rightHand.position.set(-0.03, -0.42, -0.34);
+    armPivot.add(rightHand);
+    angler.add(armPivot);
+    angler.userData.armPivot = armPivot;
+
+    // 낚싯대
+    rodGroup = new THREE.Group();
+    rodGroup.position.set(-0.02, -0.44, -0.36);
+    armPivot.add(rodGroup);
+
+    var rodMat = new THREE.MeshStandardMaterial({ color: 0x2f2a24, roughness: 0.7, flatShading: true });
+    var rodGeo = new THREE.CylinderGeometry(0.009, 0.028, 2.35, 5);
+    rodGeo.translate(0, 1.175, 0);
+    var rod = new THREE.Mesh(rodGeo, rodMat);
+    rodGroup.add(rod);
+
+    // 낚싯대 손잡이
+    var grip = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.28, 6),
+      new THREE.MeshStandardMaterial({ color: 0x8a6a43, roughness: 0.9 }));
+    grip.position.y = 0.1;
+    rodGroup.add(grip);
+
+    rodTip = new THREE.Object3D();
+    rodTip.position.set(0, 2.35, 0);
+    rodGroup.add(rodTip);
+
+    rodGroup.rotation.x = -1.26;
+    rodGroup.rotation.z = -0.14;
+
+    // 낚싯줄 (얇은 원통 조각들을 이어 만든다 — 1px Line보다 잘 보인다)
+    var segments = 22;
+    var segGeo = new THREE.CylinderGeometry(0.011, 0.011, 1, 4, 1, true);
+    segGeo.translate(0, 0.5, 0);
+    lineMat = new THREE.MeshBasicMaterial({ color: 0xdfe9f7, transparent: true, opacity: 0.85 });
+    lineMesh = new THREE.InstancedMesh(segGeo, lineMat, segments);
+    lineMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    lineMesh.frustumCulled = false;
+    lineMesh.renderOrder = 3;
+    scene.add(lineMesh);
+    lineSegments = segments;
+
+    scene.add(angler);
+  }
+
+  /* ---------- 찌 ---------- */
+  function buildBobber() {
+    bobber = new THREE.Group();
+    var red = new THREE.Mesh(
+      new THREE.SphereGeometry(0.11, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: 0xe8503c, roughness: 0.5 })
+    );
+    red.position.y = 0.02;
+    bobber.add(red);
+    var white = new THREE.Mesh(
+      new THREE.SphereGeometry(0.11, 10, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: 0xf3f2ee, roughness: 0.55 })
+    );
+    white.position.y = 0.02;
+    bobber.add(white);
+
+    var stick = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.26, 5),
+      new THREE.MeshStandardMaterial({ color: 0xf1d27a, roughness: 0.6 })
+    );
+    stick.position.y = 0.16;
+    bobber.add(stick);
+
+    bobber.position.set(BOBBER_TARGET.x, 0, BOBBER_TARGET.z);
+    scene.add(bobber);
+  }
+
+  /* ---------- 물결 링 ---------- */
+  function buildRipples() {
+    var geo = new THREE.RingGeometry(0.72, 0.86, 28);
+    for (var i = 0; i < 16; i++) {
+      var mat = new THREE.MeshBasicMaterial({
+        color: 0xdff0ff, transparent: true, opacity: 0, depthWrite: false,
+        side: THREE.DoubleSide, blending: THREE.AdditiveBlending
+      });
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.visible = false;
+      mesh.renderOrder = 2;
+      scene.add(mesh);
+      ripplePool.push({ mesh: mesh, life: 0, dur: 1, scale: 1, x: 0, z: 0 });
+    }
+  }
+
+  function spawnRipple(x, z, scale, dur, opacity) {
+    var item = null;
+    var oldest = null;
+    for (var i = 0; i < ripplePool.length; i++) {
+      var it = ripplePool[i];
+      if (it.life <= 0) { item = it; break; }
+      if (!oldest || it.life < oldest.life) oldest = it;
+    }
+    if (!item) item = oldest || ripplePool[0];
+    item.life = dur || 1.4;
+    item.dur = dur || 1.4;
+    item.scale = scale || 1;
+    item.x = x;
+    item.z = z;
+    item.mesh.position.set(x, 0.06, z);
+    item.mesh.visible = true;
+    item.mesh.material.opacity = opacity === undefined ? 0.7 : opacity;
+    item.mesh.scale.set(0.4, 0.4, 0.4);
+  }
+
+  /* ---------- 반딧불이 ---------- */
+  function buildFireflies() {
+    var count = 46;
+    var pos = new Float32Array(count * 3);
+    for (var i = 0; i < count; i++) {
+      pos[i * 3] = rand(-16, 16);
+      pos[i * 3 + 1] = rand(0.4, 2.6);
+      pos[i * 3 + 2] = rand(-8, 9);
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    var tex = makeGlowTexture("rgba(220,255,160,1)", "rgba(180,255,120,0.35)");
+    var mat = new THREE.PointsMaterial({
+      size: 0.5, map: tex, transparent: true, opacity: 0,
+      depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true, fog: false
+    });
+    fireflies = new THREE.Points(geo, mat);
+    fireflies.frustumCulled = false;
+    fireflies.userData.base = pos.slice(0);
+    scene.add(fireflies);
+  }
+
+  /* =====================================================================
+     8. 분위기 적용
+     ===================================================================== */
+  function applyMood(m) {
+    if (!m || !waterUniforms) return;
+
+    // 하늘
+    skyMat.uniforms.uTop.value.setRGB(m.skyTop[0], m.skyTop[1], m.skyTop[2]);
+    skyMat.uniforms.uHorizon.value.setRGB(m.skyHorizon[0], m.skyHorizon[1], m.skyHorizon[2]);
+    skyMat.uniforms.uSunColor.value.setRGB(m.sunColor[0], m.sunColor[1], m.sunColor[2]);
+    skyMat.uniforms.uSunGlow.value = Math.max(m.sunOpacity, m.moonOpacity * 0.5);
+    skyMat.uniforms.uNight.value = clamp(m.starOpacity, 0, 1);
+
+    dirFrom(m.sunAlt, m.sunAz, sunDirVec);
+    dirFrom(m.moonAlt, -8, moonDirVec);
+    skyMat.uniforms.uSunDir.value.copy(sunDirVec);
+
+    sunSprite.position.set(sunDirVec.x * 320, sunDirVec.y * 320, sunDirVec.z * 320);
+    sunSprite.material.opacity = m.sunOpacity;
+    sunSprite.material.color.setRGB(m.sunDisc[0], m.sunDisc[1], m.sunDisc[2]);
+
+    moonSprite.position.set(moonDirVec.x * 320, moonDirVec.y * 320, moonDirVec.z * 320);
+    moonSprite.material.opacity = m.moonOpacity;
+
+    starField.material.opacity = clamp(m.starOpacity, 0, 1);
+
+    // 안개
+    scene.fog.color.setRGB(m.fogColor[0], m.fogColor[1], m.fogColor[2]);
+    scene.fog.near = m.fogNear;
+    scene.fog.far = m.fogFar;
+
+    // 조명
+    var sunPower = m.sunIntensity / 1100;
+    var useSun = m.sunOpacity > 0.35;
+    var lightDir = useSun ? sunDirVec : moonDirVec;
+    sunLight.position.set(lightDir.x * 60, Math.max(6, lightDir.y * 60), lightDir.z * 60);
+    sunLight.color.setRGB(m.sunColor[0], m.sunColor[1], m.sunColor[2]);
+    sunLight.intensity = 0.10 + 1.05 * sunPower * Math.max(m.sunOpacity, m.moonOpacity * 0.55);
+
+    hemiLight.color.setRGB(m.ambient[0], m.ambient[1], m.ambient[2]);
+    hemiLight.groundColor.setRGB(0.14 + m.ambient[0] * 0.12, 0.18 + m.ambient[1] * 0.15, 0.11);
+    hemiLight.intensity = 0.14 + 0.42 * (m.ambientIntensity / 460);
+
+    fillLight.color.setRGB(
+      clamp(m.ambient[0] * 1.05, 0, 1),
+      clamp(m.ambient[1] * 1.02, 0, 1),
+      clamp(m.ambient[2] * 1.0, 0, 1)
+    );
+    fillLight.intensity = 0.1 + 0.18 * (m.ambientIntensity / 460);
+
+    // 물
+    waterUniforms.uDeep.value.setRGB(m.water[0], m.water[1], m.water[2]);
+    waterUniforms.uShallow.value.setRGB(
+      clamp(m.water[0] * 1.5 + m.skyHorizon[0] * 0.16, 0, 1),
+      clamp(m.water[1] * 1.45 + m.skyHorizon[1] * 0.16, 0, 1),
+      clamp(m.water[2] * 1.4 + m.skyHorizon[2] * 0.18, 0, 1)
+    );
+    waterUniforms.uSky.value.setRGB(m.skyHorizon[0], m.skyHorizon[1], m.skyHorizon[2]);
+    waterUniforms.uSunColor.value.setRGB(m.sunColor[0], m.sunColor[1], m.sunColor[2]);
+    waterUniforms.uFogColor.value.setRGB(m.fogColor[0], m.fogColor[1], m.fogColor[2]);
+    waterUniforms.uFogNear.value = m.fogNear * 0.9;
+    waterUniforms.uFogFar.value = m.fogFar;
+    waterUniforms.uSunDir.value.copy(m.sunOpacity > 0.2 ? sunDirVec : moonDirVec);
+    waterUniforms.uSunPower.value = m.sunOpacity > 0.2
+      ? (0.25 + 1.15 * sunPower)
+      : (0.55 * m.moonOpacity);
+
+    // 밤 조명 (기준값을 저장해 두고 매 프레임 깜빡임을 곱한다)
+    lanternBase = 2.4 * (m.lantern / 950);
+    fireBase = 2.2 * (m.fire / 820);
+    lanternGlow.material.opacity = 0.9 * (m.lantern / 950);
+    glowBase = 0.5 * (m.fire / 820);
+    flameOuter.visible = (m.fire / 820) > 0.04;
+    flameInner.visible = (m.fire / 820) > 0.04;
+    lanternBulb.material.color.setRGB(
+      clamp(0.55 + m.lantern / 950 * 0.45, 0, 1),
+      clamp(0.42 + m.lantern / 950 * 0.4, 0, 1),
+      clamp(0.28 + m.lantern / 950 * 0.22, 0, 1)
+    );
+
+    // 낚싯줄 색은 하늘 밝기에 맞춰 (낮에는 어둡게, 밤에는 밝게)
+    if (lineMat) {
+      var nightness = clamp(m.starOpacity, 0, 1);
+      lineMat.color.setRGB(
+        lerp(0.32, 0.9, nightness),
+        lerp(0.39, 0.94, nightness),
+        lerp(0.47, 1.0, nightness)
+      );
+    }
+
+    // 반딧불이 / 구름 / 안개
+    fireflies.material.opacity = clamp((m.starOpacity - 0.32) / 0.6, 0, 1) * 0.95;
+    cloudGroup.children.forEach(function (c) {
+      c.material.opacity = 0.10 + 0.30 * (1 - clamp(m.starOpacity, 0, 1));
+      c.material.color.setRGB(
+        0.55 + m.skyHorizon[0] * 0.45,
+        0.58 + m.skyHorizon[1] * 0.45,
+        0.62 + m.skyHorizon[2] * 0.45
+      );
+    });
+    mistGroup.children.forEach(function (s) {
+      s.material.opacity = 0.34 * (m.fogMist || 0);
+      s.material.color.setRGB(
+        clamp(0.6 + m.skyHorizon[0] * 0.4, 0, 1),
+        clamp(0.66 + m.skyHorizon[1] * 0.4, 0, 1),
+        clamp(0.72 + m.skyHorizon[2] * 0.4, 0, 1)
+      );
+    });
+  }
+
+  function dirFrom(altDeg, azDeg, target) {
+    var alt = altDeg * Math.PI / 180;
+    var az = azDeg * Math.PI / 180;
+    var ca = Math.cos(alt);
+    target.set(Math.sin(az) * ca, Math.sin(alt), -Math.cos(az) * ca);
+    target.normalize();
+    return target;
+  }
+
+  /* =====================================================================
+     9. 카메라 조작 (드래그 회전 · 핀치 줌)
+     ===================================================================== */
+  function setupCameraControls() {
+    var canvas = renderer.domElement;
+    var pointers = {};
+    var dragging = false;
+    var pinchStart = 0;
+    var pinchDistStart = 0;
+    var downTime = 0;
+    var downPos = { x: 0, y: 0 };
+    var moved = false;
+
+    function pointerCount() { return Object.keys(pointers).length; }
+
+    function onDown(e) {
+      pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+      if (pointerCount() === 1) {
+        dragging = true;
+        downTime = performance.now();
+        downPos.x = e.clientX;
+        downPos.y = e.clientY;
+        moved = false;
+        cam._lastX = e.clientX;
+        cam._lastY = e.clientY;
+      } else if (pointerCount() === 2) {
+        var ids = Object.keys(pointers);
+        var a = pointers[ids[0]];
+        var b = pointers[ids[1]];
+        pinchStart = Math.hypot(a.x - b.x, a.y - b.y);
+        pinchDistStart = cam.distTarget;
+      }
+    }
+
+    function onMove(e) {
+      if (!pointers[e.pointerId]) return;
+      pointers[e.pointerId].x = e.clientX;
+      pointers[e.pointerId].y = e.clientY;
+
+      if (pointerCount() >= 2) {
+        var ids = Object.keys(pointers);
+        var a = pointers[ids[0]];
+        var b = pointers[ids[1]];
+        var d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinchStart > 0) {
+          cam.distTarget = clamp(pinchDistStart * (pinchStart / d), 7.5, 21);
+        }
+        moved = true;
+        return;
+      }
+
+      if (!dragging) return;
+      var dx = e.clientX - cam._lastX;
+      var dy = e.clientY - cam._lastY;
+      cam._lastX = e.clientX;
+      cam._lastY = e.clientY;
+      if (Math.abs(e.clientX - downPos.x) + Math.abs(e.clientY - downPos.y) > 8) moved = true;
+
+      cam.yawTarget = clamp(cam.yawTarget - dx * 0.0035, -0.62, 0.62);
+      cam.pitchTarget = clamp(cam.pitchTarget + dy * 0.0025, 0.045, 0.42);
+    }
+
+    function onUp(e) {
+      if (pointers[e.pointerId]) delete pointers[e.pointerId];
+      if (pointerCount() < 2) pinchStart = 0;
+      if (pointerCount() === 0 && dragging) {
+        dragging = false;
+        var dt = performance.now() - downTime;
+        if (!moved && dt < 420) {
+          handleTap();
+        }
+      }
+    }
+
+    canvas.addEventListener("pointerdown", onDown, { passive: true });
+    canvas.addEventListener("pointermove", onMove, { passive: true });
+    canvas.addEventListener("pointerup", onUp, { passive: true });
+    canvas.addEventListener("pointercancel", onUp, { passive: true });
+    canvas.addEventListener("pointerleave", onUp, { passive: true });
+
+    canvas.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      cam.distTarget = clamp(cam.distTarget + e.deltaY * 0.008, 7.5, 21);
+    }, { passive: false });
+
+    window.addEventListener("keydown", function (e) {
+      if (e.code === "Space" || e.key === " ") {
+        e.preventDefault();
+        handleTap();
+      }
+      if (e.key === "Escape") closeDex();
+    });
+  }
+
+  function updateCamera(dt) {
+    cam.yaw += (cam.yawTarget - cam.yaw) * Math.min(1, dt * 6);
+    cam.pitch += (cam.pitchTarget - cam.pitch) * Math.min(1, dt * 6);
+    cam.dist += (cam.distTarget - cam.dist) * Math.min(1, dt * 6);
+
+    var sx = 0, sy = 0;
+    if (cam.shake > 0.001) {
+      sx = (Math.random() - 0.5) * cam.shake;
+      sy = (Math.random() - 0.5) * cam.shake;
+      cam.shake *= Math.pow(0.02, dt);
+    }
+
+    var cd = Math.cos(cam.pitch) * cam.dist;
+    var cx = cam.target.x + Math.sin(cam.yaw) * cd + sx;
+    var cy = cam.target.y + Math.sin(cam.pitch) * cam.dist + 1.1 + sy;
+    var cz = cam.target.z + Math.cos(cam.yaw) * cd;
+
+    camera.position.set(cx, cy, cz);
+    camera.lookAt(cam.target.x + sx * 0.4, cam.target.y + 0.4 + sy * 0.4, cam.target.z);
+  }
+
+  /* =====================================================================
+     10. 게임 로직
+     ===================================================================== */
+  var el = {};
+
+  function setPhase(phase) {
+    state.phase = phase;
+    state.phaseTime = 0;
+
+    var pill = el.statusPill;
+    pill.classList.toggle("biting", phase === "biting");
+
+    if (phase === "idle") {
+      el.statusText.textContent = "찌를 다시 준비하고 있어요";
+    } else if (phase === "casting") {
+      el.statusText.textContent = "찌를 던지는 중";
+    } else if (phase === "waiting") {
+      el.statusText.textContent = "입질을 기다리는 중 · 지켜보세요";
+    } else if (phase === "biting") {
+      el.statusText.textContent = "입질! 지금 낚아채세요";
+    } else if (phase === "caught") {
+      el.statusText.textContent = "낚아챘어요";
+    } else if (phase === "missed") {
+      el.statusText.textContent = "놓쳤어요 · 다시 던질게요";
+    }
+
+    var hot = phase === "biting";
+    el.btnStrike.classList.toggle("hot", hot);
+    el.strikeLabel.textContent = hot ? "지금 낚아채기!" : "낚아채기";
+    el.biteBanner.classList.toggle("on", hot);
+  }
+
+  function startFishing() {
+    if (state.phase === "idle") {
+      setPhase("casting");
+      state.manual = false;
+      state.pendingStrike = false;
+      Sound.cast();
+    }
+  }
+
+  function currentBand() {
+    return state.mode === "live" ? bandForHour(hour) : state.mode;
+  }
+
+  function handleTap() {
+    if (!state.started) return;
+    if (el.dexModal.classList.contains("open")) return;
+    if (state.phase === "biting") {
+      state.pendingStrike = true;
+      return;
+    }
+    if (state.phase === "waiting") {
+      flashNotice("아직 입질이 없어요. 찌를 조금만 더 지켜봐 주세요");
+      return;
+    }
+    if (state.phase === "idle") {
+      startFishing();
+      return;
+    }
+    if (state.phase === "casting") {
+      flashNotice("찌가 물에 닿기를 기다리는 중이에요");
+    }
+  }
+
+  function updateGame(dt) {
+    if (!state.started) return;
+    state.phaseTime += dt;
+
+    if (state.phase === "idle") {
+      if (state.phaseTime > 1.4) startFishing();
+      return;
+    }
+
+    if (state.phase === "casting") {
+      if (state.phaseTime > 1.35) {
+        setPhase("waiting");
+        state.waitDuration = rand(4.5, 11);
+        spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 1.6, 1.5, 0.55);
+      }
+      return;
+    }
+
+    if (state.phase === "waiting") {
+      if (state.phaseTime >= state.waitDuration) {
+        setPhase("biting");
+        state.biteElapsed = 0;
+        state.pendingStrike = false;
+        state.autoDelay = rand(0.55, 1.2);
+        cam.shake = 0.06;
+        Sound.bite();
+        spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 2.4, 1.2, 0.8);
+        spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 1.4, 1.6, 0.6);
+        if (navigator.vibrate) {
+          try { navigator.vibrate(30); } catch (err) { /* 무시 */ }
+        }
+      }
+      return;
+    }
+
+    if (state.phase === "biting") {
+      state.biteElapsed += dt;
+      if (state.pendingStrike) {
+        state.manual = true;
+        landFish(true);
+        return;
+      }
+      if (settings.auto && state.biteElapsed >= state.autoDelay) {
+        state.manual = false;
+        landFish(false);
+        return;
+      }
+      if (state.biteElapsed >= state.biteWindow) {
+        setPhase("missed");
+        state.pendingStrike = false;
+        el.biteBanner.classList.remove("on");
+        flashNotice("놓쳤어요… 찌가 다시 잠잠해집니다");
+        Sound.miss();
+        return;
+      }
+      return;
+    }
+
+    if (state.phase === "caught") {
+      if (state.phaseTime > 2.6) setPhase("idle");
+      return;
+    }
+
+    if (state.phase === "missed") {
+      if (state.phaseTime > 1.8) setPhase("idle");
+    }
+  }
+
+  function landFish(manual) {
+    var fish = rollFish(currentBand());
+    var bonus = manual ? 1.12 : 1.0;
+    var len = Math.min(fish.max, Math.round(rollLength(fish) * bonus * 10) / 10);
+
+    var rec = book.records[fish.id];
+    var isNew = !rec;
+    var isBest = false;
+    var now = Date.now();
+
+    if (rec) {
+      isBest = len > rec.longest;
+      rec.count += 1;
+      rec.longest = Math.max(rec.longest, len);
+      rec.lastAt = now;
+    } else {
+      isBest = true;
+      book.records[fish.id] = { count: 1, longest: len, firstAt: now, lastAt: now };
+    }
+    saveBook();
+    updateDexBadge();
+
+    state.session += 1;
+    state.lastCatch = { fish: fish, len: len, isNew: isNew, isBest: isBest, manual: manual };
+
+    setPhase("caught");
+    el.biteBanner.classList.remove("on");
+    spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 3.0, 1.4, 0.85);
+    spawnRipple(BOBBER_TARGET.x, BOBBER_TARGET.z, 1.8, 1.9, 0.5);
+    spawnFishJump(fish);
+    showToast(state.lastCatch);
+    Sound.catchFish(fish.rarity);
+    cam.shake = 0.05;
+
+    if (manual) flashNotice("완벽한 타이밍! 조금 더 큰 개체가 올라왔어요");
+  }
+
+  /* ---------- 토스트 ---------- */
+  var toastTimer = null;
+
+  function showToast(result) {
+    var f = result.fish;
+    var rar = RARITY[f.rarity];
+    var badge = result.isNew ? "새 도감 등록" : (result.manual ? "완벽한 타이밍" : (result.isBest ? "최대 기록 갱신" : "획득"));
+
+    el.toast.style.setProperty("--fish", f.color);
+    el.toast.innerHTML =
+      '<div class="toast-fish">' + fishSVG(f) + '</div>' +
+      '<div class="toast-body">' +
+        '<div class="toast-name">' + f.name + ' <span style="color:' + rar.color + ';font-weight:800">' + result.len.toFixed(1) + 'cm</span></div>' +
+        '<div class="toast-meta">' + '★'.repeat(rar.stars) + ' ' + rar.label + ' · ' + BANDS[currentBand()].name + '</div>' +
+      '</div>' +
+      '<div class="toast-badge">' + badge + '</div>';
+
+    el.toast.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      el.toast.classList.remove("show");
+    }, 3400);
+  }
+
+  var noticeTimer = null;
+
+  function flashNotice(text) {
+    el.notice.textContent = text;
+    el.notice.classList.add("on");
+    if (noticeTimer) clearTimeout(noticeTimer);
+    noticeTimer = setTimeout(function () {
+      el.notice.classList.remove("on");
+    }, 2800);
+  }
+
+  /* ---------- 물고기 SVG ---------- */
+  function fishSVG(f) {
+    return '<svg viewBox="0 0 72 36" aria-hidden="true" focusable="false">' +
+      '<path d="M6 18 C6 18 14 5.6 30 5.6 C45 5.6 53 12 55 18 C53 24 45 30.4 30 30.4 C14 30.4 6 18 6 18 Z" fill="currentColor"/>' +
+      '<path d="M54 18 L70 7.5 L66 18 L70 28.5 Z" fill="currentColor" opacity="0.78"/>' +
+      '<path d="M31 6.2 C36 11 36 25 31 29.8" stroke="rgba(0,0,0,0.16)" stroke-width="2.2" fill="none"/>' +
+      '<path d="M22 26 L28 33 L34 27" fill="currentColor" opacity="0.65"/>' +
+      '<circle cx="17.5" cy="14.6" r="2.5" fill="rgba(8,14,22,0.85)"/>' +
+      '<circle cx="16.9" cy="13.9" r="0.9" fill="rgba(255,255,255,0.75)"/>' +
+      '</svg>';
+  }
+
+  /* ---------- 도감 ---------- */
+  function updateDexBadge() {
+    var n = caughtCount();
+    el.dexBadge.textContent = n;
+    el.dexBadge.style.display = n > 0 ? "grid" : "none";
+  }
+
+  function renderDex() {
+    var caught = caughtCount();
+    var pct = FISH.length ? (caught / FISH.length) * 100 : 0;
+    el.dexCount.textContent = caught + " / " + FISH.length;
+    el.dexProgressBar.style.width = pct.toFixed(1) + "%";
+    el.dexTotal.textContent = String(totalCatches());
+    el.dexBest.textContent = bestLength() > 0 ? bestLength().toFixed(1) + "cm" : "0cm";
+    el.dexSession.textContent = String(state.session);
+
+    var html = FISH.map(function (f) {
+      var rec = book.records[f.id];
+      var got = !!rec;
+      var rar = RARITY[f.rarity];
+      var bands = bandsOf(f.id).map(function (b) { return "<span>" + BANDS[b].name + "</span>"; }).join("");
+
+      return '<div class="dex-card ' + (got ? "got" : "locked") + (f.eel ? " eel" : "") + '" ' +
+        'style="--fish:' + (got ? f.color : "#223044") + ';--rar:' + rar.color + '">' +
+          '<div class="dex-fish">' + fishSVG(f) + '</div>' +
+          '<div class="dex-name"><span class="rarity-dot"></span>' + (got ? f.name : "???") + '</div>' +
+          '<div class="dex-meta">' +
+            (got
+              ? ('<b class="best">' + rec.longest.toFixed(1) + 'cm</b> · ' + rec.count + '마리')
+              : '아직 만나지 못했어요') +
+          '</div>' +
+          '<div class="dex-foot">' +
+            '<span class="dex-rarity">' + '★'.repeat(rar.stars) + '☆'.repeat(4 - rar.stars) + ' ' + rar.label + '</span>' +
+            '<span class="dex-bands">' + (got ? bands : "") + '</span>' +
+          '</div>' +
+        '</div>';
+    }).join("");
+
+    el.dexGrid.innerHTML = html;
+  }
+
+  function openDex() {
+    renderDex();
+    el.dexModal.classList.add("open");
+    resetDexResetButton();
+  }
+
+  function closeDex() {
+    el.dexModal.classList.remove("open");
+  }
+
+  var dexResetTimer = null;
+
+  function resetDexResetButton() {
+    el.dexReset.classList.remove("confirm");
+    el.dexReset.textContent = "도감 초기화";
+    if (dexResetTimer) { clearTimeout(dexResetTimer); dexResetTimer = null; }
+  }
+
+  /* =====================================================================
+     11. 월드 애니메이션
+     ===================================================================== */
+  function updateWorld(dt) {
+    sceneTime += dt;
+    waterUniforms.uTime.value = sceneTime;
+    waterUniforms.uCamPos.value.copy(camera.position);
+
+    // 물고기 뛰기
+    for (var i = jumpers.length - 1; i >= 0; i--) {
+      var j = jumpers[i];
+      j.t += dt;
+      var p = j.t / j.dur;
+      if (p >= 1) {
+        scene.remove(j.group);
+        j.group.traverse(function (o) {
+          if (o.geometry) o.geometry.dispose();
+          if (o.material) o.material.dispose();
+        });
+        jumpers.splice(i, 1);
+        continue;
+      }
+      var arc = Math.sin(Math.PI * p);
+      j.group.position.set(
+        j.fromX + j.dirX * p * 2.4,
+        j.fromY + arc * 2.3,
+        j.fromZ + j.dirZ * p * 2.0
+      );
+      j.group.rotation.z = Math.PI * 0.5 * Math.cos(Math.PI * p) * 0.9;
+      j.group.rotation.y = Math.atan2(j.dirX, j.dirZ) + Math.PI / 2;
+      j.group.scale.setScalar(0.8 + arc * 0.3);
+    }
+
+    // 물결 링 (찌 주변 수면 높이를 따라간다)
+    for (var r = 0; r < ripplePool.length; r++) {
+      var rp = ripplePool[r];
+      if (rp.life <= 0) continue;
+      rp.life -= dt;
+      if (rp.life <= 0) {
+        rp.mesh.visible = false;
+        rp.mesh.material.opacity = 0;
+        continue;
+      }
+      var k = 1 - rp.life / rp.dur;
+      var s = 0.4 + k * 1.5 * rp.scale;
+      rp.mesh.scale.set(s, s, s);
+      rp.mesh.position.y = waveHeight(rp.x, rp.z, sceneTime) + 0.05;
+      rp.mesh.material.opacity = (1 - k) * (rp.scale > 2 ? 0.34 : 0.28) * (1 - k * 0.35);
+    }
+
+    // 찌 위치
+    updateBobber(dt);
+
+    // 낚싯줄
+    updateLine();
+
+    // 낚시꾼 미세 동작
+    if (angler) {
+      var t = sceneTime;
+      angler.userData.torso.rotation.z = Math.sin(t * 0.8) * 0.012;
+      angler.userData.torso.position.y = 1.12 + Math.sin(t * 1.1) * 0.008;
+      angler.userData.head.rotation.y = Math.sin(t * 0.37) * 0.06 - 0.05;
+      angler.userData.head.rotation.x = Math.sin(t * 0.5) * 0.03;
+      angler.userData.leftArm.rotation.z = 0.22 + Math.sin(t * 0.6) * 0.02;
+
+      var swing = 0;
+      if (state.phase === "casting") {
+        var cp = clamp(state.phaseTime / 1.35, 0, 1);
+        if (cp < 0.3) swing = -0.42 * easeOut(cp / 0.3);
+        else if (cp < 0.62) swing = lerp(-0.42, 0.34, easeOut((cp - 0.3) / 0.32));
+        else swing = lerp(0.34, 0, easeOut((cp - 0.62) / 0.38));
+      } else if (state.phase === "biting") {
+        swing = -0.05 + Math.sin(t * 26) * 0.012;
+      } else if (state.phase === "waiting") {
+        swing = Math.sin(t * 0.9) * 0.012;
+      } else if (state.phase === "caught") {
+        swing = -0.16 * Math.sin(clamp(state.phaseTime / 0.8, 0, 1) * Math.PI);
+      }
+      rodGroup.rotation.x = -1.26 + swing;
+      rodGroup.rotation.z = -0.14 + Math.sin(t * 0.7) * 0.01;
+    }
+
+    // 불꽃 흔들림 (기준 밝기에 매 프레임 깜빡임을 곱해 누적되지 않게)
+    var flick = 0.78 + Math.sin(sceneTime * 9.3) * 0.12 + Math.sin(sceneTime * 17.7) * 0.08;
+    fireLight.intensity = fireBase * (0.85 + flick * 0.35);
+    lanternLight.intensity = lanternBase * (0.94 + Math.sin(sceneTime * 2.2) * 0.06);
+    if (flameOuter.visible) {
+      flameOuter.scale.set(1 + Math.sin(sceneTime * 7) * 0.08, flick, 1 + Math.cos(sceneTime * 8) * 0.08);
+      flameOuter.position.y = 0.5 * flick;
+      flameInner.scale.set(1 + Math.sin(sceneTime * 11) * 0.1, flick * 0.95, 1);
+      flameInner.position.y = 0.42 * flick;
+    }
+    if (fireGlow) fireGlow.material.opacity = glowBase * (0.8 + flick * 0.35);
+    if (lanternGlow) lanternGlow.material.opacity = 0.9 * (lanternBase / 2.4) * (0.94 + Math.sin(sceneTime * 3.1) * 0.06);
+
+    // 반딧불이
+    if (fireflies.material.opacity > 0.01) {
+      var pos = fireflies.geometry.attributes.position;
+      var base = fireflies.userData.base;
+      for (var f = 0; f < pos.count; f++) {
+        var bx = base[f * 3];
+        var by = base[f * 3 + 1];
+        var bz = base[f * 3 + 2];
+        pos.setXYZ(
+          f,
+          bx + Math.sin(sceneTime * 0.35 + f * 1.7) * 1.8,
+          by + Math.sin(sceneTime * 0.55 + f * 2.3) * 0.4,
+          bz + Math.cos(sceneTime * 0.3 + f * 1.1) * 1.4
+        );
+      }
+      pos.needsUpdate = true;
+    }
+
+    // 구름 · 안개 흐름
+    cloudGroup.children.forEach(function (c) {
+      c.position.x += c.userData.speed * dt;
+      if (c.position.x > 190) c.position.x = -190;
+    });
+    mistGroup.children.forEach(function (s) {
+      s.position.x += s.userData.speed * dt;
+      if (s.position.x > 70) s.position.x = -70;
+    });
+  }
+
+  function updateBobber(dt) {
+    if (!bobber) return;
+    var bx = BOBBER_TARGET.x;
+    var bz = BOBBER_TARGET.z;
+    var restY = waveHeight(bx, bz, sceneTime) + 0.055;
+
+    if (state.phase === "casting") {
+      var p = clamp(state.phaseTime / 1.1, 0, 1);
+      rodTip.getWorldPosition(tipVec);
+      var targetY = restY;
+      bobber.position.set(
+        lerp(tipVec.x, bx, easeOut(p)),
+        lerp(tipVec.y, targetY, p) + Math.sin(Math.PI * p) * 2.0,
+        lerp(tipVec.z, bz, easeOut(p))
+      );
+      bobber.visible = p < 0.999;
+    } else if (state.phase === "biting") {
+      var jitter = Math.sin(sceneTime * 40) * 0.035;
+      bobber.position.set(
+        bx + jitter,
+        restY - 0.07 + Math.sin(sceneTime * 26) * 0.03,
+        bz + jitter * 0.6
+      );
+      bobber.visible = true;
+      if (Math.random() < dt * 8) {
+        spawnRipple(bx, bz, 0.8, 1.1, 0.4);
+      }
+    } else {
+      bobber.position.set(
+        bx + Math.sin(sceneTime * 0.6) * 0.05,
+        restY + Math.sin(sceneTime * 1.5) * 0.02,
+        bz + Math.cos(sceneTime * 0.5) * 0.04
+      );
+      bobber.visible = true;
+    }
+    bobber.rotation.z = Math.sin(sceneTime * 1.9) * 0.06;
+  }
+
+  function updateLine() {
+    if (!rodTip || !lineMesh) return;
+    rodTip.getWorldPosition(tipVec);
+    var end = bobber.position;
+
+    var sag = 0.45;
+    if (state.phase === "casting") sag = 0.18;
+    else if (state.phase === "biting") sag = 0.12;
+    else if (state.phase === "waiting") sag = 0.6;
+
+    var prevX = tipVec.x, prevY = tipVec.y, prevZ = tipVec.z;
+    var n = lineSegments;
+    for (var i = 0; i < n; i++) {
+      var t1 = (i + 1) / n;
+      var x = lerp(tipVec.x, end.x, t1);
+      var y = lerp(tipVec.y, end.y, t1) - Math.sin(Math.PI * t1) * sag;
+      var z = lerp(tipVec.z, end.z, t1);
+
+      var dx = x - prevX, dy = y - prevY, dz = z - prevZ;
+      var len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (len < 0.0001) len = 0.0001;
+
+      lineDir.set(dx / len, dy / len, dz / len);
+      lineDummy.position.set(prevX, prevY, prevZ);
+      lineDummy.quaternion.setFromUnitVectors(lineUp, lineDir);
+      lineDummy.scale.set(1, len, 1);
+      lineDummy.updateMatrix();
+      lineMesh.setMatrixAt(i, lineDummy.matrix);
+
+      prevX = x; prevY = y; prevZ = z;
+    }
+    lineMesh.instanceMatrix.needsUpdate = true;
+  }
+
+  function spawnFishJump(fish) {
+    var group = new THREE.Group();
+    var mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(fish.color), roughness: 0.45, metalness: 0.15, flatShading: true });
+    var body = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), mat);
+    body.scale.set(1.7, 0.72, 0.55);
+    group.add(body);
+    var tail = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.24, 4), mat);
+    tail.rotation.z = Math.PI / 2;
+    tail.position.x = -0.46;
+    group.add(tail);
+    var fin = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.18, 4), mat);
+    fin.position.set(0.05, 0.16, 0);
+    group.add(fin);
+    var eye = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), new THREE.MeshBasicMaterial({ color: 0x0a1018 }));
+    eye.position.set(0.28, 0.05, 0.11);
+    group.add(eye);
+
+    group.position.set(BOBBER_TARGET.x, waveHeight(BOBBER_TARGET.x, BOBBER_TARGET.z, sceneTime) + 0.1, BOBBER_TARGET.z);
+    scene.add(group);
+
+    jumpers.push({
+      group: group,
+      t: 0,
+      dur: 1.15,
+      fromX: BOBBER_TARGET.x,
+      fromY: waveHeight(BOBBER_TARGET.x, BOBBER_TARGET.z, sceneTime) + 0.1,
+      fromZ: BOBBER_TARGET.z,
+      dirX: rand(-0.5, 0.5),
+      dirZ: rand(-0.6, 0.2)
+    });
+  }
+
+  /* =====================================================================
+     12. UI 연결
+     ===================================================================== */
+  function bindUI() {
+    el.statusPill = $("#statusPill");
+    el.statusText = $("#statusText");
+    el.btnStrike = $("#btnStrike");
+    el.strikeLabel = $("#strikeLabel");
+    el.biteBanner = $("#biteBanner");
+    el.toast = $("#toast");
+    el.notice = $("#notice");
+    el.dexModal = $("#dexModal");
+    el.dexGrid = $("#dexGrid");
+    el.dexCount = $("#dexCount");
+    el.dexProgressBar = $("#dexProgressBar");
+    el.dexTotal = $("#dexTotal");
+    el.dexBest = $("#dexBest");
+    el.dexSession = $("#dexSession");
+    el.dexReset = $("#dexReset");
+    el.dexBadge = $("#dexBadge");
+
+    el.btnStrike.addEventListener("click", function (e) {
+      e.stopPropagation();
+      handleTap();
+    });
+
+    $("#btnDex").addEventListener("click", function (e) {
+      e.stopPropagation();
+      openDex();
+    });
+    $("#btnDexTop").addEventListener("click", function (e) {
+      e.stopPropagation();
+      openDex();
+    });
+    $("#dexClose").addEventListener("click", closeDex);
+    $("#dexBackdrop").addEventListener("click", closeDex);
+
+    el.dexReset.addEventListener("click", function () {
+      if (!el.dexReset.classList.contains("confirm")) {
+        el.dexReset.classList.add("confirm");
+        el.dexReset.textContent = "정말 초기화할까요? 다시 탭";
+        if (dexResetTimer) clearTimeout(dexResetTimer);
+        dexResetTimer = setTimeout(resetDexResetButton, 3200);
+        return;
+      }
+      book = { records: {} };
+      saveBook();
+      state.session = 0;
+      updateDexBadge();
+      resetDexResetButton();
+      renderDex();
+      flashNotice("도감을 초기화했어요");
+    });
+
+    // 자동 낚시 토글
+    var btnAuto = $("#btnAuto");
+    var autoLabel = $("#autoLabel");
+    function applyAuto() {
+      btnAuto.classList.toggle("off", !settings.auto);
+      btnAuto.querySelector(".ico").textContent = settings.auto ? "🤖" : "✋";
+      autoLabel.textContent = settings.auto ? "자동 낚시" : "수동 낚시";
+    }
+    btnAuto.addEventListener("click", function (e) {
+      e.stopPropagation();
+      settings.auto = !settings.auto;
+      saveSettings();
+      applyAuto();
+      flashNotice(settings.auto ? "자동 낚시를 켰어요. 입질 때 탭하면 보너스!" : "수동 낚시예요. 입질 때 직접 탭해 주세요");
+    });
+    applyAuto();
+
+    // 소리 토글
+    var btnSound = $("#btnSound");
+    function applySound() {
+      btnSound.textContent = settings.sound ? "🔊" : "🔇";
+      btnSound.classList.toggle("off", !settings.sound);
+      Sound.setEnabled(settings.sound);
+    }
+    btnSound.addEventListener("click", function (e) {
+      e.stopPropagation();
+      settings.sound = !settings.sound;
+      saveSettings();
+      if (settings.sound) Sound.resume();
+      applySound();
+    });
+
+    // 시간대 미리보기
+    var bandButtons = Array.prototype.slice.call(document.querySelectorAll(".band-btn"));
+    bandButtons.forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var band = btn.getAttribute("data-band");
+        if (band === "live") {
+          if (state.mode !== "live") {
+            state.mode = "live";
+            flashNotice("실시간 시각을 따라가요");
+          }
+        } else {
+          if (state.mode === band) {
+            state.mode = "live";
+            flashNotice("실시간 시각을 따라가요");
+          } else {
+            state.mode = band;
+          }
+        }
+        bandButtons.forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-band") === state.mode);
+        });
+        if (typeof Sound !== "undefined") Sound.resume();
+      });
+    });
+
+    // 인트로
+    var intro = $("#intro");
+    $("#introStart").addEventListener("click", function (e) {
+      e.stopPropagation();
+      startExperience();
+    });
+    intro.addEventListener("click", function (e) {
+      if (e.target === intro) startExperience();
+    });
+
+    $("#bootRetry").addEventListener("click", function () {
+      location.reload();
+    });
+  }
+
+  function startExperience() {
+    var intro = $("#intro");
+    if (intro.classList.contains("hidden")) return;
+    intro.classList.add("hidden");
+    Sound.resume();
+    Sound.setEnabled(settings.sound);
+    state.started = true;
+    setPhase("idle");
+    state.phaseTime = 1.3;
+  }
+
+  /* =====================================================================
+     13. 시간/HUD 갱신
+     ===================================================================== */
+  var hudTick = 0;
+
+  function updateTime(dt) {
+    var now = new Date();
+    var realHour = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+    var previewing = state.mode !== "live";
+
+    if (previewing) {
+      hour = BANDS[state.mode].preview;
+    } else {
+      hour = realHour;
+    }
+
+    var target = moodAtHour(hour);
+    if (!moodReady) {
+      mood = target;
+      moodReady = true;
+    } else {
+      var k = 1 - Math.exp(-dt * 3.2);
+      mood = lerpMood(mood, target, k);
+    }
+    applyMood(mood, 0);
+
+    // HUD는 0.25초마다
+    hudTick += dt;
+    if (hudTick < 0.25) return;
+    hudTick = 0;
+
+    var band = currentBand();
+    $("#bandName").textContent = BANDS[band].name;
+    $("#timeIcon").textContent = BANDS[band].icon;
+    $("#moodLine").textContent = BANDS[band].mood;
+    $("#previewChip").classList.toggle("on", previewing);
+
+    if (previewing) {
+      var ph = BANDS[state.mode].preview;
+      $("#clockText").textContent = pad2(Math.floor(ph)) + ":" + pad2(Math.round((ph % 1) * 60));
+    } else {
+      $("#clockText").textContent = pad2(now.getHours()) + ":" + pad2(now.getMinutes());
+    }
+  }
+
+  /* =====================================================================
+     14. 렌더 루프
+     ===================================================================== */
+  function loop(now) {
+    requestAnimationFrame(loop);
+    if (!renderer) return;
+
+    var dt = (now - lastFrameTime) / 1000;
+    if (!isFinite(dt) || dt <= 0) dt = 0.016;
+    lastFrameTime = now;
+    dt = Math.min(dt, 0.1);
+
+    updateTime(dt);
+    updateGame(dt);
+    updateWorld(dt);
+    updateCamera(dt);
+    renderer.render(scene, camera);
+  }
+
+  function onResize() {
+    if (!renderer || !camera) return;
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    if (window.visualViewport) {
+      w = Math.round(window.visualViewport.width);
+      h = Math.round(window.visualViewport.height);
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = fovFor(camera.aspect);
+    camera.updateProjectionMatrix();
+  }
+
+  /* =====================================================================
+     15. 부팅
+     ===================================================================== */
+  function showBootError() {
+    $("#bootError").classList.add("show");
+  }
+
+  function loadThree(urls, onReady, onFail) {
+    var i = 0;
+    function next() {
+      if (i >= urls.length) { onFail(); return; }
+      var url = urls[i++];
+      var s = document.createElement("script");
+      s.src = url;
+      s.async = true;
+      s.onload = function () {
+        if (window.THREE) onReady();
+        else next();
+      };
+      s.onerror = function () {
+        if (s.parentNode) s.parentNode.removeChild(s);
+        next();
+      };
+      document.head.appendChild(s);
+    }
+    next();
+  }
+
+  function boot() {
+    book = loadBook();
+    loadSettings();
+    Sound.enabled = settings.sound;
+    state.started = false;
+
+    bindUI();
+    updateDexBadge();
+
+    if (settings.auto) {
+      var btnAuto = $("#btnAuto");
+      btnAuto.classList.remove("off");
+    } else {
+      var b = $("#btnAuto");
+      b.classList.add("off");
+      b.querySelector(".ico").textContent = "✋";
+      $("#autoLabel").textContent = "수동 낚시";
+    }
+    $("#btnSound").textContent = settings.sound ? "🔊" : "🔇";
+
+    loadThree([
+      "https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js",
+      "https://unpkg.com/three@0.149.0/build/three.min.js"
+    ], function () {
+      THREE = window.THREE;
+      // 시간대 세팅 전 임시 분위기
+      try {
+        initThree();
+        $("#bootError").classList.remove("show");
+        lastFrameTime = performance.now();
+        requestAnimationFrame(loop);
+        // 첫 시간대 HUD
+        var now = new Date();
+        var h = now.getHours() + now.getMinutes() / 60;
+        var band = bandForHour(h);
+        $("#bandName").textContent = BANDS[band].name;
+        $("#timeIcon").textContent = BANDS[band].icon;
+        $("#moodLine").textContent = BANDS[band].mood;
+        $("#clockText").textContent = pad2(now.getHours()) + ":" + pad2(now.getMinutes());
+      } catch (err) {
+        showBootError();
+        if (window.console && console.error) console.error(err);
+      }
+    }, showBootError);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
