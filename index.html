@@ -8052,6 +8052,15 @@
     var title = fish.name + " 획득 인증 · 강가 낚시";
     var text = "강가 낚시에서 " + wx.icon + " " + wx.label + " 히든 " + fish.name + "을(를) 만났어요!";
     window.__rfShareResult = "pending";
+    // 파일 공유를 지원하지 않는 환경(데스크톱 브라우저 등)은 곧바로 PNG 저장으로
+    var canShareFiles = false;
+    try {
+      canShareFiles = !!(navigator.share && navigator.canShare && window.File);
+    } catch (e0) { canShareFiles = false; }
+    if (!canShareFiles) {
+      downloadCard(shareCanvas, fish);
+      return true;
+    }
     canvasToBlob(shareCanvas, function (blob) {
       var file = null;
       try {
@@ -8174,7 +8183,7 @@
     charView.drag = false;
     charView.yaw = charView.yawCur = CHAR_FRONT_YAW;
     charView.pitch = charView.pitchCur = 0.10;
-    charView.dist = charView.distCur = 2.7;
+    charView.dist = charView.distCur = 2.95;
     document.body.classList.add("char-view");
     var m = $("#charModal");
     if (m) m.classList.add("open");
@@ -8243,7 +8252,7 @@
       e.stopPropagation();
       charView.yaw = CHAR_FRONT_YAW;
       charView.pitch = 0.10;
-      charView.dist = 2.7;
+      charView.dist = 2.95;
     });
     var shopBtn = $("#charShopBtn");
     if (shopBtn) shopBtn.addEventListener("click", function (e) {
