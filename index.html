@@ -6843,9 +6843,9 @@
     var glassesSet = {};
     angler.userData.glassesSet = glassesSet;
     var metalMat = new THREE.MeshStandardMaterial({ color: 0xc9a24a, roughness: 0.42, metalness: 0.45, flatShading: true });
-    var lensClearMat = new THREE.MeshStandardMaterial({ color: 0xa8d8ee, transparent: true, opacity: 0.26, roughness: 0.15, depthWrite: false });
-    var lensDarkMat = new THREE.MeshStandardMaterial({ color: 0x1b2230, transparent: true, opacity: 0.74, roughness: 0.25, depthWrite: false });
-    var lensPinkMat = new THREE.MeshStandardMaterial({ color: 0xd2568a, transparent: true, opacity: 0.7, roughness: 0.3, depthWrite: false });
+    var lensClearMat = new THREE.MeshStandardMaterial({ color: 0xa8d8ee, transparent: true, opacity: 0.26, roughness: 0.15, depthWrite: false, side: THREE.DoubleSide });
+    var lensDarkMat = new THREE.MeshStandardMaterial({ color: 0x1b2230, transparent: true, opacity: 0.74, roughness: 0.25, depthWrite: false, side: THREE.DoubleSide });
+    var lensPinkMat = new THREE.MeshStandardMaterial({ color: 0xd2568a, transparent: true, opacity: 0.7, roughness: 0.3, depthWrite: false, side: THREE.DoubleSide });
 
     glassesSet.none = new THREE.Group();       // 맨눈
     glassesSet.none.visible = false;
@@ -6954,16 +6954,50 @@
     head.add(goggleG);
     glassesSet.goggles = goggleG;
 
-    // 노란 우비 후드 (비 올 때만)
+    // 노란 우비 후드 (비 올 때만) — 얼굴 구멍은 캐릭터 정면(-Z) 쪽, 뒷머리는 둥글게 감싼다
     var hood = new THREE.Group();
-    var hoodShell = new THREE.Mesh(new THREE.SphereGeometry(0.247, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.78), rainMat);
-    hoodShell.position.y = 0.012;
-    hood.add(hoodShell);
-    // 얼굴을 가리는 방수 챙 (앞으로 살짝 숙인 짧은 바이저)
-    var hoodBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.30, 0.028, 12, 1, false, -1.05, 2.1), rainMat);
-    hoodBrim.position.set(0, 0.055, -0.03);
-    hoodBrim.rotation.x = -0.10;
-    hood.add(hoodBrim);
+    var HOOD_R = 0.229;                      // 후드 껍질 반지름
+    var HOOD_CY = 0.026, HOOD_CZ = 0.048;    // 뒤통수 쪽으로 살짝 밀어 얼굴에 맞춘 중심
+    var HOOD_OPEN = 1.05;                    // 얼굴 구멍 좌우 반각 (rad) — 정면(-Z) 기준
+    var HOOD_TOP = Math.PI * 0.33;           // 구멍 위쪽 경계 (이마 위)
+    var HOOD_LOW = Math.PI * 0.87;           // 후드가 목까지 내려오는 경계
+    var HOOD_FRONT = Math.PI * 1.5;          // 정면 방향(-Z)의 phi
+    hood.position.set(0, HOOD_CY, HOOD_CZ);
+    // 겉은 노란 방수천, 안쪽은 그늘진 천 — 얼굴 구멍 안쪽이 어둡게 보여야 후드처럼 읽힌다
+    var rainLiningMat = new THREE.MeshStandardMaterial({ color: 0x6b5a18, roughness: 0.9, flatShading: true, side: THREE.BackSide });
+    var hoodDir = function (phi, th) {
+      return new THREE.Vector3(-Math.cos(phi) * Math.sin(th), Math.cos(th), Math.sin(phi) * Math.sin(th));
+    };
+    // 1) 머리 위를 360° 덮는 꼭대기
+    var hoodCapGeo = new THREE.SphereGeometry(HOOD_R, 18, 8, 0, Math.PI * 2, 0, HOOD_TOP);
+    hood.add(new THREE.Mesh(hoodCapGeo, rainMat), new THREE.Mesh(hoodCapGeo, rainLiningMat));
+    // 2) 옆·뒤를 감싸는 부분 — 정면은 얼굴 구멍만큼 비워 둔다
+    var hoodBackGeo = new THREE.SphereGeometry(HOOD_R, 18, 10,
+      HOOD_FRONT + HOOD_OPEN, Math.PI * 2 - HOOD_OPEN * 2, HOOD_TOP, HOOD_LOW - HOOD_TOP);
+    hood.add(new THREE.Mesh(hoodBackGeo, rainMat), new THREE.Mesh(hoodBackGeo, rainLiningMat));
+    // 3) 이마 위 천 챙 — 가운데가 가장 앞으로 뻗고 양옆으로 갈수록 짧아진다 (구멍 위 테두리에 붙는다)
+    var hoodPeakMat = new THREE.MeshStandardMaterial({ color: 0xe9c93c, roughness: 0.64, flatShading: true, side: THREE.DoubleSide });
+    var hoodPeakGeo = (function () {
+      var N = 12, pos = [], idx = [];
+      for (var i = 0; i <= N; i++) {
+        var t = i / N;
+        var u = hoodDir(HOOD_FRONT - HOOD_OPEN + HOOD_OPEN * 2 * t, HOOD_TOP);
+        var b = Math.sin(Math.PI * t);                       // 가운데가 가장 큼
+        var out = 0.034 + 0.078 * b;                         // 앞으로 뻗는 길이
+        var drop = 0.014 + 0.056 * b;                        // 살짝 숙이는 정도
+        var hl = Math.hypot(u.x, u.z) || 1;
+        var p0x = u.x * HOOD_R, p0y = u.y * HOOD_R, p0z = u.z * HOOD_R;
+        pos.push(p0x, p0y, p0z,
+                 p0x + (u.x / hl) * out, p0y - drop, p0z + (u.z / hl) * out);
+        if (i > 0) { var k = (i - 1) * 2; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
+      }
+      var g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      g.setIndex(idx);
+      g.computeVertexNormals();
+      return g;
+    })();
+    hood.add(new THREE.Mesh(hoodPeakGeo, hoodPeakMat));
     hood.visible = false;
     head.add(hood);
     angler.userData.hood = hood;
@@ -7661,8 +7695,8 @@
     /* ---- 안경 (머리에 붙는다) ---- */
     u.glassesSet = u.glassesSet || {};
     var metal = new THREE.MeshStandardMaterial({ color: 0xc9a24a, roughness: 0.42, metalness: 0.45, flatShading: true });
-    var lensDark = new THREE.MeshStandardMaterial({ color: 0x1b2230, transparent: true, opacity: 0.72, roughness: 0.25, depthWrite: false });
-    var lensClear = new THREE.MeshStandardMaterial({ color: 0xa8d8ee, transparent: true, opacity: 0.28, roughness: 0.15, depthWrite: false });
+    var lensDark = new THREE.MeshStandardMaterial({ color: 0x1b2230, transparent: true, opacity: 0.72, roughness: 0.25, depthWrite: false, side: THREE.DoubleSide });
+    var lensClear = new THREE.MeshStandardMaterial({ color: 0xa8d8ee, transparent: true, opacity: 0.28, roughness: 0.15, depthWrite: false, side: THREE.DoubleSide });
     COSMETICS.glasses.forEach(function (it) {
       if (u.glassesSet[it.id]) return;
       var g = new THREE.Group();
@@ -7718,10 +7752,11 @@
         }
         shape.closePath();
         var starGeo = new THREE.ShapeGeometry(shape, 10);
-        var starMat = new THREE.MeshStandardMaterial({ color: it.hex, transparent: true, opacity: 0.82, roughness: 0.3, side: THREE.DoubleSide });
+        var starMat = new THREE.MeshStandardMaterial({ color: it.hex, transparent: true, opacity: 0.94, roughness: 0.3, side: THREE.DoubleSide });
         [-1, 1].forEach(function (sd) {
           var star = new THREE.Mesh(starGeo, starMat);
-          star.position.set(0.072 * sd, 0.04, -0.207);
+          star.position.set(0.072 * sd, 0.036, -0.207);
+          star.scale.setScalar(1.12);
           g.add(star);
           var tpl = new THREE.Mesh(new THREE.BoxGeometry(0.011, 0.011, 0.2), frameMat);
           tpl.position.set(0.13 * sd, 0.05, -0.1);
@@ -7740,16 +7775,23 @@
         g.add(strap);
       } else if (st === "browline") {
         [-1, 1].forEach(function (sd) {
-          var brow = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.022, 0.016), frameMat);
+          var brow = new THREE.Mesh(new THREE.BoxGeometry(0.104, 0.026, 0.018), frameMat);
           brow.position.set(0.07 * sd, 0.062, -0.203);
           g.add(brow);
-          var ln2 = new THREE.Mesh(new THREE.CircleGeometry(0.042, 12), lensClear);
-          ln2.position.set(0.07 * sd, 0.035, -0.2);
+          // 아래테는 가는 테 — 윗테가 굵고 아래가 얇은 브라우라인 모양
+          var rimB = new THREE.Mesh(new THREE.TorusGeometry(0.044, 0.005, 4, 14), frameMat);
+          rimB.position.set(0.07 * sd, 0.038, -0.202);
+          g.add(rimB);
+          var ln2 = new THREE.Mesh(new THREE.CircleGeometry(0.043, 14), lensClear);
+          ln2.position.set(0.07 * sd, 0.038, -0.199);
           g.add(ln2);
           var tp2 = new THREE.Mesh(new THREE.BoxGeometry(0.011, 0.011, 0.19), frameMat);
           tp2.position.set(0.127 * sd, 0.05, -0.1);
           g.add(tp2);
         });
+        var brB = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.011, 0.012), frameMat);
+        brB.position.set(0, 0.05, -0.202);
+        g.add(brB);
       } else if (st === "clipon") {
         [-1, 1].forEach(function (sd) {
           var ringC = new THREE.Mesh(new THREE.TorusGeometry(0.048, 0.007, 5, 12), frameMat);
@@ -8100,7 +8142,7 @@
     }
     if (u.glassesSet) {
       Object.keys(u.glassesSet).forEach(function (id) {
-        u.glassesSet[id].visible = dress && id === u.glassId && id !== "none";
+        u.glassesSet[id].visible = id === u.glassId && id !== "none";   // 우비를 써도 안경은 얼굴에 그대로
       });
     }
     if (u.topAcc) {
